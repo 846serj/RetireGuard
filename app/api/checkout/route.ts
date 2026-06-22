@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getPublicBaseUrl } from "@/lib/siteUrl";
 import { stripe } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
 
@@ -10,7 +11,7 @@ export async function POST(req: Request) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    const base = process.env.NEXT_PUBLIC_BASE_URL ?? new URL(req.url).origin;
+    const base = getPublicBaseUrl(req.url);
     const next = `/upgrade?plan=${normalizedPlan}`;
     return NextResponse.json({ redirectTo: `${base}/login?next=${encodeURIComponent(next)}` }, { status: 401 });
   }
@@ -18,7 +19,7 @@ export async function POST(req: Request) {
   const price = normalizedPlan === "monthly" ? process.env.STRIPE_PRICE_MONTHLY : process.env.STRIPE_PRICE_ANNUAL;
   if (!price) return NextResponse.json({ error: "price not configured" }, { status: 500 });
 
-  const base = process.env.NEXT_PUBLIC_BASE_URL ?? new URL(req.url).origin;
+  const base = getPublicBaseUrl(req.url);
 
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",

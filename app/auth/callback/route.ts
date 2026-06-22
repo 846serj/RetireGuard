@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
+import { getPublicBaseUrl } from "@/lib/siteUrl";
 import { createClient } from "@/lib/supabase/server";
 
 // Exchanges the magic-link code for a session, then sends the user to the requested safe path.
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   const next = searchParams.get("next");
   const redirectPath = next?.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
@@ -11,5 +12,5 @@ export async function GET(request: Request) {
     const supabase = createClient();
     await supabase.auth.exchangeCodeForSession(code);
   }
-  return NextResponse.redirect(`${origin}${redirectPath}`);
+  return NextResponse.redirect(`${getPublicBaseUrl(request.url)}${redirectPath}`);
 }
