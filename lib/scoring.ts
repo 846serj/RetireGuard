@@ -11,7 +11,7 @@ export type Answers = {
   emergencyFund: "0" | "1-3" | "3-6" | "6+";
   debt: "none" | "some" | "heavy";
   worry: "running_out" | "inflation" | "market" | "scams" | "healthcare";
-  state?: string; // 2-letter code; used for alert matching, not scoring
+  state?: string; // 2-letter code
 };
 
 export type SubScores = { income: number; withdrawal: number; inflation: number; market: number };
@@ -21,8 +21,19 @@ const SAVINGS_MID: Record<Answers["savingsBucket"], number> = {
   "<50k": 25000, "50-150k": 100000, "150-500k": 325000, "500k-1M": 750000, "1M+": 1500000,
 };
 const EFUND_MONTHS: Record<Answers["emergencyFund"], number> = { "0": 0, "1-3": 2, "3-6": 4.5, "6+": 7 };
+const STATUS_MARKET_ADJUSTMENT: Record<Answers["status"], number> = { working: 10, near: 0, retired: -6 };
+const HIGH_COL_STATES = new Set(["HI", "CA", "NY", "MA", "NJ", "CT", "WA", "OR", "MD", "CO", "RI", "AK", "VT", "NH"]);
+const LOW_COL_STATES = new Set(["MS", "AL", "AR", "OK", "KS", "MO", "TN", "KY", "WV", "IN", "IA", "OH", "ND", "SD", "NE"]);
 
 const clamp = (n: number, lo = 0, hi = 100) => Math.max(lo, Math.min(hi, n));
+
+const costOfLivingMultiplier = (state?: string): number => {
+  const code = state?.toUpperCase();
+  if (!code) return 1;
+  if (HIGH_COL_STATES.has(code)) return 0.92;
+  if (LOW_COL_STATES.has(code)) return 1.08;
+  return 1;
+};
 
 // Guaranteed income as a share of essentials, capped at 100%.
 export function incomeStability(a: Answers): number {
@@ -35,15 +46,13 @@ export function withdrawalSustainability(a: Answers): number {
   const gap = Math.max(0, a.essentialExpenses - a.guaranteedIncome);
   if (gap <= 0) return 100;
   const safeMonthly = (SAVINGS_MID[a.savingsBucket] * 0.04) / 12;
-  return clamp((safeMonthly / gap) * 100);
+  return clamp((safeMonthly / gap) * 100 * costOfLivingMultiplier(a.state));
 }
 
 // Higher = better inflation protection. Guaranteed (COLA-leaning) income coverage is the proxy.
 export function inflationImpact(a: Answers): number {
   const coverage = a.essentialExpenses > 0 ? a.guaranteedIncome / a.essentialExpenses : 1;
-  let score = coverage * 70 + 15;
-  if (a.worry === "inflation") score -= 10;
-  return clamp(score);
+  return clamp(coverage * 70 + 15);
 }
 
 // Age-appropriate equity mix + emergency cushion − debt drag. Rule of thumb target equity = 110 − age.
@@ -53,10 +62,26 @@ export function marketRiskBuffer(a: Answers): number {
   score += (EFUND_MONTHS[a.emergencyFund] - 3) * 4;
   if (a.debt === "some") score -= 8;
   if (a.debt === "heavy") score -= 18;
+  score += STATUS_MARKET_ADJUSTMENT[a.status];
   return clamp(score);
 }
 
 export const WEIGHTS = { income: 0.35, withdrawal: 0.3, inflation: 0.15, market: 0.2 };
+
+const worryAdjustedWeights = (worry: Answers["worry"]): typeof WEIGHTS => {
+  const adjusted = { ...WEIGHTS };
+  if (worry === "running_out" || worry === "healthcare") adjusted.withdrawal += 0.05;
+  if (worry === "inflation") adjusted.inflation += 0.05;
+  if (worry === "market") adjusted.market += 0.05;
+
+  const total = adjusted.income + adjusted.withdrawal + adjusted.inflation + adjusted.market;
+  return {
+    income: adjusted.income / total,
+    withdrawal: adjusted.withdrawal / total,
+    inflation: adjusted.inflation / total,
+    market: adjusted.market / total,
+  };
+};
 
 export function computeScores(a: Answers): Result {
   const sub: SubScores = {
@@ -65,11 +90,12 @@ export function computeScores(a: Answers): Result {
     inflation: Math.round(inflationImpact(a)),
     market: Math.round(marketRiskBuffer(a)),
   };
+  const weights = worryAdjustedWeights(a.worry);
   const overall = Math.round(
-    sub.income * WEIGHTS.income +
-      sub.withdrawal * WEIGHTS.withdrawal +
-      sub.inflation * WEIGHTS.inflation +
-      sub.market * WEIGHTS.market
+    sub.income * weights.income +
+      sub.withdrawal * weights.withdrawal +
+      sub.inflation * weights.inflation +
+      sub.market * weights.market
   );
   const band = overall >= 80 ? "Secure" : overall >= 60 ? "Mostly Secure" : overall >= 40 ? "At Risk" : "Vulnerable";
   return { overall, band, sub };

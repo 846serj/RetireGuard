@@ -32,3 +32,22 @@ test("scores are bounded 0-100", () => {
     }
   }
 });
+
+test("status and state adjust score in expected directions", () => {
+  const baseline: Answers = {
+    age: 62, status: "near", guaranteedIncome: 1500, essentialExpenses: 3500,
+    savingsBucket: "150-500k", stockPct: 50, emergencyFund: "3-6", debt: "none", worry: "scams", state: "TX",
+  };
+
+  const neutral = computeScores(baseline);
+  const workingLowCost = computeScores({ ...baseline, status: "working", state: "MS" });
+  const retiredHighCost = computeScores({ ...baseline, status: "retired", state: "CA" });
+
+  assert.ok(workingLowCost.sub.market > neutral.sub.market, "working status should improve market buffer");
+  assert.ok(workingLowCost.sub.withdrawal > neutral.sub.withdrawal, "low-COL state should improve withdrawal score");
+  assert.ok(workingLowCost.overall > neutral.overall, "working low-COL profile should improve overall score");
+
+  assert.ok(retiredHighCost.sub.market < neutral.sub.market, "retired status should reduce market buffer");
+  assert.ok(retiredHighCost.sub.withdrawal < neutral.sub.withdrawal, "high-COL state should reduce withdrawal score");
+  assert.ok(retiredHighCost.overall < neutral.overall, "retired high-COL profile should reduce overall score");
+});
