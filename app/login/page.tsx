@@ -3,14 +3,10 @@
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { getPublicBaseUrl } from "@/lib/siteUrl";
 
 function getAuthRedirectUrl(nextPath: string) {
-  const configuredBaseUrl = process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, "");
-  const currentOrigin = window.location.origin;
-  const configuredIsLocalhost = configuredBaseUrl ? new URL(configuredBaseUrl).hostname === "localhost" : false;
-  const currentIsLocalhost = window.location.hostname === "localhost";
-  const baseUrl = configuredBaseUrl && (!configuredIsLocalhost || currentIsLocalhost) ? configuredBaseUrl : currentOrigin;
-  const callbackUrl = new URL(`${baseUrl}/auth/callback`);
+  const callbackUrl = new URL(`${getPublicBaseUrl(window.location.origin)}/auth/callback`);
   callbackUrl.searchParams.set("next", nextPath);
   return callbackUrl.toString();
 }
