@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { hasPaidAccess } from "@/lib/subscription";
 import { buildActionPlan, type PlanItem } from "@/lib/actionPlan";
+import { generateAIActionPlan } from "@/lib/ai/actionPlan";
+import CoachChat from "@/components/CoachChat";
 import { getMatchedAlerts } from "@/lib/alerts";
 import type { Answers } from "@/lib/scoring";
 import ScoreHydrator from "@/components/ScoreHydrator";
@@ -23,7 +25,18 @@ export default async function Dashboard() {
   const paid = await hasPaidAccess(user.id);
   const answers = latest?.answers as Answers | undefined;
 
-  const plan: PlanItem[] = answers ? buildActionPlan(answers, { overall: latest.overall, band: latest.band, sub: latest.sub_scores }) : [];
+  let plan: PlanItem[] = [];
+  if (answers && latest) {
+    const result = { overall: latest.overall, band: latest.band, sub: latest.sub_scores };
+    const ruleBasedPlan = buildActionPlan(answers, result);
+    plan = Array.isArray(latest.ai_plan) && latest.ai_plan.length > 0
+      ? latest.ai_plan as PlanItem[]
+      : await generateAIActionPlan(answers, result, ruleBasedPlan);
+
+    if (!latest.ai_plan && plan !== ruleBasedPlan) {
+      await supabase.from("scores").update({ ai_plan: plan }).eq("id", latest.id);
+    }
+  }
   const alerts = paid && answers
     ? await getMatchedAlerts(supabase, { state: answers.state, age: answers.age, worry: answers.worry })
     : [];
@@ -75,6 +88,8 @@ export default async function Dashboard() {
               ))}
             </div>
           </section>
+
+          <CoachChat />
 
           <section className="mb-8">
             <h2 className="text-2xl font-bold mb-4">Alerts for you</h2>
