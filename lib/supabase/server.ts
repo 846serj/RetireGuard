@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { withPersistentAuthCookie } from "@/lib/supabase/cookies";
 
 // Server-side Supabase client (App Router, cookie-based session).
 export function createClient() {
@@ -14,7 +15,7 @@ export function createClient() {
         },
         setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
+            cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, withPersistentAuthCookie(options)));
           } catch {
             // called from a Server Component — safe to ignore; middleware refreshes the session.
           }
