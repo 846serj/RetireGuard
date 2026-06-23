@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { sendSupabaseMagicLink } from "@/lib/auth/magicLink";
 import { sendToList } from "@/lib/email";
 import { getPublicBaseUrl } from "@/lib/siteUrl";
 
@@ -8,39 +9,10 @@ function isValidEmail(email: unknown): email is string {
 }
 
 async function sendVerificationLink(req: NextRequest, email: string) {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!url || !key) {
-    console.log(`[auth stub] would send verification link to ${email}`);
-    return { sent: false, reason: "auth not configured" };
-  }
-
-  const supabase = createClient(url, key, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-      detectSessionInUrl: false,
-    },
-  });
-
   const callbackUrl = new URL(`${getPublicBaseUrl(req.url)}/auth/callback`);
   callbackUrl.searchParams.set("next", "/upgrade?plan=annual");
 
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: {
-      emailRedirectTo: callbackUrl.toString(),
-      shouldCreateUser: true,
-    },
-  });
-
-  if (error) {
-    console.error("verification email failed:", error.message);
-    return { sent: false, reason: error.message };
-  }
-
-  return { sent: true };
+  return sendSupabaseMagicLink(email, callbackUrl.toString());
 }
 
 // Saves a captured lead and emails a Supabase magic link so the visitor can verify
@@ -87,5 +59,10 @@ export async function POST(req: NextRequest) {
   await sendToList(normalizedEmail, "free");
   const verification = await sendVerificationLink(req, normalizedEmail);
 
-  return NextResponse.json({ ok: true, verificationEmailSent: verification.sent });
+  return NextResponse.json({
+    ok: true,
+    verificationEmailSent: verification.sent,
+    verificationEmailRateLimited: Boolean(!verification.sent && verification.rateLimited),
+    retryAfterSeconds: !verification.sent && verification.rateLimited ? verification.retryAfterSeconds : undefined,
+  });
 }

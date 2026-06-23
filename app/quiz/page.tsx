@@ -68,7 +68,9 @@ export default function Quiz() {
       setEmailNotice(
         payload.verificationEmailSent
           ? "We sent you a secure verification link. Open it when you're ready to start checkout or view your dashboard."
-          : "Your results are unlocked. Sign in before checkout so we can attach your subscription to your account.",
+          : payload.verificationEmailRateLimited
+            ? "Your results are unlocked. We already sent a secure verification link recently, so please check your inbox before requesting another one."
+            : "Your results are unlocked. Sign in before checkout so we can attach your subscription to your account.",
       );
       setRevealed(true);
     } catch {
