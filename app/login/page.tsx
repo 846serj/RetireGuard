@@ -3,13 +3,6 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { getPublicBaseUrl } from "@/lib/siteUrl";
-
-function getAuthRedirectUrl(nextPath: string) {
-  const callbackUrl = new URL(`${getPublicBaseUrl(window.location.origin)}/auth/callback`);
-  callbackUrl.searchParams.set("next", nextPath);
-  return callbackUrl.toString();
-}
 
 function LoginContent() {
   const router = useRouter();
@@ -49,17 +42,27 @@ function LoginContent() {
     const normalizedEmail = email.trim();
     setErr("");
     setSending(true);
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOtp({
-      email: normalizedEmail,
-      options: {
-        emailRedirectTo: getAuthRedirectUrl(nextPath),
-        shouldCreateUser: true,
-      },
-    });
-    setSending(false);
-    if (error) setErr(error.message);
-    else setSent(true);
+    try {
+      const res = await fetch("/api/auth/magic-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: normalizedEmail, next: nextPath }),
+      });
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok || !payload.ok) {
+        setErr(
+          payload.rateLimited
+            ? "We already sent a sign-in link. Please check your inbox, or wait a few minutes before requesting another one."
+            : payload.error ?? "We could not send a sign-in link. Please try again.",
+        );
+      } else {
+        setSent(true);
+      }
+    } catch {
+      setErr("We could not reach the server. Please try again.");
+    } finally {
+      setSending(false);
+    }
   }
 
   if (checkingSession) {
