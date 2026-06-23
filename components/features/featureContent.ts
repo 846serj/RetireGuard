@@ -1,0 +1,115 @@
+import { BadgeDollarSign, BellRing, Bot, Calculator, Eye, HeartHandshake, Landmark, LineChart, LockKeyhole, MessageCircleQuestion, Radar, ShieldAlert, ShieldCheck, Sparkles, WalletCards } from "lucide-react";
+
+export type FeatureSlug = "safety-score" | "monitoring" | "ai-coach" | "medicare-social-security" | "scam-shield";
+
+export const features = {
+  "safety-score": {
+    eyebrow: "Safety Score",
+    title: "Know how safe your retirement looks in minutes.",
+    subtitle: "Placeholder copy: turn savings, income, spending, and risks into one plain-English retirement safety score with next steps you can understand.",
+    cta: "Get my free Safety Score",
+    href: "/quiz",
+    icon: ShieldCheck,
+    visualTitle: "Safety Score preview",
+    visualMetric: "82",
+    visualLabel: "Mostly Secure",
+    benefits: [
+      [WalletCards, "Income clarity", "Placeholder copy for seeing whether guaranteed income covers essential spending."],
+      [LineChart, "Withdrawal confidence", "Placeholder copy for understanding how spending choices affect long-term safety."],
+      [Sparkles, "Prioritized actions", "Placeholder copy for the top few moves that can improve the score first."],
+    ],
+    faqs: [
+      ["Do I need to link accounts?", "Placeholder answer: no account linking is required for the initial Safety Score."],
+      ["Is this financial advice?", "Placeholder answer: RetireShield provides education and planning context, not individualized financial, tax, or legal advice."],
+      ["How long does it take?", "Placeholder answer: the starter quiz is designed to take about two minutes."],
+    ],
+  },
+  monitoring: {
+    eyebrow: "Monitoring",
+    title: "Keep watch as markets, inflation, and life change.",
+    subtitle: "Placeholder copy: ongoing retirement monitoring helps spot plan drift early, before small changes become stressful surprises.",
+    cta: "Start monitoring my plan",
+    href: "/upgrade",
+    icon: BellRing,
+    visualTitle: "Monthly watchlist",
+    visualMetric: "3",
+    visualLabel: "Items to review",
+    benefits: [
+      [Radar, "Early alerts", "Placeholder copy for flagging changes in risk, spending, or market pressure."],
+      [LineChart, "Score history", "Placeholder copy for tracking whether your retirement safety is improving or slipping."],
+      [Eye, "Plain-English checkups", "Placeholder copy for monthly summaries without confusing jargon."],
+      [ShieldCheck, "Calmer decisions", "Placeholder copy for knowing what deserves attention and what can wait."],
+    ],
+    faqs: [
+      ["What gets monitored?", "Placeholder answer: spending assumptions, income, market sensitivity, inflation, and other plan risk signals."],
+      ["How often are alerts sent?", "Placeholder answer: placeholder cadence copy for monthly checkups and important risk changes."],
+      ["Can I update my inputs?", "Placeholder answer: yes, placeholder copy for refreshing your plan when life changes."],
+    ],
+  },
+  "ai-coach": {
+    eyebrow: "AI Coach",
+    title: "Ask retirement questions and get understandable next steps.",
+    subtitle: "Placeholder copy: the AI Coach turns complicated retirement tradeoffs into practical explanations, examples, and action lists.",
+    cta: "Ask the AI Coach",
+    href: "/upgrade",
+    icon: Bot,
+    visualTitle: "Coach conversation",
+    visualMetric: "24/7",
+    visualLabel: "Retirement Q&A",
+    benefits: [
+      [MessageCircleQuestion, "Everyday questions", "Placeholder copy for asking about spending, claiming, taxes, healthcare, and risk."],
+      [Sparkles, "Action plans", "Placeholder copy for turning answers into a short checklist of next steps."],
+      [LockKeyhole, "Privacy-minded", "Placeholder copy for keeping the experience educational and low-pressure."],
+    ],
+    faqs: [
+      ["What can I ask?", "Placeholder answer: ask about retirement scenarios, tradeoffs, and what information to gather next."],
+      ["Does the coach replace an advisor?", "Placeholder answer: no, it is educational support and does not replace professional advice."],
+      ["Can it explain my Safety Score?", "Placeholder answer: placeholder copy for score-specific explanations and suggested improvements."],
+    ],
+  },
+  "medicare-social-security": {
+    eyebrow: "Medicare & Social Security",
+    title: "Plan around two decisions that shape retirement income and costs.",
+    subtitle: "Placeholder copy: understand claiming timing, Medicare cost traps, and the tradeoffs that can affect monthly cash flow.",
+    cta: "Review my claiming and Medicare risks",
+    href: "/quiz",
+    icon: Landmark,
+    visualTitle: "Benefit timing snapshot",
+    visualMetric: "$410",
+    visualLabel: "Placeholder monthly impact",
+    benefits: [
+      [Landmark, "Claiming tradeoffs", "Placeholder copy for comparing early, full retirement age, and delayed claiming."],
+      [BadgeDollarSign, "IRMAA awareness", "Placeholder copy for spotting income levels that may increase Medicare premiums."],
+      [Calculator, "Scenario planning", "Placeholder copy for seeing how timing decisions interact with spending and savings."],
+      [HeartHandshake, "Household context", "Placeholder copy for coordinating benefits, healthcare, and survivor considerations."],
+    ],
+    faqs: [
+      ["Will you tell me when to claim?", "Placeholder answer: RetireShield helps compare scenarios for education; it does not provide personalized legal or financial advice."],
+      ["What is IRMAA?", "Placeholder answer: placeholder copy for Medicare income-related premium surcharges."],
+      ["Can couples use this?", "Placeholder answer: placeholder copy for household-level planning considerations."],
+    ],
+  },
+  "scam-shield": {
+    eyebrow: "Scam Shield",
+    title: "Recognize retirement scams before money leaves your hands.",
+    subtitle: "Placeholder copy: Scam Shield highlights common fraud patterns and gives simple scripts for slowing down suspicious requests.",
+    cta: "Turn on Scam Shield",
+    href: "/upgrade",
+    icon: ShieldAlert,
+    visualTitle: "Suspicious request check",
+    visualMetric: "High",
+    visualLabel: "Pressure warning",
+    benefits: [
+      [ShieldAlert, "Fraud pattern spotting", "Placeholder copy for identifying impersonation, urgency, secrecy, and payment red flags."],
+      [BellRing, "Timely reminders", "Placeholder copy for nudges around common Medicare, tax, and investment scam seasons."],
+      [LockKeyhole, "Safer habits", "Placeholder copy for verification steps before sharing information or moving money."],
+    ],
+    faqs: [
+      ["Can this block scams automatically?", "Placeholder answer: placeholder copy that Scam Shield educates and flags patterns but cannot guarantee prevention."],
+      ["What if I already shared information?", "Placeholder answer: placeholder copy for immediate steps such as contacting institutions and trusted contacts."],
+      ["Does this monitor my bank?", "Placeholder answer: placeholder copy: RetireShield does not require bank linking for these education tools."],
+    ],
+  },
+} as const;
+
+export const featureOrder: FeatureSlug[] = ["safety-score", "monitoring", "ai-coach", "medicare-social-security", "scam-shield"];
