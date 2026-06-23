@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { QUESTIONS } from "@/lib/questions";
 import { US_STATES } from "@/lib/usStates";
 import { computeScores, actions, type Answers, type SubScores } from "@/lib/scoring";
+import { Button, Disclaimer, Eyebrow } from "@/components/ui";
 
 type State = Record<string, string | number>;
 
@@ -132,12 +133,18 @@ export default function Quiz() {
   if (!done) {
     const q = QUESTIONS[step];
     return (
-      <div className="mx-auto max-w-2xl px-4 py-12">
-        <div className="text-sm text-slate-500 mb-2">Question {step + 1} of {QUESTIONS.length}</div>
-        <div className="h-2 w-full rounded bg-slate-200 mb-8">
-          <div className="h-2 rounded bg-brand" style={{ width: `${(step / QUESTIONS.length) * 100}%` }} />
+      <div className="rg-page-shell">
+      <div className="mx-auto max-w-3xl px-4 py-12 sm:py-16">
+        <div className="rg-card">
+        <Eyebrow>Retirement Safety Score</Eyebrow>
+        <div className="mb-3 mt-5 flex items-center justify-between gap-4 text-sm font-bold text-slate-500">
+          <span>Question {step + 1} of {QUESTIONS.length}</span>
+          <span>{Math.round((step / QUESTIONS.length) * 100)}%</span>
         </div>
-        <h2 className="text-2xl font-bold mb-8">{q.prompt}</h2>
+        <div className="mb-8 h-3 w-full rounded-full bg-slate-200">
+          <div className="h-3 rounded-full bg-brand transition-all" style={{ width: `${(step / QUESTIONS.length) * 100}%` }} />
+        </div>
+        <h1 className="mb-8 text-3xl font-bold sm:text-4xl">{q.prompt}</h1>
 
         {q.kind === "number" && (
           <NumberStep
@@ -152,7 +159,7 @@ export default function Quiz() {
           <select
             defaultValue={(answers[q.key] as string) ?? ""}
             onChange={(e) => { if (e.target.value) { setAnswer(q.key, e.target.value); setStep(step + 1); } }}
-            className="w-full rounded-xl border-2 border-slate-300 px-4 py-3 text-lg"
+            className="rg-input"
           >
             <option value="" disabled>Select your state…</option>
             {US_STATES.map((s) => (
@@ -167,7 +174,7 @@ export default function Quiz() {
               <button
                 key={String(c.value)}
                 onClick={() => { setAnswer(q.key, c.value); setStep(step + 1); }}
-                className="text-left rounded-xl border-2 border-slate-200 px-5 py-4 text-lg hover:border-brand hover:bg-blue-50"
+                className="text-left rounded-2xl border-2 border-slate-200 bg-white px-5 py-4 text-lg font-semibold text-ink transition hover:border-brand hover:bg-band"
               >
                 {c.label}
               </button>
@@ -176,40 +183,44 @@ export default function Quiz() {
         )}
 
         {step > 0 && (
-          <button onClick={() => setStep(step - 1)} className="mt-8 text-slate-500 underline">
+          <button onClick={() => setStep(step - 1)} className="mt-8 font-bold text-slate-500 underline">
             ← Back
           </button>
         )}
+      </div>
+      <Disclaimer className="mt-6" />
+      </div>
       </div>
     );
   }
 
   // ---- Result ----
   return (
-    <div className="mx-auto max-w-2xl px-4 py-12">
-      <div className="text-center">
-        <div className="text-lg text-slate-500">Your Retirement Safety Score</div>
-        <div className="text-7xl font-extrabold my-2">{result!.overall}</div>
+    <div className="rg-page-shell">
+    <div className="mx-auto max-w-3xl px-4 py-12 sm:py-16">
+      <div className="rg-card text-center">
+        <Eyebrow>Your Retirement Safety Score</Eyebrow>
+        <div className="my-3 text-7xl font-extrabold tracking-tight">{result!.overall}</div>
         <div className={`text-2xl font-bold ${BAND_COLOR[result!.band]}`}>{result!.band}</div>
       </div>
 
       {!revealed ? (
-        <div className="mt-10 rounded-2xl border-2 border-brand bg-blue-50 p-6 text-center">
-          <h3 className="text-xl font-bold">See your full breakdown + 3 personalized steps</h3>
+        <div className="rg-card-highlight mt-8 text-center">
+          <h2 className="text-2xl font-bold">See your full breakdown + 3 personalized steps</h2>
           <p className="mt-2 text-slate-600">Enter your email to unlock your sub-scores and action plan.</p>
           <div className="mt-4 flex flex-col sm:flex-row gap-3">
             <input
               type="email" value={email} onChange={(e) => setEmail(e.target.value)}
               placeholder="you@email.com"
-              className="flex-1 rounded-xl border-2 border-slate-300 px-4 py-3 text-lg"
+              className="rg-input flex-1"
             />
-            <button
+            <Button
               disabled={!email.trim().includes("@") || submitting}
               onClick={submitEmail}
-              className="rounded-xl bg-brand px-6 py-3 text-lg font-bold text-white disabled:opacity-50"
+              className="disabled:opacity-50"
             >
               {submitting ? "…" : "Show my results"}
-            </button>
+            </Button>
           </div>
           {emailError && <p className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-bad">{emailError}</p>}
           <p className="mt-3 text-xs text-slate-500">No spam. Creating an account is optional after you see your results.</p>
@@ -217,25 +228,25 @@ export default function Quiz() {
       ) : (
         <div className="mt-10 space-y-6">
           {emailNotice && <p className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-slate-700">{emailNotice}</p>}
-          <div className="space-y-4">
+          <div className="rg-card space-y-4">
             {(Object.keys(SUB_LABEL) as (keyof SubScores)[]).map((k) => (
               <div key={k}>
                 <div className="flex justify-between text-sm mb-1">
                   <span className="font-semibold">{SUB_LABEL[k]}</span>
                   <span>{result!.sub[k]}</span>
                 </div>
-                <div className="h-3 w-full rounded bg-slate-200">
-                  <div className="h-3 rounded bg-brand" style={{ width: `${result!.sub[k]}%` }} />
+                <div className="h-3 w-full rounded-full bg-slate-200">
+                  <div className="h-3 rounded-full bg-brand" style={{ width: `${result!.sub[k]}%` }} />
                 </div>
               </div>
             ))}
           </div>
 
-          <div>
+          <div className="rg-card">
             <h3 className="text-xl font-bold mb-3">Your 3 next steps</h3>
             <div className="space-y-3">
               {acts.map((a, i) => (
-                <div key={i} className="rounded-xl border-2 border-slate-200 p-4">
+                <div key={i} className="rounded-2xl border border-slate-200 bg-surface p-4">
                   <span className="font-bold text-brand mr-2">{i + 1}.</span>{a}
                 </div>
               ))}
@@ -243,7 +254,7 @@ export default function Quiz() {
           </div>
 
           {!accountDismissed && (
-            <div className="rounded-2xl border-2 border-brand bg-blue-50 p-6">
+            <div className="rg-card-highlight">
               <h3 className="text-2xl font-bold">Create your free account</h3>
               <p className="mt-2 text-lg text-slate-700">Save your score and turn on monthly monitoring — pick a password.</p>
               <div className="mt-5 grid gap-4">
@@ -254,12 +265,12 @@ export default function Quiz() {
                     type="email"
                     value={email.trim().toLowerCase()}
                     readOnly
-                    className="mt-2 w-full rounded-xl border-2 border-slate-300 bg-white px-4 py-3 text-lg text-slate-700"
+                    className="rg-input text-slate-700"
                   />
                 </div>
                 <div>
                   <label htmlFor="account-password" className="block text-base font-bold text-ink">Password</label>
-                  <div className="mt-2 flex rounded-xl border-2 border-slate-300 bg-white focus-within:border-brand">
+                  <div className="mt-2 flex rounded-xl border-2 border-slate-300 bg-white focus-within:border-brand focus-within:ring-4 focus-within:ring-brand/10">
                     <input
                       id="account-password"
                       type={showPassword ? "text" : "password"}
@@ -285,41 +296,40 @@ export default function Quiz() {
               {accountError && <p className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-bad">{accountError}</p>}
               {accountNotice && <p className="mt-4 rounded-xl border border-blue-200 bg-white p-3 text-sm text-slate-700">{accountNotice} <Link href="/login" className="font-bold text-brand underline">Log in instead</Link>.</p>}
               <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-                <button
+                <Button
                   type="button"
                   onClick={createAccount}
                   disabled={creatingAccount || password.length < 8}
-                  className="rounded-xl bg-brand px-6 py-3 text-lg font-bold text-white disabled:opacity-50"
+                  className="disabled:opacity-50"
                 >
                   {creatingAccount ? "Creating account…" : "Create my account"}
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
                   onClick={() => setAccountDismissed(true)}
-                  className="rounded-xl border-2 border-slate-300 px-6 py-3 text-lg font-bold text-ink"
+                  variant="secondary"
                 >
                   No thanks, maybe later
-                </button>
+                </Button>
               </div>
             </div>
           )}
 
           {/* Phase 4-5: this CTA becomes the 3-day trial -> annual upgrade (see runbook). */}
-          <div className="rounded-2xl bg-ink text-white p-6 text-center">
-            <h3 className="text-xl font-bold">Want RetireShield to watch this for you?</h3>
+          <div className="rounded-3xl bg-ink p-6 text-center text-white shadow-xl">
+            <h3 className="font-sans text-xl font-bold text-white">Want RetireShield to watch this for you?</h3>
             <p className="mt-2 text-slate-200">
               Get ongoing alerts when something affects your score — scams in your state, benefit changes, rising costs.
             </p>
-            <Link
-              href="/upgrade?plan=annual"
-              className="mt-4 inline-block rounded-xl bg-brand px-6 py-3 text-lg font-bold"
-            >
+            <Button href="/upgrade?plan=annual" className="mt-4">
               Start 3-day free trial
-            </Link>
+            </Button>
             <p className="mt-2 text-xs text-slate-400">Review the plan terms before starting your trial.</p>
           </div>
         </div>
       )}
+      <Disclaimer className="mt-8" />
+    </div>
     </div>
   );
 }
@@ -331,7 +341,7 @@ function NumberStep({
   const num = Number(val.replace(/[^0-9.]/g, ""));
   return (
     <div>
-      <div className="flex items-center rounded-xl border-2 border-slate-300 px-4 py-3 text-2xl">
+      <div className="flex items-center rounded-xl border-2 border-slate-300 bg-white px-4 py-3 text-2xl focus-within:border-brand focus-within:ring-4 focus-within:ring-brand/10">
         {prefix && <span className="text-slate-400 mr-1">{prefix}</span>}
         <input
           inputMode="numeric" value={val} onChange={(e) => setVal(e.target.value)}
@@ -341,7 +351,7 @@ function NumberStep({
       </div>
       <button
         disabled={!(num > 0)} onClick={() => onNext(num)}
-        className="mt-6 rounded-xl bg-brand px-8 py-3 text-lg font-bold text-white disabled:opacity-50"
+        className="mt-6 rounded-xl bg-brand px-8 py-3 text-lg font-bold text-white transition hover:bg-brand-dark disabled:opacity-50"
       >
         Continue
       </button>

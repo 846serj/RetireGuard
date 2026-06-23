@@ -2,6 +2,7 @@
 
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { Button, Disclaimer, Eyebrow } from "@/components/ui";
 
 type Plan = "annual" | "monthly";
 
@@ -58,31 +59,37 @@ function UpgradeContent() {
   }
 
   return (
-    <div className="mx-auto max-w-xl px-4 py-12">
-      <h1 className="text-3xl font-bold mb-6">Let RetireShield watch your retirement</h1>
+    <div className="rg-page-shell">
+    <div className="mx-auto max-w-3xl px-4 py-12 sm:py-16">
+      <div className="mb-8 text-center">
+        <Eyebrow>Premium monitoring</Eyebrow>
+        <h1 className="mt-3 text-4xl font-bold sm:text-5xl">Let RetireShield watch your retirement</h1>
+        <p className="mx-auto mt-4 max-w-2xl text-slate-600">Choose the same trusted design, clear terms, and one-click cancellation across every plan.</p>
+      </div>
 
-      <div className={`rounded-2xl border-2 p-6 mb-4 ${selectedPlan === "annual" ? "border-brand" : "border-slate-200"}`}>
+      <div className={`rg-card mb-4 ${selectedPlan === "annual" ? "border-brand ring-4 ring-brand/10" : ""}`}>
         <div className="text-2xl font-extrabold">Premium — $199/year</div>
         <p className="text-slate-600 mt-1">3-day free trial. Then $199/year, automatically, unless you cancel. Cancel anytime in one click.</p>
-        <button
+        <Button
           disabled={loading !== ""} onClick={() => checkout("annual")}
-          className="mt-4 w-full rounded-xl bg-brand px-6 py-3 text-lg font-bold text-white disabled:opacity-50"
+          className="mt-4 w-full disabled:opacity-50"
         >
           {loading === "annual" ? "Starting checkout…" : "Start 3-day free trial"}
-        </button>
+        </Button>
       </div>
 
-      <div className={`rounded-2xl border-2 p-6 mb-6 ${selectedPlan === "monthly" ? "border-brand" : "border-slate-200"}`}>
+      <div className={`rg-card mb-6 ${selectedPlan === "monthly" ? "border-brand ring-4 ring-brand/10" : ""}`}>
         <div className="text-xl font-bold">Or pay monthly — $29/month</div>
-        <button
+        <Button
           disabled={loading !== ""} onClick={() => checkout("monthly")}
-          className="mt-3 w-full rounded-xl border-2 border-slate-300 px-6 py-3 font-bold disabled:opacity-50"
+          variant="secondary"
+          className="mt-3 w-full disabled:opacity-50"
         >
           {loading === "monthly" ? "Starting checkout…" : "Choose monthly"}
-        </button>
+        </Button>
       </div>
 
-      <label className="flex items-start gap-3 text-sm text-slate-700">
+      <label className="rg-card-highlight flex items-start gap-3 text-sm text-slate-700">
         <input
           id="auto-renew-consent"
           type="checkbox"
@@ -103,6 +110,8 @@ function UpgradeContent() {
       <p className="mt-4 text-xs text-slate-500">
         ⚠️ Phase 6: a lawyer must review this exact copy + the consent/reminder/cancel flow before charging real customers.
       </p>
+      <Disclaimer className="mt-8" />
+    </div>
     </div>
   );
 }

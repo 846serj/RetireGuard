@@ -24,7 +24,7 @@ const footerColumns = [
   { title: "Product", links: [{ label: "Safety Score", href: "/features/safety-score" }, { label: "Monitoring", href: "/features/monitoring" }, { label: "AI Coach", href: "/features/ai-coach" }, { label: "Scam Shield", href: "/features/scam-shield" }] },
   { title: "Company", links: [{ label: "About", href: "/about" }, { label: "Contact", href: "mailto:hello@retireshield.com" }, { label: "Careers", href: "#" }, { label: "Partners", href: "#" }] },
   { title: "Resources", links: [{ label: "Retirement Watch", href: "/resources" }, { label: "Guides", href: "/resources" }, { label: "Calculators", href: "/quiz" }, { label: "Help Center", href: "#" }] },
-  { title: "Legal", links: [{ label: "Privacy", href: "/privacy" }, { label: "Terms", href: "/terms" }, { label: "Disclosures", href: "/about#trust-heading" }, { label: "Security", href: "/about#trust-heading" }] },
+  { title: "Legal", links: [{ label: "Privacy", href: "/privacy" }, { label: "Terms", href: "/terms" }, { label: "Refund Policy", href: "/refund-policy" }, { label: "Disclosures", href: "/about#trust-heading" }] },
 ];
 
 function Logo() {
