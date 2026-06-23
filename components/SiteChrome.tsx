@@ -5,11 +5,12 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "./ui";
 
 const featureLinks = [
-  { label: "Safety Score", href: "/quiz" },
-  { label: "Monitoring", href: "/#features" },
-  { label: "AI Coach", href: "/#ai-coach" },
-  { label: "Medicare & Social Security", href: "/#medicare-social-security" },
-  { label: "Scam Shield", href: "/#scam-shield" },
+  { label: "Overview", href: "/features" },
+  { label: "Safety Score", href: "/features/safety-score" },
+  { label: "Monitoring", href: "/features/monitoring" },
+  { label: "AI Coach", href: "/features/ai-coach" },
+  { label: "Medicare & Social Security", href: "/features/medicare-social-security" },
+  { label: "Scam Shield", href: "/features/scam-shield" },
 ];
 
 const navLinks = [
