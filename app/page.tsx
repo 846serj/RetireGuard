@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { BadgeDollarSign, Banknote, Bot, Calculator, HeartPulse, Landmark, LineChart, MessageCircleQuestion, ShieldCheck, ShieldAlert, TrendingUp, WalletCards } from "lucide-react";
+import { BadgeDollarSign, Banknote, BellRing, Bot, Calculator, HeartPulse, Landmark, LineChart, MessageCircleQuestion, ShieldCheck, ShieldAlert, TrendingUp, WalletCards } from "lucide-react";
 import HomeRedirector from "@/components/HomeRedirector";
 import { ComparisonRow } from "@/components/ComparisonRow";
 import { ScoreGauge } from "@/components/ScoreGauge";
@@ -81,6 +81,29 @@ function StepCard({ step, title, description }: { step: number; title: string; d
       </div>
       <h3 className="mt-6 text-2xl font-extrabold tracking-tight text-ink">{title}</h3>
       <p className="mt-3 text-lg leading-8 text-slate-700">{description}</p>
+    </article>
+  );
+}
+
+function AlertCard() {
+  return (
+    <article className="relative overflow-hidden rounded-[2rem] border border-brand/20 bg-white p-6 shadow-xl sm:p-8">
+      <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-brand/10" aria-hidden="true" />
+      <div className="relative flex items-start gap-4">
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand text-white shadow-sm" aria-hidden="true">
+          <BellRing className="h-7 w-7" strokeWidth={1.9} />
+        </div>
+        <div>
+          <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-brand">Monthly plan alert</p>
+          <h3 className="mt-3 text-2xl font-extrabold tracking-tight text-ink">Heads up</h3>
+          <p className="mt-3 text-lg font-semibold leading-8 text-slate-700">
+            A Roth conversion before December could keep you under the next Medicare surcharge. Here&apos;s what to ask about.
+          </p>
+        </div>
+      </div>
+      <div className="relative mt-6 rounded-2xl bg-band p-4 text-sm font-semibold leading-6 text-slate-600">
+        RetireShield only sends alerts when a change could affect your retirement plan.
+      </div>
     </article>
   );
 }
@@ -267,6 +290,24 @@ export default async function Home() {
                 </div>
               </div>
             </div>
+          </div>
+        </Container>
+      </section>
+
+      <section className="bg-gradient-to-b from-white via-band to-white py-12 sm:py-16 lg:py-20" aria-labelledby="monitoring-heading">
+        <Container className="grid items-center gap-10 lg:grid-cols-[1.02fr_0.98fr] lg:gap-14">
+          <div>
+            <Eyebrow>SECTION 9 — MONITORING / WE WATCH IT FOR YOU</Eyebrow>
+            <h2 id="monitoring-heading" className="mt-4 text-3xl font-extrabold tracking-tight text-ink sm:text-4xl lg:text-5xl">
+              The AI that watches your retirement so you don&apos;t have to.
+            </h2>
+            <p className="mt-5 text-lg leading-8 text-slate-700 sm:text-xl">
+              Markets move. Tax rules change. Prices rise. RetireShield re-checks your plan every month and sends a short, plain-English heads-up only when something actually matters — a Medicare threshold ahead, a Social Security timing window, a drop worth knowing about. No noise. Just a watchful eye.
+            </p>
+          </div>
+
+          <div className="mx-auto w-full max-w-lg">
+            <AlertCard />
           </div>
         </Container>
       </section>
