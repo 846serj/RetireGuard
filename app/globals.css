@@ -36,3 +36,26 @@
     @apply text-brand-dark;
   }
 }
+
+@layer utilities {
+  @keyframes qa-scroll {
+    0% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(-38%);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+  .qa-carousel {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .qa-carousel article {
+    scroll-snap-align: start;
+  }
+}
