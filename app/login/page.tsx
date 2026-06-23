@@ -1,7 +1,7 @@
 "use client";
 
-import { Suspense, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { getPublicBaseUrl } from "@/lib/siteUrl";
 
@@ -12,6 +12,7 @@ function getAuthRedirectUrl(nextPath: string) {
 }
 
 function LoginContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const nextPath = useMemo(() => {
     const next = searchParams.get("next");
@@ -21,7 +22,28 @@ function LoginContent() {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
   const [err, setErr] = useState("");
+
+  useEffect(() => {
+    let mounted = true;
+    const supabase = createClient();
+
+    supabase.auth.getUser().then(({ data }) => {
+      if (!mounted) return;
+      if (data.user) {
+        router.replace(nextPath);
+      } else {
+        setCheckingSession(false);
+      }
+    }).catch(() => {
+      if (mounted) setCheckingSession(false);
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, [nextPath, router]);
 
   async function send() {
     const normalizedEmail = email.trim();
@@ -38,6 +60,10 @@ function LoginContent() {
     setSending(false);
     if (error) setErr(error.message);
     else setSent(true);
+  }
+
+  if (checkingSession) {
+    return <div className="mx-auto max-w-md px-4 py-16">Checking your session…</div>;
   }
 
   return (
