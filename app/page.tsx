@@ -58,6 +58,33 @@ const featureCards = [
   },
 ];
 
+const howItWorksSteps = [
+  {
+    title: "Answer 9 simple questions.",
+    description: "No documents, no logins, no jargon. About two minutes.",
+  },
+  {
+    title: "Get your Safety Score.",
+    description: "A clear 0–100 score, four sub-scores, and three things you can actually do.",
+  },
+  {
+    title: "Let us keep watch.",
+    description: "We re-check your plan every month and tell you the moment something needs attention.",
+  },
+];
+
+function StepCard({ step, title, description }: { step: number; title: string; description: string }) {
+  return (
+    <article className="relative flex h-full flex-col rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-brand/30 hover:shadow-lg sm:p-8">
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand text-2xl font-extrabold text-white shadow-sm" aria-hidden="true">
+        {step}
+      </div>
+      <h3 className="mt-6 text-2xl font-extrabold tracking-tight text-ink">{title}</h3>
+      <p className="mt-3 text-lg leading-8 text-slate-700">{description}</p>
+    </article>
+  );
+}
+
 const trustStats = [
   { value: "2 minutes" },
   { value: "9 questions" },
@@ -101,7 +128,7 @@ export default async function Home() {
         </Container>
       </section>
 
-      <section id="how-it-works" className="bg-band py-8 sm:py-10" aria-label="Retirement Safety Score proof points">
+      <section className="bg-band py-8 sm:py-10" aria-label="Retirement Safety Score proof points">
         <Container>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {trustStats.map((stat) => (
@@ -154,6 +181,29 @@ export default async function Home() {
                 },
               ]}
             />
+          </div>
+        </Container>
+      </section>
+
+      <section id="how-it-works" className="bg-white py-12 sm:py-16 lg:py-20" aria-labelledby="how-it-works-heading">
+        <Container>
+          <div className="mx-auto max-w-3xl text-center">
+            <Eyebrow>HOW IT WORKS</Eyebrow>
+            <h2 id="how-it-works-heading" className="mt-4 text-3xl font-extrabold tracking-tight text-ink sm:text-4xl lg:text-5xl">
+              Peace of mind in three steps.
+            </h2>
+          </div>
+
+          <div className="mt-10 grid gap-5 lg:grid-cols-3">
+            {howItWorksSteps.map((step, index) => (
+              <StepCard key={step.title} step={index + 1} title={step.title} description={step.description} />
+            ))}
+          </div>
+
+          <div className="mt-10 flex justify-center">
+            <Button href="/quiz" className="px-7 py-4 text-xl">
+              Get my free Safety Score
+            </Button>
           </div>
         </Container>
       </section>
