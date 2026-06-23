@@ -1,11 +1,12 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { ArrowRight, BarChart3, Check, ChevronDown, ClipboardList, LockKeyhole, ShieldCheck, Sparkles } from "lucide-react";
 import { Button, Container, Disclaimer, Eyebrow } from "@/components/ui";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "How RetireShield Works — Retirement Safety Score",
   description: "See how RetireShield turns a short quiz into a plain-English Safety Score, action plan, and retirement risk checkup.",
-};
+  path: "/how-it-works",
+});
 
 const walkthroughSteps = [
   {

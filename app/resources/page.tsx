@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { ArrowRight, BookOpen, CalendarDays } from "lucide-react";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { Button, Container, Eyebrow } from "@/components/ui";
 import { resourceArticles, resourceCategories } from "@/content/resources";
 
-export const metadata: Metadata = {
-  title: "Retirement Resources — Guides from RetireShield",
-  description: "Plain-English retirement guides on safety scores, scams, Social Security, Medicare, family conversations, and withdrawal risk.",
-};
+export const metadata = pageMetadata({
+  title: "Retirement Resources — Plain-English Guides from RetireShield",
+  description: "Read retirement guides on Safety Scores, scams, Social Security, Medicare, family conversations, and withdrawal risk.",
+  path: "/resources",
+});
 
 type ResourcesPageProps = {
   searchParams?: { category?: string };

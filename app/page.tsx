@@ -1,4 +1,12 @@
 import Link from "next/link";
+import { pageMetadata } from "@/lib/seo";
+
+export const metadata = pageMetadata({
+  title: "RetireShield — Your Free Retirement Safety Score",
+  description: "See how secure your retirement is in two minutes with a free Retirement Safety Score and plain-English next steps.",
+  path: "/",
+});
+
 import { BadgeDollarSign, Banknote, BellRing, Bot, Calculator, HeartPulse, Landmark, LineChart, LockKeyhole, MessageCircleQuestion, ShieldCheck, ShieldAlert, Sparkles, TrendingUp, UserCheck, WalletCards } from "lucide-react";
 import { ComparisonRow } from "@/components/ComparisonRow";
 import { ScoreGauge } from "@/components/ScoreGauge";
