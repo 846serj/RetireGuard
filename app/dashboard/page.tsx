@@ -9,6 +9,7 @@ import { getMatchedAlerts } from "@/lib/alerts";
 import type { Answers } from "@/lib/scoring";
 import ScoreHydrator from "@/components/ScoreHydrator";
 import { stripe } from "@/lib/stripe";
+import { Button, Disclaimer, Eyebrow } from "@/components/ui";
 
 const PRIORITY_STYLE: Record<string, string> = {
   High: "bg-red-100 text-bad", Medium: "bg-amber-100 text-warn", Low: "bg-slate-100 text-slate-600",
@@ -74,27 +75,29 @@ export default async function Dashboard({ searchParams }: DashboardProps) {
     : [];
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-12">
+    <div className="rg-page-shell">
+    <div className="mx-auto max-w-5xl px-4 py-12 sm:py-16">
       <ScoreHydrator hasScore={!!latest} />
       {searchParams?.welcome ? (
-        <div className="mb-6 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-5">
-          <p className="text-sm font-bold uppercase tracking-wide text-emerald-700">Trial started</p>
+        <div className="mb-6 rounded-3xl border border-emerald-200 bg-emerald-50 p-5 shadow-sm">
+          <p className="rg-kicker text-emerald-700">Trial started</p>
           <h2 className="mt-1 text-2xl font-extrabold">Welcome to your full RetireShield dashboard.</h2>
           <p className="mt-2 text-slate-700">Your planning tools, action items, alerts, and coach are available below.</p>
         </div>
       ) : null}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold mb-1">Your retirement dashboard</h1>
+          <Eyebrow>Member workspace</Eyebrow>
+          <h1 className="mb-2 mt-3 text-4xl font-bold sm:text-5xl">Your retirement dashboard</h1>
           <p className="text-slate-600">{user.email}</p>
         </div>
-        {paid ? <Link href="/api/portal" className="text-brand underline">Manage subscription</Link> : null}
+        {paid ? <Button href="/api/portal" variant="secondary" className="text-base">Manage subscription</Button> : null}
       </div>
 
-      <section className="rounded-2xl border-2 border-slate-200 p-6 mb-6">
-        <h2 className="text-xl font-bold mb-2">Retirement Safety Score</h2>
+      <section className="rg-card mb-6">
+        <h2 className="mb-2 text-xl font-bold">Retirement Safety Score</h2>
         {latest ? (
-          <div className="text-5xl font-extrabold">
+          <div className="text-6xl font-extrabold tracking-tight">
             {latest.overall} <span className="text-lg font-semibold text-slate-500">{latest.band}</span>
           </div>
         ) : (
@@ -103,30 +106,30 @@ export default async function Dashboard({ searchParams }: DashboardProps) {
       </section>
 
       {!paid ? (
-        <section className="rounded-2xl border-2 border-brand bg-blue-50 p-6 text-center">
+        <section className="rg-card-highlight text-center">
           <h2 className="text-xl font-bold mb-2">Unlock your action plan + alerts</h2>
           <p className="text-slate-600 mb-4">
             Get your personalized, prioritized plan and ongoing alerts matched to your state, age, and worries.
           </p>
-          <Link href="/upgrade" className="inline-block rounded-xl bg-brand px-6 py-3 font-bold text-white">
+          <Button href="/upgrade">
             Start 3-day free trial
-          </Link>
+          </Button>
         </section>
       ) : (
         <>
           <section className="mb-8 grid gap-4 md:grid-cols-3">
-            <Link href="/plan/setup" className="rounded-2xl border-2 border-blue-100 bg-blue-50 p-5 hover:border-brand">
-              <p className="text-sm font-bold uppercase tracking-wide text-brand">Planning lab</p>
+            <Link href="/plan/setup" className="rg-card-highlight no-underline transition hover:-translate-y-0.5 hover:border-brand">
+              <p className="rg-kicker">Planning lab</p>
               <h2 className="mt-2 text-xl font-extrabold">Build your retirement plan</h2>
               <p className="mt-2 text-sm text-slate-700">Run projections, Monte Carlo, Roth conversion, Social Security, and withdrawal guardrail tools.</p>
             </Link>
-            <Link href="/quiz" className="rounded-2xl border-2 border-slate-200 p-5 hover:border-brand">
-              <p className="text-sm font-bold uppercase tracking-wide text-slate-500">Risk score</p>
+            <Link href="/quiz" className="rg-card no-underline transition hover:-translate-y-0.5 hover:border-brand">
+              <p className="rg-kicker text-slate-500">Risk score</p>
               <h2 className="mt-2 text-xl font-extrabold">Update your Safety Score</h2>
               <p className="mt-2 text-sm text-slate-700">Refresh your profile so your plan and alerts stay personalized.</p>
             </Link>
-            <a href="#coach" className="rounded-2xl border-2 border-emerald-100 bg-emerald-50 p-5 hover:border-emerald-400">
-              <p className="text-sm font-bold uppercase tracking-wide text-emerald-700">AI coach</p>
+            <a href="#coach" className="rg-card no-underline transition hover:-translate-y-0.5 hover:border-emerald-400">
+              <p className="rg-kicker text-emerald-700">AI coach</p>
               <h2 className="mt-2 text-xl font-extrabold">Ask what to do next</h2>
               <p className="mt-2 text-sm text-slate-700">Get education-only help interpreting the tools and next steps.</p>
             </a>
@@ -137,7 +140,7 @@ export default async function Dashboard({ searchParams }: DashboardProps) {
               <h2 className="text-2xl font-bold mb-4">Your action plan</h2>
               <div className="space-y-4">
                 {plan.map((p, i) => (
-                  <div key={i} className="rounded-2xl border-2 border-slate-200 p-5">
+                  <div key={i} className="rg-card">
                     <div className="flex items-center gap-3 mb-1">
                       <span className={`text-xs font-bold px-2 py-1 rounded ${PRIORITY_STYLE[p.priority]}`}>{p.priority}</span>
                       <span className="text-xs uppercase tracking-wide text-slate-400">{p.area}</span>
@@ -152,10 +155,10 @@ export default async function Dashboard({ searchParams }: DashboardProps) {
               </div>
             </section>
           ) : (
-            <section className="mb-8 rounded-2xl border-2 border-slate-200 p-6">
+            <section className="rg-card mb-8">
               <h2 className="text-2xl font-bold">Create your personalized action plan</h2>
               <p className="mt-2 text-slate-600">Take the quick Safety Score quiz so RetireShield can prioritize your first actions.</p>
-              <Link href="/quiz" className="mt-4 inline-block rounded-xl bg-brand px-5 py-3 font-bold text-white">Take the quiz</Link>
+              <Button href="/quiz" className="mt-4">Take the quiz</Button>
             </section>
           )}
 
@@ -166,7 +169,7 @@ export default async function Dashboard({ searchParams }: DashboardProps) {
             <div className="space-y-3">
               {alerts.length === 0 && <p className="text-slate-500">No alerts match your profile yet — check back soon.</p>}
               {alerts.map((al) => (
-                <div key={al.id} className="rounded-xl border-2 border-slate-200 p-4">
+                <div key={al.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                   <div className="text-xs uppercase tracking-wide text-brand font-semibold">{al.category}</div>
                   <h3 className="font-bold">{al.title}</h3>
                   <p className="text-slate-600 text-sm mt-1">{al.body}</p>
@@ -176,6 +179,8 @@ export default async function Dashboard({ searchParams }: DashboardProps) {
           </section>
         </>
       )}
+      <Disclaimer className="mt-8" />
+    </div>
     </div>
   );
 }

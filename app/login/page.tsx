@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { Button, Disclaimer, Eyebrow } from "@/components/ui";
 
 function LoginContent() {
   const router = useRouter();
@@ -91,12 +92,15 @@ function LoginContent() {
   }
 
   if (checkingSession) {
-    return <div className="mx-auto max-w-md px-4 py-16">Checking your session…</div>;
+    return <div className="rg-page-shell"><div className="mx-auto max-w-md px-4 py-16">Checking your session…</div></div>;
   }
 
   return (
+    <div className="rg-page-shell">
     <div className="mx-auto max-w-md px-4 py-16">
-      <h1 className="text-3xl font-bold mb-6">Sign in to RetireShield</h1>
+      <div className="rg-card">
+      <Eyebrow>Welcome back</Eyebrow>
+      <h1 className="mb-6 mt-3 text-4xl font-bold">Sign in to RetireShield</h1>
       <div className="space-y-5">
         <div>
           <label htmlFor="login-email" className="block text-base font-bold text-ink">Email address</label>
@@ -107,12 +111,12 @@ function LoginContent() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@email.com"
             autoComplete="email"
-            className="mt-2 w-full rounded-xl border-2 border-slate-300 px-4 py-3 text-lg"
+            className="rg-input mt-2"
           />
         </div>
         <div>
           <label htmlFor="login-password" className="block text-base font-bold text-ink">Password</label>
-          <div className="mt-2 flex rounded-xl border-2 border-slate-300 bg-white focus-within:border-brand">
+          <div className="mt-2 flex rounded-xl border-2 border-slate-300 bg-white focus-within:border-brand focus-within:ring-4 focus-within:ring-brand/10">
             <input
               id="login-password"
               type={showPassword ? "text" : "password"}
@@ -126,13 +130,13 @@ function LoginContent() {
             </button>
           </div>
         </div>
-        <button
+        <Button
           disabled={!email.trim().includes("@") || !password || sending}
           onClick={signIn}
-          className="w-full rounded-xl bg-brand px-6 py-3 text-lg font-bold text-white disabled:opacity-50"
+          className="w-full disabled:opacity-50"
         >
           {sending ? "Signing in…" : "Sign in"}
-        </button>
+        </Button>
         {err && <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-bad">{err}</p>}
         {notice && <p className="rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-slate-700">{notice}</p>}
         <div className="flex flex-col gap-3 text-base sm:flex-row sm:items-center sm:justify-between">
@@ -142,13 +146,16 @@ function LoginContent() {
           <Link href="/quiz" className="font-bold text-brand underline">Create one</Link>
         </div>
       </div>
+      </div>
+      <Disclaimer className="mt-6" />
+    </div>
     </div>
   );
 }
 
 export default function Login() {
   return (
-    <Suspense fallback={<div className="mx-auto max-w-md px-4 py-16">Loading sign in…</div>}>
+    <Suspense fallback={<div className="rg-page-shell"><div className="mx-auto max-w-md px-4 py-16">Loading sign in…</div></div>}>
       <LoginContent />
     </Suspense>
   );

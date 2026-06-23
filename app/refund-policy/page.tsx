@@ -1,7 +1,12 @@
+import { Disclaimer, Eyebrow } from "@/components/ui";
+
 export default function RefundPolicy() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12 text-lg leading-8 text-slate-700">
-      <h1 className="text-3xl font-bold mb-2 text-ink">Refund Policy</h1>
+    <div className="rg-page-shell">
+      <article className="mx-auto max-w-3xl px-4 py-12 text-lg leading-8 text-slate-700 sm:py-16">
+        <div className="rg-card">
+          <Eyebrow>Refunds</Eyebrow>
+          <h1 className="mb-2 mt-3 text-4xl font-bold text-ink sm:text-5xl">Refund Policy</h1>
       <p className="mb-8 text-sm font-medium text-slate-500">Last updated: [DATE]</p>
 
       <p className="mb-6 font-semibold text-slate-800">Effective date: [DATE]</p>
@@ -36,6 +41,9 @@ export default function RefundPolicy() {
 
       <h2 className="mt-10 mb-4 text-2xl font-bold text-ink">Contact</h2>
       <p>business@clarkbros.com — [LEGAL ENTITY NAME], [BUSINESS MAILING ADDRESS].</p>
+        </div>
+        <Disclaimer className="mt-8" />
+      </article>
     </div>
   );
 }
