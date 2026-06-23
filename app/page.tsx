@@ -58,6 +58,63 @@ const featureCards = [
   },
 ];
 
+const qaCards = [
+  {
+    tag: "Longevity",
+    question: "Will I run out of money at 90?",
+    answer: "Your savings cover your spending gap to age 94 at today's pace. Here's the one change that pushes it past 100.",
+  },
+  {
+    tag: "Social Security",
+    question: "Should I wait to claim Social Security?",
+    answer: "Waiting two years adds about $410/month for life. Here's the trade-off while you wait.",
+  },
+  {
+    tag: "Markets",
+    question: "Did that market drop hurt my plan?",
+    answer: "Your Score dipped 3 points and recovered. Your essentials were never at risk.",
+  },
+  {
+    tag: "Big purchase",
+    question: "Can I afford a $25k kitchen remodel?",
+    answer: "Yes — it lowers your cushion slightly but keeps you in 'Mostly Secure.'",
+  },
+  {
+    tag: "Inflation",
+    question: "Is inflation a problem for me?",
+    answer: "About 60% of your income keeps up with prices. Here's how to protect the rest.",
+  },
+  {
+    tag: "Medicare",
+    question: "Will Medicare cost more next year?",
+    answer: "One extra $1,500 of income would cross an IRMAA line. Here's how to avoid it.",
+  },
+  {
+    tag: "Scam watch",
+    question: "Am I being targeted by a scam?",
+    answer: "Three things to never do over the phone — and what a real Medicare call sounds like.",
+  },
+  {
+    tag: "Spending",
+    question: "How much can I safely spend this year?",
+    answer: "About $4,150/month keeps you on track. Spend more and we'll flag it early.",
+  },
+];
+
+function QACard({ tag, question, answer }: { tag: string; question: string; answer: string }) {
+  return (
+    <article tabIndex={0} className="flex min-h-[260px] w-[82vw] max-w-sm shrink-0 flex-col justify-between rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-brand/30 hover:shadow-lg sm:w-[22rem] lg:min-h-[280px] lg:w-auto lg:max-w-none">
+      <div>
+        <span className="inline-flex rounded-full bg-brand/10 px-3 py-1 text-xs font-extrabold uppercase tracking-[0.16em] text-brand">
+          {tag}
+        </span>
+        <h3 className="mt-5 text-xl font-extrabold leading-7 tracking-tight text-ink">{question}</h3>
+      </div>
+      <p className="mt-6 text-lg font-semibold leading-8 text-slate-700">{answer}</p>
+    </article>
+  );
+}
+
 const howItWorksSteps = [
   {
     title: "Answer 9 simple questions.",
@@ -309,6 +366,31 @@ export default async function Home() {
           <div className="mx-auto w-full max-w-lg">
             <AlertCard />
           </div>
+        </Container>
+      </section>
+
+      <section className="overflow-hidden bg-white py-12 sm:py-16 lg:py-20" aria-labelledby="qa-carousel-heading">
+        <Container>
+          <div className="mx-auto max-w-3xl text-center">
+            <Eyebrow>SECTION 10 — IN-ACTION Q&amp;A</Eyebrow>
+            <h2 id="qa-carousel-heading" className="mt-4 text-3xl font-extrabold tracking-tight text-ink sm:text-4xl lg:text-5xl">
+              Real questions. Clear answers.
+            </h2>
+            <p className="mt-5 text-lg leading-8 text-slate-700 sm:text-xl">
+              Swipe through the kinds of plain-English answers RetireShield can give when your plan is already in motion.
+            </p>
+          </div>
+
+          <div className="qa-carousel -mx-4 mt-10 overflow-x-auto px-4 pb-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0" aria-label="Example retirement questions and answers">
+            <div className="flex w-max gap-4 motion-safe:animate-[qa-scroll_55s_linear_infinite] motion-reduce:animate-none hover:[animation-play-state:paused] focus-within:[animation-play-state:paused] active:[animation-play-state:paused] lg:grid lg:w-auto lg:grid-cols-4 lg:animate-none">
+              {qaCards.map((card) => (
+                <QACard key={card.question} {...card} />
+              ))}
+            </div>
+          </div>
+          <p className="mt-3 text-center text-sm font-semibold text-slate-500 lg:hidden">
+            Swipe to see more. Animation pauses when you touch or focus a card.
+          </p>
         </Container>
       </section>
 
