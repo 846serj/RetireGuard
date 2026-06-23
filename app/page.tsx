@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { BadgeDollarSign, Banknote, HeartPulse, Landmark, LineChart, ShieldAlert, TrendingUp, WalletCards } from "lucide-react";
 import HomeRedirector from "@/components/HomeRedirector";
 import { ComparisonRow } from "@/components/ComparisonRow";
 import { ScoreGauge } from "@/components/ScoreGauge";
@@ -13,6 +14,49 @@ async function hasActiveSession() {
   const { data: { user } } = await supabase.auth.getUser();
   return !!user;
 }
+
+const featureCards = [
+  {
+    icon: Banknote,
+    title: "Income that lasts",
+    description: "Will your guaranteed income cover the essentials for life?",
+  },
+  {
+    icon: WalletCards,
+    title: "Safe withdrawals",
+    description: "How much can you spend without running out?",
+  },
+  {
+    icon: TrendingUp,
+    title: "Inflation",
+    description: "Will rising prices quietly shrink your paycheck?",
+  },
+  {
+    icon: LineChart,
+    title: "Market drops",
+    description: "Is your money positioned for your age and comfort?",
+  },
+  {
+    icon: Landmark,
+    title: "Social Security",
+    description: "Are you claiming at the right time for you?",
+  },
+  {
+    icon: BadgeDollarSign,
+    title: "Medicare & IRMAA",
+    description: "Could one extra dollar trigger a Medicare surcharge?",
+  },
+  {
+    icon: ShieldAlert,
+    title: "Scams & fraud",
+    description: "A watchful eye on the schemes that target retirees.",
+  },
+  {
+    icon: HeartPulse,
+    title: "Healthcare costs",
+    description: "Are you ready for the bills that come with age?",
+  },
+];
 
 const trustStats = [
   { value: "2 minutes" },
@@ -110,6 +154,35 @@ export default async function Home() {
                 },
               ]}
             />
+          </div>
+        </Container>
+      </section>
+
+      <section className="bg-gradient-to-b from-band via-white to-white py-12 sm:py-16 lg:py-20" aria-labelledby="feature-grid-heading">
+        <Container>
+          <div className="mx-auto max-w-3xl text-center">
+            <Eyebrow>WHOLE-PICTURE RETIREMENT CHECK</Eyebrow>
+            <h2 id="feature-grid-heading" className="mt-4 text-3xl font-extrabold tracking-tight text-ink sm:text-4xl lg:text-5xl">
+              One score. Every retirement worry, in one place.
+            </h2>
+            <p className="mt-5 text-lg leading-8 text-slate-700 sm:text-xl">
+              RetireShield looks at the whole picture — not just your savings balance.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {featureCards.map(({ icon: Icon, title, description }) => (
+              <article
+                key={title}
+                className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-brand/30 hover:shadow-lg"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand/10 text-brand transition group-hover:bg-brand group-hover:text-white">
+                  <Icon className="h-6 w-6" aria-hidden="true" strokeWidth={1.8} />
+                </div>
+                <h3 className="mt-5 text-lg font-extrabold text-ink">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
+              </article>
+            ))}
           </div>
         </Container>
       </section>
