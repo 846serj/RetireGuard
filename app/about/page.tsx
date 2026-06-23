@@ -1,12 +1,13 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { CheckCircle2, HeartHandshake, LockKeyhole, ShieldCheck, UserCheck } from "lucide-react";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { Button, Container, Eyebrow } from "@/components/ui";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "About RetireShield — Built to Watch Over Retirement Safety",
-  description: "The RetireShield origin story, mission, who it is for, and the trust commitments behind our retirement education tools.",
-};
+  description: "Learn the RetireShield mission, who it helps, and the trust commitments behind our retirement education tools.",
+  path: "/about",
+});
 
 const missionCards = [
   {

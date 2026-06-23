@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter, Source_Serif_4 } from "next/font/google";
 import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
 import { createClient } from "@/lib/supabase/server";
+import { getPublicBaseUrl } from "@/lib/siteUrl";
+import { defaultOgImage } from "@/lib/seo";
 import "./globals.css";
 
 const inter = Inter({
@@ -17,8 +19,17 @@ const sourceSerif = Source_Serif_4({
 });
 
 export const metadata: Metadata = {
-  title: "RetireShield — Your free Retirement Safety Score",
-  description: "See how secure your retirement is in 2 minutes. Free Retirement Safety Score.",
+  metadataBase: new URL(getPublicBaseUrl()),
+  title: {
+    default: "RetireShield — Your Free Retirement Safety Score",
+    template: "%s | RetireShield",
+  },
+  description: "See how secure your retirement is in two minutes. Free Retirement Safety Score.",
+  openGraph: {
+    siteName: "RetireShield",
+    type: "website",
+    images: [{ url: defaultOgImage, width: 1200, height: 630, alt: "RetireShield Retirement Safety Score preview" }],
+  },
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
