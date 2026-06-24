@@ -48,6 +48,17 @@ function sinceLine(latest: ScoreRow | null, priorScore: ScoreRow | null, lastSee
   return `Since ${formatCheckedDate(lastSeenAt)}: your score went ${priorScore.overall} → ${latest.overall} (${formatDelta(delta)}), ${alerts}.`;
 }
 
+function countUnreadAlerts(alerts: Alert[], lastSeenAt?: string | null) {
+  if (!lastSeenAt) return 0;
+  const lastSeen = new Date(lastSeenAt).getTime();
+  if (!Number.isFinite(lastSeen)) return 0;
+  return alerts.filter((alert) => {
+    if (alert.personalized) return false;
+    const created = new Date(alert.created_at).getTime();
+    return Number.isFinite(created) && created > lastSeen;
+  }).length;
+}
+
 function firstStep(planItem?: { steps?: string[] }) {
   return planItem?.steps?.[0] ?? "Review your saved score and confirm the inputs still look right.";
 }
@@ -87,14 +98,14 @@ export default async function Dashboard({ searchParams }: DashboardProps) {
 
   const alerts = answers ? await getMatchedAlerts(supabase, { state: answers.state, age: answers.age, worry: answers.worry }, 12) : [];
   const plan = latest && answers ? buildActionPlan(answers, { overall: latest.overall, band: latest.band as never, sub: latest.sub_scores ?? {} }) : [];
-  const newAlertCount = lastSeenAt ? alerts.filter((alert: Alert) => new Date(alert.created_at) > new Date(lastSeenAt)).length : 0;
+  const newAlertCount = countUnreadAlerts(alerts, lastSeenAt);
   const topAlerts = alerts.slice(0, 3);
   const nextAction = [...plan].sort((a, b) => PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority])[0];
   const scoreSubScores = latest?.sub_scores ? (Object.entries(SUB_SCORE_LABELS) as [keyof typeof SUB_SCORE_LABELS, string][]).map(([key, label]) => ({ label, value: Number(latest.sub_scores?.[key] ?? 0), scoreKey: key })) : [];
   const monthDelta = latest && previousScore ? Math.round(Number(latest.overall) - Number(previousScore.overall)) : null;
   const hasConnectedScore = ["connected", "monthly_rescore"].includes(String(latest?.score_source ?? ""));
 
-  await supabase.from("profiles").update({ last_seen_at: new Date().toISOString() }).eq("user_id", user.id);
+  await supabase.from("profiles").upsert({ user_id: user.id, last_seen_at: new Date().toISOString() }, { onConflict: "user_id" });
 
   return (
     <div className="mx-auto max-w-6xl py-8 sm:py-10">

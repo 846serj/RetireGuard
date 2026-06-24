@@ -35,21 +35,27 @@ function PlanBadge({ access }: { access: SubscriptionAccess }) {
   return <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-emerald-800 ring-1 ring-emerald-200">{label}</span>;
 }
 
-function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
+function SidebarNav({ onNavigate, unreadAlertCount = 0 }: { onNavigate?: () => void; unreadAlertCount?: number }) {
   const pathname = usePathname();
   return (
     <nav className="mt-8 grid gap-2" aria-label="App navigation">
       {navItems.map((item) => {
         const active = item.href === "/dashboard" ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
+        const showUnreadBadge = item.href === "/dashboard/monitoring" && unreadAlertCount > 0;
         return (
           <Link
             key={item.href}
             href={item.href}
             onClick={onNavigate}
             aria-current={active ? "page" : undefined}
-            className={`flex min-h-12 items-center rounded-2xl px-4 py-3 text-base font-extrabold no-underline transition ${active ? "bg-brand text-white shadow-sm" : "text-ink hover:bg-band hover:text-brand"}`}
+            className={`flex min-h-12 items-center justify-between gap-3 rounded-2xl px-4 py-3 text-base font-extrabold no-underline transition ${active ? "bg-brand text-white shadow-sm" : "text-ink hover:bg-band hover:text-brand"}`}
           >
-            {item.label}
+            <span>{item.label}</span>
+            {showUnreadBadge ? (
+              <span className={`inline-flex min-w-6 items-center justify-center rounded-full px-2 py-0.5 text-xs font-extrabold ${active ? "bg-white text-brand" : "bg-brand text-white"}`} aria-label={`${unreadAlertCount} unread Retirement Watch alerts`}>
+                {unreadAlertCount > 99 ? "99+" : unreadAlertCount}
+              </span>
+            ) : null}
           </Link>
         );
       })}
@@ -57,7 +63,7 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-export default function AppShell({ children, userEmail, access }: { children: React.ReactNode; userEmail: string; access: SubscriptionAccess }) {
+export default function AppShell({ children, userEmail, access, unreadAlertCount = 0 }: { children: React.ReactNode; userEmail: string; access: SubscriptionAccess; unreadAlertCount?: number }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const isFree = !access.active;
 
@@ -65,7 +71,7 @@ export default function AppShell({ children, userEmail, access }: { children: Re
     <div className="min-h-screen bg-slate-50 text-ink lg:grid lg:grid-cols-[280px_1fr]">
       <aside className="sticky top-0 hidden h-screen border-r border-slate-200 bg-white px-5 py-6 lg:block">
         <LogoLink />
-        <SidebarNav />
+        <SidebarNav unreadAlertCount={unreadAlertCount} />
       </aside>
 
       <div className="min-w-0">
@@ -98,7 +104,7 @@ export default function AppShell({ children, userEmail, access }: { children: Re
               <button type="button" className="min-h-12 rounded-xl border border-slate-300 px-4 font-bold" onClick={() => setDrawerOpen(false)} aria-label="Close app navigation">✕</button>
             </div>
             <div className="mt-6"><LogoLink onClick={() => setDrawerOpen(false)} /></div>
-            <SidebarNav onNavigate={() => setDrawerOpen(false)} />
+            <SidebarNav onNavigate={() => setDrawerOpen(false)} unreadAlertCount={unreadAlertCount} />
             {isFree ? <Button href="/upgrade" onClick={() => setDrawerOpen(false)} className="mt-auto w-full text-base">Upgrade</Button> : null}
           </div>
         </div>

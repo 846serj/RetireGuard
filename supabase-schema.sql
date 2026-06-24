@@ -62,3 +62,12 @@ create policy "own sub" on subscriptions for select using (auth.uid() = user_id)
 -- content_items is readable by all authed users:
 alter table content_items enable row level security;
 create policy "read content" on content_items for select using (true);
+
+-- Lightweight engagement tracking for APP-3 /dashboard.
+alter table if exists profiles add column if not exists last_seen_at timestamptz;
+do $$
+begin
+  if to_regclass('public.profiles') is not null then
+    create index if not exists profiles_last_seen_at_idx on profiles (last_seen_at desc);
+  end if;
+end $$;
