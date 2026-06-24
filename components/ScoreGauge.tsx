@@ -11,6 +11,8 @@ type ScoreGaugeProps = {
   band?: ScoreBand;
   subScores?: SubScore[];
   delta?: string;
+  subtitle?: string;
+  badge?: string;
 };
 
 type ScoreBandMeta = {
@@ -87,7 +89,7 @@ function useCountUp(target: number) {
   return displayValue;
 }
 
-export function ScoreGauge({ value = 82, band, subScores = DEFAULT_SUB_SCORES, delta }: ScoreGaugeProps) {
+export function ScoreGauge({ value = 82, band, subScores = DEFAULT_SUB_SCORES, delta, subtitle = "Preview result", badge = "Free" }: ScoreGaugeProps) {
   const score = clampScore(value);
   const displayScore = useCountUp(score);
   const bandKey = normalizeBand(band) ?? scoreBandKey(score);
@@ -101,12 +103,12 @@ export function ScoreGauge({ value = 82, band, subScores = DEFAULT_SUB_SCORES, d
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-sm font-extrabold uppercase tracking-[0.16em] text-slate-500">Safety Score</p>
-            <p className="mt-1 text-base font-semibold text-slate-600">Preview result</p>
+            <p className="mt-1 text-base font-semibold text-slate-600">{subtitle}</p>
           </div>
           {delta ? (
             <span className="rounded-full bg-emerald-50 px-3 py-1 text-sm font-extrabold text-score-secure ring-1 ring-emerald-100">{delta}</span>
           ) : (
-            <span className="rounded-full bg-emerald-50 px-3 py-1 text-sm font-bold text-score-secure">Free</span>
+            <span className="rounded-full bg-emerald-50 px-3 py-1 text-sm font-bold text-score-secure">{badge}</span>
           )}
         </div>
 
@@ -128,11 +130,13 @@ export function ScoreGauge({ value = 82, band, subScores = DEFAULT_SUB_SCORES, d
 
         <p className="mx-auto mt-4 max-w-sm text-center text-base text-slate-700">{bandVerdict(activeBand.label)}</p>
 
-        <div className="mt-7 space-y-4">
-          {subScores.map((subScore) => (
-            <SubScoreBar key={subScore.label} label={subScore.label} value={subScore.value} caption={subScore.caption} scoreKey={subScore.scoreKey} />
-          ))}
-        </div>
+        {subScores.length > 0 ? (
+          <div className="mt-7 space-y-4">
+            {subScores.map((subScore) => (
+              <SubScoreBar key={subScore.label} label={subScore.label} value={subScore.value} caption={subScore.caption} scoreKey={subScore.scoreKey} />
+            ))}
+          </div>
+        ) : null}
       </div>
     </div>
   );
