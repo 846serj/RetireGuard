@@ -6,6 +6,7 @@ import { analyzeRothConversion } from "@/lib/engine/roth";
 import { guardrails } from "@/lib/engine/withdrawal";
 import { compareSocialSecurity } from "@/lib/engine/socialSecurity";
 import type { FinancialProfile } from "@/lib/engine/types";
+import { isProfileScoreable } from "@/lib/profileCompleteness";
 import { createClient } from "@/lib/supabase/server";
 import { hasPaidAccess } from "@/lib/subscription";
 import CoachChat from "@/components/CoachChat";
@@ -50,7 +51,7 @@ export default async function PlanPage() {
   if (!user) redirect("/login");
 
   const { data: profile } = await supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle();
-  if (!profile) redirect("/dashboard/tools/plan/setup");
+  if (!profile || !isProfileScoreable(profile, false)) redirect("/dashboard/tools/plan/setup");
   const paid = await hasPaidAccess(user.id);
 
   const typedProfile = profile as FinancialProfile;

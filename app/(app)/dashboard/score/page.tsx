@@ -5,17 +5,17 @@ import ScoreHistoryChart from "@/components/ScoreHistoryChart";
 import PlanList from "@/components/PlanList";
 import LockedTeaser from "@/components/LockedTeaser";
 import { Button, Eyebrow } from "@/components/ui";
-import { isProfileScoreable } from "@/lib/profileScoreable";
+import { isProfileScoreable } from "@/lib/profileCompleteness";
 import { getLatestScore, getPlanForLatest, requireUser, SUB_SCORE_LABELS } from "../_lib/dashboard";
 
 export default async function ScorePage() {
   const { supabase, user } = await requireUser("/dashboard/score");
   const access = await getSubscriptionAccess(user.id);
   const latest = await getLatestScore(supabase, user.id);
-  const { data: profile } = await supabase.from("profiles").select("user_id").eq("user_id", user.id).maybeSingle();
+  const { data: profile } = await supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle();
   const hasQuizScore = latest?.score_source === "quiz";
   const connectedScored = ["connected", "monthly_rescore"].includes(String(latest?.score_source ?? ""));
-  const scoreable = isProfileScoreable(profile, hasQuizScore, connectedScored);
+  const scoreable = isProfileScoreable(profile, hasQuizScore || connectedScored);
   const plan = scoreable ? await getPlanForLatest(supabase, latest) : [];
   const scoreHistory = access.active ? await getScoreHistory(supabase, user.id) : [];
   const scoreSubScores = latest?.sub_scores ? (Object.entries(SUB_SCORE_LABELS) as [keyof typeof SUB_SCORE_LABELS, string][]).map(([key, label]) => ({ label, value: Number(latest.sub_scores[key] ?? 0), scoreKey: key })) : [];

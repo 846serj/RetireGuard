@@ -46,12 +46,14 @@ function normalRandom(random: () => number) {
   return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
 }
 
+function knownNumber(value: number | null | undefined) { return value ?? 0; }
+
 function allocationStats(profile: FinancialProfile) {
   const assumptions = DEFAULT_ASSUMPTIONS.allocationAssumptions;
   const weights = {
-    stock: profile.stock_pct / 100,
-    bond: profile.bond_pct / 100,
-    cash: profile.cash_pct / 100,
+    stock: knownNumber(profile.stock_pct) / 100,
+    bond: knownNumber(profile.bond_pct) / 100,
+    cash: knownNumber(profile.cash_pct) / 100,
   };
   const expectedReturn = weights.stock * assumptions.stock.expectedReturn
     + weights.bond * assumptions.bond.expectedReturn

@@ -59,6 +59,42 @@ const STEPS: Step[] = [
   },
 ];
 
+
+const SUBMITTED_PROFILE_FIELDS = [
+  "birthdate",
+  "marital_status",
+  "spouse_birthdate",
+  "state",
+  "balance_taxable",
+  "taxable_cost_basis",
+  "balance_tax_deferred",
+  "balance_roth",
+  "stock_pct",
+  "bond_pct",
+  "cash_pct",
+  "ss_benefit_fra",
+  "ss_claim_age",
+  "spouse_ss_benefit_fra",
+  "spouse_ss_claim_age",
+  "pension_amount",
+  "pension_start_age",
+  "pension_has_cola",
+  "pension_survivor_pct",
+  "spending_essential_monthly",
+  "spending_discretionary_monthly",
+  "inflation_assumption",
+  "target_retirement_age",
+  "planning_horizon_age",
+] as const satisfies readonly (keyof FinancialProfile)[];
+
+function profilePayload(draft: ProfileDraft) {
+  const payload: Record<string, unknown> = {};
+  for (const field of SUBMITTED_PROFILE_FIELDS) payload[field] = draft[field] ?? null;
+  payload.inflation_assumption = draft.inflation_assumption ?? FINANCIAL_PROFILE_DEFAULTS.inflation_assumption;
+  payload.planning_horizon_age = draft.planning_horizon_age ?? FINANCIAL_PROFILE_DEFAULTS.planning_horizon_age;
+  return payload;
+}
+
 const ESSENTIAL_FIELDS: Field[] = [
   "age",
   "state",
@@ -98,22 +134,22 @@ function ageFromBirthdate(birthdate?: string | null) {
 
 function initialDraft(profile: Partial<FinancialProfile> | null, quizAnswers: Answers | null): ProfileDraft {
   const quizBalance = Number(quizAnswers?.savings ?? 0) || savingsBucketToBalance(quizAnswers?.savingsBucket);
-  const stockPct = Number(quizAnswers?.stockPct ?? profile?.stock_pct ?? 60);
+  const stockPct = quizAnswers?.stockPct !== undefined || profile?.stock_pct !== undefined ? Number(quizAnswers?.stockPct ?? profile?.stock_pct) : null;
   return {
     ...profile,
     age: ageFromBirthdate(profile?.birthdate) ?? (Number(quizAnswers?.age ?? "") || null),
     birthdate: profile?.birthdate ?? birthdateFromAge(Number(quizAnswers?.age ?? "")),
     state: profile?.state ?? quizAnswers?.state ?? null,
-    balance_taxable: profile?.balance_taxable ?? 0,
-    balance_tax_deferred: profile?.balance_tax_deferred ?? quizBalance ?? 0,
-    balance_roth: profile?.balance_roth ?? 0,
+    balance_taxable: profile?.balance_taxable ?? null,
+    balance_tax_deferred: profile?.balance_tax_deferred ?? quizBalance ?? null,
+    balance_roth: profile?.balance_roth ?? null,
     stock_pct: stockPct,
-    bond_pct: profile?.bond_pct ?? Math.max(0, 100 - stockPct - 10),
-    cash_pct: profile?.cash_pct ?? 10,
-    ss_benefit_fra: profile?.ss_benefit_fra ?? Number(quizAnswers?.guaranteedIncome ?? 0),
+    bond_pct: profile?.bond_pct ?? (stockPct !== null ? Math.max(0, 100 - stockPct - 10) : null),
+    cash_pct: profile?.cash_pct ?? (stockPct !== null ? 10 : null),
+    ss_benefit_fra: profile?.ss_benefit_fra ?? (quizAnswers?.guaranteedIncome !== undefined ? Number(quizAnswers.guaranteedIncome) : null),
     ss_claim_age: profile?.ss_claim_age ?? 67,
-    spending_essential_monthly: profile?.spending_essential_monthly ?? Number(quizAnswers?.essentialExpenses ?? 0),
-    spending_discretionary_monthly: profile?.spending_discretionary_monthly ?? 0,
+    spending_essential_monthly: profile?.spending_essential_monthly ?? (quizAnswers?.essentialExpenses !== undefined ? Number(quizAnswers.essentialExpenses) : null),
+    spending_discretionary_monthly: profile?.spending_discretionary_monthly ?? null,
     inflation_assumption: profile?.inflation_assumption ?? FINANCIAL_PROFILE_DEFAULTS.inflation_assumption,
     planning_horizon_age: profile?.planning_horizon_age ?? FINANCIAL_PROFILE_DEFAULTS.planning_horizon_age,
     pension_has_cola: profile?.pension_has_cola ?? false,
@@ -150,7 +186,7 @@ export default function ProfileSetupForm({
 
   async function saveProfile() {
     setStatus("saving");
-    const { age: _age, ...profile } = draft;
+    const profile = profilePayload(draft);
     const res = await fetch("/api/profile", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

@@ -8,7 +8,7 @@ import LockedTeaser from "@/components/LockedTeaser";
 import ScoreHydrator from "@/components/ScoreHydrator";
 import { ScoreGauge } from "@/components/ScoreGauge";
 import { Button, Eyebrow } from "@/components/ui";
-import { isProfileScoreable } from "@/lib/profileScoreable";
+import { isProfileScoreable } from "@/lib/profileCompleteness";
 import { formatCheckedDate, getLatestScore, requireUser, SUB_SCORE_LABELS, syncCheckoutSession } from "./_lib/dashboard";
 
 const PRIORITY_RANK = { High: 0, Medium: 1, Low: 2 } as const;
@@ -101,11 +101,11 @@ export default async function Dashboard({ searchParams }: DashboardProps) {
   const hasQuizScore = latest?.score_source === "quiz";
   const connectedScored = ["connected", "monthly_rescore"].includes(String(latest?.score_source ?? ""));
   const [{ data: profile }, { data: activity }, { data: previousScore }] = await Promise.all([
-    supabase.from("profiles").select("user_id").eq("user_id", user.id).maybeSingle(),
+    supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle(),
     supabase.from("user_activity").select("last_seen_at").eq("user_id", user.id).maybeSingle(),
     supabase.from("scores").select("id,overall,band,created_at,score_source").eq("user_id", user.id).neq("id", latest?.id ?? "").order("created_at", { ascending: false }).limit(1).maybeSingle(),
   ]);
-  const scoreable = isProfileScoreable(profile, hasQuizScore, connectedScored);
+  const scoreable = isProfileScoreable(profile, hasQuizScore || connectedScored);
   const lastSeenAt = activity?.last_seen_at as string | null | undefined;
   const { data: scoreAtLastSeen } = lastSeenAt
     ? await supabase.from("scores").select("id,overall,band,created_at,score_source").eq("user_id", user.id).lte("created_at", lastSeenAt).order("created_at", { ascending: false }).limit(1).maybeSingle()

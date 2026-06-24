@@ -88,7 +88,7 @@ export function compareSocialSecurity(profile: FinancialProfile, options: { mont
   const runs = options.monteCarloRuns ?? 300;
   const hasSpouse = Boolean(profile.spouse_ss_benefit_fra && profile.marital_status === "married");
   const strategies = Array.from({ length: 9 }, (_, i) => 62 + i).map((claimAge) => {
-    const workerMonthly = monthlyBenefit(profile.ss_benefit_fra, claimAge);
+    const workerMonthly = monthlyBenefit(profile.ss_benefit_fra ?? 0, claimAge);
     const spouseClaimAge = profile.spouse_ss_claim_age ?? claimAge;
     const spouseMonthly = hasSpouse ? monthlyBenefit(profile.spouse_ss_benefit_fra ?? 0, spouseClaimAge) : 0;
     const householdMonthlyBenefit = workerMonthly + spouseMonthly;

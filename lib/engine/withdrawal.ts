@@ -40,12 +40,14 @@ type SpendingProfileOptions = {
   preserveEssential?: boolean;
 };
 
+function knownNumber(value: number | null | undefined) { return value ?? 0; }
+
 function currentAnnualSpending(profile: FinancialProfile) {
-  return (profile.spending_essential_monthly + profile.spending_discretionary_monthly) * 12;
+  return (knownNumber(profile.spending_essential_monthly) + knownNumber(profile.spending_discretionary_monthly)) * 12;
 }
 
 function totalPortfolio(profile: FinancialProfile) {
-  return profile.balance_taxable + profile.balance_tax_deferred + profile.balance_roth;
+  return knownNumber(profile.balance_taxable) + knownNumber(profile.balance_tax_deferred) + knownNumber(profile.balance_roth);
 }
 
 function withAnnualSpending(profile: FinancialProfile, annualSpending: number, options: SpendingProfileOptions = {}): FinancialProfile {
@@ -54,7 +56,7 @@ function withAnnualSpending(profile: FinancialProfile, annualSpending: number, o
     return { ...profile, spending_essential_monthly: safeAnnual / 12, spending_discretionary_monthly: 0 };
   }
 
-  const essentialAnnual = Math.min(profile.spending_essential_monthly * 12, safeAnnual);
+  const essentialAnnual = Math.min(knownNumber(profile.spending_essential_monthly) * 12, safeAnnual);
   return {
     ...profile,
     spending_essential_monthly: essentialAnnual / 12,
