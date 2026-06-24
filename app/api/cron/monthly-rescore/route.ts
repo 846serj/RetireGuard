@@ -4,6 +4,8 @@ import { computeScores, type Answers } from "@/lib/scoring";
 import { createServiceClient } from "@/lib/supabase/server";
 import { sendRetirementWatchEmail } from "@/lib/email";
 import { getMatchedAlerts } from "@/lib/alerts";
+import { buildFinancialPicture, type SpendingAccount, type SpendingTransaction } from "@/lib/engine/spending";
+import { buildPortfolioAnalysis, type FinancialAccountRow, type HoldingRow, type SecurityRow } from "@/lib/engine/portfolio";
 
 type LatestScoreRow = {
   id: string;
@@ -57,6 +59,23 @@ async function rescoreUser(supabase: ReturnType<typeof createServiceClient>, use
   const row = latest as LatestScoreRow;
   const answers = row.answers as Answers;
   const result = computeScores(answers);
+  const [transactionsResult, accountsResult, holdingsResult, securitiesResult, historyResult] = await Promise.all([
+    supabase.from("transactions").select("*").eq("user_id", user.id),
+    supabase.from("financial_accounts").select("*").eq("user_id", user.id),
+    supabase.from("holdings").select("*").eq("user_id", user.id),
+    supabase.from("securities").select("*"),
+    supabase.from("scores").select("answers, created_at").eq("user_id", user.id).not("answers", "is", null).order("created_at", { ascending: true }),
+  ]);
+  const hasConnectedAccounts = (accountsResult.data?.length ?? 0) > 0 || (transactionsResult.data?.length ?? 0) > 0;
+  const connectedContext = hasConnectedAccounts && transactionsResult.data && accountsResult.data
+    ? {
+        transactions: transactionsResult.data as SpendingTransaction[],
+        financialPicture: buildFinancialPicture(transactionsResult.data as SpendingTransaction[], accountsResult.data as SpendingAccount[]),
+        portfolioAnalysis: buildPortfolioAnalysis((holdingsResult.data ?? []) as HoldingRow[], (securitiesResult.data ?? []) as SecurityRow[], accountsResult.data as FinancialAccountRow[]),
+        scoreHistory: (historyResult.data ?? []) as { answers?: { savings?: number | string | null } | null; created_at?: string | null }[],
+      }
+    : undefined;
+  const alerts = await getMatchedAlerts(supabase, answers, 5, connectedContext);
   const { error: insertError } = await supabase.from("scores").insert({
     user_id: user.id,
     overall: result.overall,
@@ -64,12 +83,12 @@ async function rescoreUser(supabase: ReturnType<typeof createServiceClient>, use
     band: result.band,
     answers: row.answers,
     score_source: "monthly_rescore",
+    matched_alerts: alerts,
   });
 
   if (insertError) return { userId: user.id, inserted: false, error: insertError.message };
 
   if (user.email) {
-    const alerts = await getMatchedAlerts(supabase, answers, 5);
     await sendRetirementWatchEmail(user.email, {
       previousOverall: row.overall,
       nextOverall: result.overall,

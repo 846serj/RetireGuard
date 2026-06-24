@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert";
 import { datedTriggerAlerts, generateDraftAlertsFromNewsroom } from "../lib/alertGenerator";
 import { getMatchedAlerts, type Alert } from "../lib/alerts";
+import { monitorRuleAlerts } from "../lib/connected/monitorRules";
 
 function supabaseWith(data: Alert[]) {
   const query: any = {
@@ -49,4 +50,39 @@ test("matched alerts filter state, age, status, and expiration while prioritizin
   assert.equal(alerts[0]?.personalized, true);
   assert.ok(alerts.some((alert) => alert.id === "scam"));
   assert.ok(!alerts.some((alert) => ["ca", "old", "future", "draft"].includes(alert.id)));
+});
+
+
+test("connected monitor rules flag a 12% portfolio drop", () => {
+  const alerts = monitorRuleAlerts({
+    now: new Date("2026-06-24T00:00:00Z"),
+    portfolioAnalysis: { totalValue: 88000 },
+    scoreHistory: [{ created_at: "2026-05-25T00:00:00Z", answers: { savings: 100000 } }],
+  });
+  assert.ok(alerts.some((alert) => alert.id === "monitor-portfolio-drop"));
+});
+
+test("connected monitor rules flag a missing Social Security deposit", () => {
+  const alerts = monitorRuleAlerts({
+    now: new Date("2026-06-24T00:00:00Z"),
+    financialPicture: { incomeSources: [{ name: "SOCIAL SECURITY", kind: "social_security", estimatedMonthlyAmount: 2100, occurrences: 3 }] },
+    recentTransactions: [
+      { date: "2026-03-03", amount: -2100, name: "SOCIAL SECURITY" },
+      { date: "2026-04-03", amount: -2100, name: "SOCIAL SECURITY" },
+      { date: "2026-06-03", amount: -2100, name: "SOCIAL SECURITY" },
+    ],
+  });
+  assert.ok(alerts.some((alert) => alert.id.startsWith("monitor-missing-income") && alert.category === "ss"));
+});
+
+test("matched IRMAA alert uses real connected YTD income instead of entered-income guess", async () => {
+  const alerts = await getMatchedAlerts(
+    supabaseWith([]),
+    { age: 66, worry: "healthcare", state: "TX", guaranteedIncome: 2000, savings: 100000, filingStatus: "single" } as any,
+    3,
+    { transactions: [{ date: "2026-02-01", amount: -120000, name: "PENSION DIRECT DEP" }], now: new Date("2026-06-24T00:00:00Z") },
+  );
+  const irmaa = alerts.find((alert) => alert.id === "personalized-irmaa-single");
+  assert.ok(irmaa);
+  assert.match(irmaa.body, /\$17,000 under/);
 });

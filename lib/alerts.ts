@@ -2,6 +2,8 @@
 
 import { IRMAA_BRACKETS } from "@/lib/engine/params/2026";
 import type { Answers } from "@/lib/scoring";
+import { monitorRuleAlerts, type MonitorRulesInput } from "@/lib/connected/monitorRules";
+import type { SpendingTransaction } from "@/lib/engine/spending";
 
 export type AlertCategory = "benefit" | "inflation" | "scam" | "tax" | "medicare" | "ss";
 export type AlertStatus = "draft" | "approved" | "published" | "archived";
@@ -41,6 +43,8 @@ type SupabaseLike = { from: (t: string) => any };
 
 type AlertProfile = Pick<Answers, "age" | "worry" | "state"> & Partial<Answers>;
 
+type AlertMatchContext = MonitorRulesInput & { transactions?: SpendingTransaction[] };
+
 function normalizeCategory(category: string): AlertCategory | string {
   return CATEGORY_FALLBACK[category] ?? category;
 }
@@ -52,7 +56,31 @@ function isLive(alert: Alert, now = new Date()) {
   return true;
 }
 
-function estimatedMagi(profile: AlertProfile) {
+function txnDate(txn: SpendingTransaction): Date | null {
+  if (!txn.date) return null;
+  const date = new Date(`${txn.date}T00:00:00Z`);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+export function realYtdIncomeFromTransactions(transactions: SpendingTransaction[] = [], now = new Date()): number | null {
+  let total = 0;
+  let found = false;
+  const year = now.getUTCFullYear();
+  for (const txn of transactions) {
+    const date = txnDate(txn);
+    const amount = Number(txn.amount ?? 0);
+    if (!date || date.getUTCFullYear() !== year || !Number.isFinite(amount) || amount >= 0) continue;
+    const text = `${txn.name ?? ""} ${txn.merchant_name ?? ""} ${typeof txn.personal_finance_category === "string" ? txn.personal_finance_category : ""} ${txn.category ?? ""}`.toUpperCase();
+    if (/TRANSFER|LOAN|CREDIT CARD|PAYMENT|VENMO|ZELLE|CASH APP|SAVINGS|CHECKING/.test(text) && !/PAYROLL|PAYCHECK|SALARY|PENSION|SSA|SOCIAL SECURITY|DIVIDEND|INTEREST/.test(text)) continue;
+    total += Math.abs(amount);
+    found = true;
+  }
+  return found ? total : null;
+}
+
+function estimatedMagi(profile: AlertProfile, transactions?: SpendingTransaction[], now = new Date()) {
+  const realYtdIncome = realYtdIncomeFromTransactions(transactions, now);
+  if (realYtdIncome !== null) return realYtdIncome;
   const annualGuaranteed = Math.max(0, profile.guaranteedIncome ?? 0) * 12;
   const annualSs = Math.max(0, profile.ssaBenefitEstimate ?? 0) * 12;
   const taxableSsEstimate = annualSs * 0.85;
@@ -64,19 +92,19 @@ function filingStatus(profile: AlertProfile): "single" | "married" {
   return profile.filingStatus === "married_joint" || profile.filingStatus === "married_separate" || (profile.spouseAge ?? 0) > 0 ? "married" : "single";
 }
 
-function personalizedAlerts(profile: AlertProfile): Alert[] {
-  const now = new Date().toISOString();
+function personalizedAlerts(profile: AlertProfile, context?: AlertMatchContext): Alert[] {
+  const now = (context?.now ?? new Date()).toISOString();
   const alerts: Alert[] = [];
   if (profile.age >= 63) {
     const status = filingStatus(profile);
-    const magi = estimatedMagi(profile);
+    const magi = estimatedMagi(profile, context?.transactions ?? context?.recentTransactions, context?.now);
     const next = IRMAA_BRACKETS[status].find((bracket) => Number.isFinite(bracket.upTo) && bracket.upTo > magi);
     if (next) {
       const room = Math.max(0, Math.round(next.upTo - magi));
       alerts.push({
         id: `personalized-irmaa-${status}`,
         title: "Your estimated IRMAA room",
-        body: `Based on the income and savings you entered, you appear to be about $${room.toLocaleString()} under the next Medicare IRMAA line for ${status === "married" ? "married filers" : "single filers"}. Use this as an education-only prompt before Roth conversions, capital gains, or large withdrawals.`,
+        body: `Based on your connected year-to-date income when available, you appear to be about $${room.toLocaleString()} under the next Medicare IRMAA line for ${status === "married" ? "married filers" : "single filers"}. Use this as an education-only prompt before Roth conversions, capital gains, or large withdrawals.`,
         category: "medicare",
         states: null,
         min_age: 63,
@@ -114,7 +142,8 @@ function personalizedAlerts(profile: AlertProfile): Alert[] {
 export async function getMatchedAlerts(
   supabase: SupabaseLike,
   profile: AlertProfile,
-  limit = 12
+  limit = 12,
+  context?: AlertMatchContext
 ): Promise<Alert[]> {
   const { data } = await supabase
     .from("content_items")
@@ -131,7 +160,8 @@ export async function getMatchedAlerts(
     .filter((it: Alert) => !it.states || it.states.length === 0 || (profile.state ? it.states.includes(profile.state) : false));
 
   const topCat = WORRY_CATEGORY[profile.worry] ?? "";
-  const combined = [...personalizedAlerts(profile), ...items];
+  const connectedAlerts = context ? monitorRuleAlerts({ ...context, recentTransactions: context.recentTransactions ?? context.transactions }) : [];
+  const combined = [...personalizedAlerts(profile, context), ...connectedAlerts, ...items];
   combined.sort((a, b) => Number(b.personalized ?? false) - Number(a.personalized ?? false) || (b.category === topCat ? 1 : 0) - (a.category === topCat ? 1 : 0));
   return combined.slice(0, limit);
 }
