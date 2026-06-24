@@ -19,14 +19,35 @@ export const features = {
     ctaHeading: "Ready to see where your retirement stands?",
     ctaBody: "Get your free Retirement Safety Score in about two minutes. No account, no bank linking, no catch.",
     benefits: [
-      [WalletCards, "Income clarity", "See at a glance whether your guaranteed income — Social Security, pensions, and annuities — actually covers your essential bills, and how big any gap is."],
-      [LineChart, "Withdrawal confidence", "Understand how your spending choices affect whether your savings last, so you know what's safe to spend and what to keep an eye on."],
-      [Sparkles, "Prioritized actions", "Instead of a vague to-do list, get the two or three moves that would raise your score the most, each explained in plain English."],
+      [
+        WalletCards,
+        "Income clarity",
+        "See at a glance whether your guaranteed income — Social Security, pensions, and annuities — actually covers your essential bills, and how big any gap is.",
+      ],
+      [
+        LineChart,
+        "Withdrawal confidence",
+        "Understand how your spending choices affect whether your savings last, so you know what's safe to spend and what to keep an eye on.",
+      ],
+      [
+        Sparkles,
+        "Prioritized actions",
+        "Instead of a vague to-do list, get the two or three moves that would raise your score the most, each explained in plain English.",
+      ],
     ],
     faqs: [
-      ["Do I need to link accounts?", "No. You never connect a bank, brokerage, or any account. You answer a few simple questions and we do the rest. Nothing is linked, ever."],
-      ["Is this financial advice?", "No. RetireShield gives you education and plain-English context to understand your retirement — not individualized financial, tax, or legal advice. For decisions specific to you, we point you to what to ask a fiduciary."],
-      ["How long does it take?", "About two minutes. Nine simple questions, no documents to dig up, and you see your score right away."],
+      [
+        "Do I need to link accounts?",
+        "No. You never connect a bank, brokerage, or any account. You answer a few simple questions and we do the rest. Nothing is linked, ever.",
+      ],
+      [
+        "Is this financial advice?",
+        "No. RetireShield gives you education and plain-English context to understand your retirement — not individualized financial, tax, or legal advice. For decisions specific to you, we point you to what to ask a fiduciary.",
+      ],
+      [
+        "How long does it take?",
+        "About two minutes. Nine simple questions, no documents to dig up, and you see your score right away.",
+      ],
     ],
   },
   monitoring: {
