@@ -19,6 +19,7 @@ import ScoreHistoryChart from "@/components/ScoreHistoryChart";
 import { stripe } from "@/lib/stripe";
 import { Button, Eyebrow } from "@/components/ui";
 import { buildFinancialPicture, type SpendingAccount, type SpendingTransaction } from "@/lib/engine/spending";
+import { buildPortfolioAnalysis, type FinancialAccountRow, type HoldingRow, type SecurityRow } from "@/lib/engine/portfolio";
 
 
 type DashboardProps = {
@@ -62,6 +63,19 @@ function formatRenewDate(value?: string | null) {
 function formatCheckedDate(value?: string) {
   if (!value) return "Not checked yet";
   return new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric", year: "numeric" }).format(new Date(value));
+}
+
+function formatMoney(value: number) {
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(Number.isFinite(value) ? value : 0);
+}
+
+function formatPercent(value: number) {
+  return `${Math.round((Number.isFinite(value) ? value : 0) * 100)}%`;
+}
+
+function formatMonths(value: number) {
+  if (value === Infinity) return "∞";
+  return Number.isFinite(value) ? value.toFixed(1) : "0.0";
 }
 
 async function syncCheckoutSession(sessionId: string, userId: string) {
@@ -134,18 +148,40 @@ export default async function Dashboard({ searchParams }: DashboardProps) {
       await supabase.from("scores").update({ ai_plan: plan }).eq("id", latest.id);
     }
   }
-  const [{ data: transactions }, { data: accounts }, { data: trustedContacts }] = paid
+  const [transactionsResult, accountsResult, holdingsResult, securitiesResult, profileResult, trustedContactsResult] = paid
     ? await Promise.all([
         supabase.from("transactions").select("*").eq("user_id", user.id),
         supabase.from("financial_accounts").select("*").eq("user_id", user.id),
+        supabase.from("holdings").select("*").eq("user_id", user.id),
+        supabase.from("securities").select("*"),
+        supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle(),
         supabase.from("trusted_contacts").select("name,email,consent_at").eq("user_id", user.id).order("created_at", { ascending: false }),
       ])
-    : [{ data: [] }, { data: [] }, { data: [] }];
+    : [
+        { data: [], error: null },
+        { data: [], error: null },
+        { data: [], error: null },
+        { data: [], error: null },
+        { data: null, error: null },
+        { data: [], error: null },
+      ];
+  const transactions = (transactionsResult.data ?? []) as SpendingTransaction[];
+  const accounts = (accountsResult.data ?? []) as SpendingAccount[];
+  const holdings = (holdingsResult.data ?? []) as HoldingRow[];
+  const securities = (securitiesResult.data ?? []) as SecurityRow[];
+  const connectedDataError = transactionsResult.error || accountsResult.error || holdingsResult.error || securitiesResult.error || profileResult.error;
+  const financialPicture = buildFinancialPicture(transactions, accounts);
+  const portfolioAnalysis = buildPortfolioAnalysis(holdings, securities, accounts as FinancialAccountRow[]);
+  const hasConnectedScore = ["connected", "monthly_rescore"].includes(String(latest?.score_source ?? ""));
+  const hasConnectedProfile = !!profileResult.data && (accounts.length > 0 || transactions.length > 0 || holdings.length > 0);
+  const hasLinkedAccounts = paid && !connectedDataError && (hasConnectedScore || hasConnectedProfile);
+  const coveragePct = financialPicture.monthlyEssential > 0 ? financialPicture.guaranteedIncome / financialPicture.monthlyEssential : 0;
   const alerts = paid && answers
     ? await getMatchedAlerts(supabase, { state: answers.state, age: answers.age, worry: answers.worry }, 12, {
-        transactions: (transactions ?? []) as SpendingTransaction[],
-        accounts: (accounts ?? []) as SpendingAccount[],
-        financialPicture: buildFinancialPicture((transactions ?? []) as SpendingTransaction[], (accounts ?? []) as SpendingAccount[]),
+        transactions,
+        accounts,
+        financialPicture,
+        portfolioAnalysis,
       })
     : [];
   const scoreSubScores = latest?.sub_scores
@@ -190,7 +226,7 @@ export default async function Dashboard({ searchParams }: DashboardProps) {
             band={latest.band}
             subScores={scoreSubScores}
             badge="First check-in"
-            subtitle="Your current retirement readiness snapshot"
+            subtitle={hasLinkedAccounts ? `Based on your connected accounts · updated ${checkedDate}` : "Based on your quiz answers"}
           />
         ) : (
           <div className="rg-card flex min-h-[28rem] flex-col items-center justify-center text-center">
@@ -218,7 +254,57 @@ export default async function Dashboard({ searchParams }: DashboardProps) {
         </div>
       </section>
 
-      <ConnectAccounts institutions={connectedInstitutions ?? []} />
+      {hasLinkedAccounts ? <ConnectAccounts institutions={connectedInstitutions ?? []} /> : null}
+
+      <section className="rg-card mb-8" aria-labelledby="connected-money-heading">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <p className="rg-kicker">Your connected money</p>
+            <h2 id="connected-money-heading" className="mt-2 text-3xl font-extrabold">{hasLinkedAccounts ? "Real account-powered snapshot" : "Connect your accounts to get your real score"}</h2>
+            <p className="mt-3 text-slate-700">
+              {hasLinkedAccounts
+                ? `Based on your connected accounts · updated ${checkedDate}`
+                : "Keep your quiz score, then add read-only bank and brokerage data when you are ready for real spending, cushion, and fee monitoring."}
+            </p>
+          </div>
+          {!hasLinkedAccounts ? <div className="lg:min-w-64"><ConnectAccounts institutions={[]} /></div> : null}
+        </div>
+
+        {paid && connectedDataError ? (
+          <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-800">
+            We could not load connected account data right now. Your quiz score and plan are still available below.
+          </div>
+        ) : hasLinkedAccounts ? (
+          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <p className="text-sm font-bold text-slate-500">Monthly essential spend</p>
+              <p className="mt-2 text-2xl font-extrabold text-ink">{formatMoney(financialPicture.monthlyEssential)}</p>
+              <p className="mt-1 text-xs text-slate-600">From connected transactions</p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <p className="text-sm font-bold text-slate-500">Guaranteed-income coverage</p>
+              <p className="mt-2 text-2xl font-extrabold text-ink">{formatPercent(coveragePct)}</p>
+              <p className="mt-1 text-xs text-slate-600">{formatMoney(financialPicture.guaranteedIncome)}/mo guaranteed income</p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <p className="text-sm font-bold text-slate-500">Cash-cushion months</p>
+              <p className="mt-2 text-2xl font-extrabold text-ink">{formatMonths(financialPicture.cushionMonths)}</p>
+              <p className="mt-1 text-xs text-slate-600">{formatMoney(financialPicture.cashOnHand)} connected cash</p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <p className="text-sm font-bold text-slate-500">Portfolio + fee drag</p>
+              <p className="mt-2 text-2xl font-extrabold text-ink">{formatMoney(portfolioAnalysis.totalValue)}</p>
+              <p className="mt-1 text-xs text-slate-600">Stocks {formatPercent(portfolioAnalysis.equityPct)} · Bonds {formatPercent(portfolioAnalysis.bondPct)} · Cash {formatPercent(portfolioAnalysis.cashPct)}</p>
+              <p className="mt-2 text-sm font-bold text-slate-700">Fee drag: {formatMoney(portfolioAnalysis.feeDragAnnual ?? 0)}/yr{portfolioAnalysis.partial ? " · partial (some expense ratios are incomplete)" : ""}</p>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+            <p className="font-bold text-ink">No connected account snapshot yet.</p>
+            <p className="mt-2 text-sm text-slate-600">Your quiz-only score stays intact until connected data is available. The secure connection panel is loading its read-only Plaid link token and will show an error message if setup cannot start.</p>
+          </div>
+        )}
+      </section>
 
       <section className="mb-8" aria-labelledby="premium-tools-heading">
         <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -322,7 +408,7 @@ export default async function Dashboard({ searchParams }: DashboardProps) {
                 <h2 id="trusted-contacts-heading" className="mt-2 text-3xl font-extrabold">Trusted contact alerts</h2>
                 <p className="mt-3 text-slate-700">Add someone you trust. We email them only when connected-account monitoring sees a high-risk scam flag and you have given consent.</p>
                 <div className="mt-4 space-y-3">
-                  {(trustedContacts ?? []).length > 0 ? (trustedContacts ?? []).map((contact: any) => (
+                  {(trustedContactsResult.data ?? []).length > 0 ? (trustedContactsResult.data ?? []).map((contact: any) => (
                     <div key={contact.email} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                       <p className="font-bold text-ink">{contact.name}</p>
                       <p className="text-sm text-slate-600">{contact.email}</p>
