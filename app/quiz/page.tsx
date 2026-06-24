@@ -18,6 +18,15 @@ const SUB_LABEL: Record<keyof SubScores, string> = {
   inflation: "Inflation Impact", market: "Market-Risk Buffer",
 };
 
+function getAuthCallbackUrl() {
+  const configuredBaseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const baseUrl = configuredBaseUrl?.startsWith("http")
+    ? configuredBaseUrl.replace(/\/$/, "")
+    : window.location.origin;
+
+  return `${baseUrl}/auth/callback`;
+}
+
 export default function Quiz() {
   const [step, setStep] = useState(0);
   const [introComplete, setIntroComplete] = useState(false);
@@ -121,7 +130,7 @@ export default function Quiz() {
         email: normalizedEmail,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          emailRedirectTo: getAuthCallbackUrl(),
         },
       });
       if (error) {
@@ -135,6 +144,12 @@ export default function Quiz() {
       }
 
       if (!data.session) {
+        const existingUser = data.user?.identities?.length === 0;
+        if (existingUser) {
+          setAccountNotice("That email is already registered. Log in instead to continue to your dashboard.");
+          return;
+        }
+
         setAccountNotice("Check your email to confirm your account. After confirming, we’ll send you to your dashboard and save this score there.");
         setAwaitingEmailConfirmation(true);
         return;
