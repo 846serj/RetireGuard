@@ -38,8 +38,8 @@ export default function ResourcesPage({ searchParams }: ResourcesPageProps) {
           </div>
           <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-xl sm:p-8">
             <BookOpen className="h-14 w-14 text-brand" aria-hidden="true" />
-            <h2 className="mt-6 text-3xl font-extrabold tracking-tight text-ink">Built as the SEO library for Retirement Watch.</h2>
-            <p className="mt-4 text-lg leading-8 text-slate-700">This index is wired to a local content source today, so new guide cards can be added quickly while the site network and social channels point visitors to useful education.</p>
+            <h2 className="mt-6 text-3xl font-extrabold tracking-tight text-ink">New guides every week</h2>
+            <p className="mt-4 text-lg leading-8 text-slate-700">We add plain-English retirement guides regularly. Bookmark this page, or get them in your inbox with the free weekly Retirement Watch.</p>
           </div>
         </Container>
       </section>
