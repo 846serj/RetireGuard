@@ -103,8 +103,10 @@ function currentAge(birthdate: string | null) {
   return CURRENT_YEAR - Number(birthdate.slice(0, 4));
 }
 
+function knownNumber(value: number | null | undefined) { return value ?? 0; }
+
 function expectedReturn(profile: FinancialProfile) {
-  return (profile.stock_pct / 100) * EXPECTED_RETURNS.stock + (profile.bond_pct / 100) * EXPECTED_RETURNS.bond + (profile.cash_pct / 100) * EXPECTED_RETURNS.cash;
+  return (knownNumber(profile.stock_pct) / 100) * EXPECTED_RETURNS.stock + (knownNumber(profile.bond_pct) / 100) * EXPECTED_RETURNS.bond + (knownNumber(profile.cash_pct) / 100) * EXPECTED_RETURNS.cash;
 }
 
 function withdraw(amount: number, balances: { taxable: number; taxDeferred: number; roth: number }) {
@@ -135,17 +137,17 @@ export function runProjection(profile: FinancialProfile, options: { annualReturn
   const status = filingStatusFromMaritalStatus(profile.marital_status);
   const rate = expectedReturn(profile);
   const rows: ProjectionYear[] = [];
-  const balances = { taxable: profile.balance_taxable, taxDeferred: profile.balance_tax_deferred, roth: profile.balance_roth };
+  const balances = { taxable: knownNumber(profile.balance_taxable), taxDeferred: knownNumber(profile.balance_tax_deferred), roth: knownNumber(profile.balance_roth) };
   let depletionAge: number | null = null;
 
   for (let age = startAge; age <= profile.planning_horizon_age; age++) {
     const yearIndex = age - startAge;
-    const ss = socialSecurityForAge(profile.ss_benefit_fra, profile.ss_claim_age, age)
+    const ss = socialSecurityForAge(profile.ss_benefit_fra ?? 0, profile.ss_claim_age, age)
       + socialSecurityForAge(profile.spouse_ss_benefit_fra ?? 0, profile.spouse_ss_claim_age, age);
     const pensionBase = profile.pension_start_age && age >= profile.pension_start_age ? (profile.pension_amount ?? 0) * 12 : 0;
     const pension = profile.pension_has_cola ? pensionBase * (1 + profile.inflation_assumption) ** Math.max(0, age - (profile.pension_start_age ?? age)) : pensionBase;
     const income = ss + pension;
-    const spending = (profile.spending_essential_monthly + profile.spending_discretionary_monthly) * 12 * (1 + profile.inflation_assumption) ** yearIndex;
+    const spending = (knownNumber(profile.spending_essential_monthly) + knownNumber(profile.spending_discretionary_monthly)) * 12 * (1 + profile.inflation_assumption) ** yearIndex;
 
     const rmd = Math.min(balances.taxDeferred, rmdAmount(age, balances.taxDeferred));
     balances.taxDeferred -= rmd;
@@ -155,7 +157,8 @@ export function runProjection(profile: FinancialProfile, options: { annualReturn
       ? bracketFillRoom({ status, ages: [age], ordinaryIncome: pension + rmd, socialSecurity: ss, targetBracketRate: options.targetBracketRate ?? 0.12, avoidIrmaa: true })
       : Infinity;
     const draw = options.drawdownMode === "taxOptimized" ? withdrawTaxOptimized(gapBeforeTaxes, balances, taxDeferredRoom) : withdraw(gapBeforeTaxes, balances);
-    const taxableBasisRatio = profile.balance_taxable > 0 ? Math.min(1, Math.max(0, (profile.taxable_cost_basis ?? profile.balance_taxable) / profile.balance_taxable)) : 1;
+    const taxableBasis = knownNumber(profile.balance_taxable);
+    const taxableBasisRatio = taxableBasis > 0 ? Math.min(1, Math.max(0, (profile.taxable_cost_basis ?? taxableBasis) / taxableBasis)) : 1;
     const capGains = draw.taxable * (1 - taxableBasisRatio);
     const finalTax = totalIncomeTaxes({ status, ages: [age], ordinaryIncome: pension + rmd + draw.taxDeferred, socialSecurity: ss, longTermCapitalGains: capGains, state: profile.state });
     const extraTax = Math.max(0, finalTax.total - firstTax.total);

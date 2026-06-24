@@ -33,8 +33,10 @@ function currentAge(birthdate: string | null) {
   return CURRENT_YEAR - Number(birthdate.slice(0, 4));
 }
 
+function knownNumber(value: number | null | undefined) { return value ?? 0; }
+
 function expectedReturn(profile: FinancialProfile) {
-  return (profile.stock_pct / 100) * EXPECTED_RETURNS.stock + (profile.bond_pct / 100) * EXPECTED_RETURNS.bond + (profile.cash_pct / 100) * EXPECTED_RETURNS.cash;
+  return (knownNumber(profile.stock_pct) / 100) * EXPECTED_RETURNS.stock + (knownNumber(profile.bond_pct) / 100) * EXPECTED_RETURNS.bond + (knownNumber(profile.cash_pct) / 100) * EXPECTED_RETURNS.cash;
 }
 
 function socialSecurityForAge(monthlyFraBenefit: number, claimAge: number | null, age: number) {
@@ -64,7 +66,7 @@ export function bracketFillRoom(input: { status: FilingStatus; ages: number[]; o
 }
 
 function baselineIncome(profile: FinancialProfile, age: number) {
-  const ss = socialSecurityForAge(profile.ss_benefit_fra, profile.ss_claim_age, age) + socialSecurityForAge(profile.spouse_ss_benefit_fra ?? 0, profile.spouse_ss_claim_age, age);
+  const ss = socialSecurityForAge(profile.ss_benefit_fra ?? 0, profile.ss_claim_age, age) + socialSecurityForAge(profile.spouse_ss_benefit_fra ?? 0, profile.spouse_ss_claim_age, age);
   const pensionBase = profile.pension_start_age && age >= profile.pension_start_age ? (profile.pension_amount ?? 0) * 12 : 0;
   const pension = profile.pension_has_cola ? pensionBase * (1 + profile.inflation_assumption) ** Math.max(0, age - (profile.pension_start_age ?? age)) : pensionBase;
   return { ss, pension };
@@ -74,7 +76,7 @@ function lifetimeScenario(profile: FinancialProfile, convert: boolean, targetBra
   const status = filingStatusFromMaritalStatus(profile.marital_status);
   const startAge = currentAge(profile.birthdate);
   const rate = expectedReturn(profile);
-  const balances = { taxDeferred: profile.balance_tax_deferred, roth: profile.balance_roth };
+  const balances = { taxDeferred: knownNumber(profile.balance_tax_deferred), roth: knownNumber(profile.balance_roth) };
   let federal = 0;
   let irmaa = 0;
   let converted = 0;

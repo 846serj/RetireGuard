@@ -51,7 +51,7 @@ const NUMERIC_FIELDS = new Set<string>([
   "planning_horizon_age",
 ]);
 
-function normalizeProfile(input: Record<string, unknown>, userId: string) {
+function normalizeProfile(input: Record<string, unknown>, userId: string, includeMissingAsNull = false) {
   const row: Record<string, unknown> = {
     user_id: userId,
     inflation_assumption: FINANCIAL_PROFILE_DEFAULTS.inflation_assumption,
@@ -59,8 +59,9 @@ function normalizeProfile(input: Record<string, unknown>, userId: string) {
   };
 
   for (const field of PROFILE_FIELDS) {
-    if (!(field in input)) continue;
-    const value = input[field];
+    const hasValue = field in input;
+    if (!hasValue && !includeMissingAsNull) continue;
+    const value = hasValue ? input[field] : null;
     if (value === "" || value === undefined) {
       row[field] = null;
     } else if (NUMERIC_FIELDS.has(field)) {
@@ -103,7 +104,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Invalid profile" }, { status: 400 });
   }
 
-  const row = normalizeProfile(body as Record<string, unknown>, user.id);
+  const { data: existingProfile, error: existingError } = await supabase
+    .from("profiles")
+    .select("user_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (existingError) return NextResponse.json({ ok: false, error: existingError.message }, { status: 500 });
+
+  const row = normalizeProfile(body as Record<string, unknown>, user.id, !existingProfile);
   const { data, error } = await supabase
     .from("profiles")
     .upsert(row, { onConflict: "user_id" })
