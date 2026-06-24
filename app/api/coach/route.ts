@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getSubscriptionAccess } from "@/lib/subscription";
+import { COACH_MESSAGE_CAPS, getSubscriptionAccess, hasPaidAccess, type SubscriptionTier } from "@/lib/subscription";
 import { getAnthropicClient, anthropicModel, timeoutSignal } from "@/lib/ai/client";
 import { coachGuardrailResponse, SAFETY_SYSTEM } from "@/lib/ai/guardrails";
 import { runProjection } from "@/lib/engine/projection";
@@ -11,7 +11,6 @@ import { filingStatusFromMaritalStatus, irmaaSurcharge, rmdAmount, totalIncomeTa
 import { computeScores, type Answers } from "@/lib/scoring";
 
 const MAX_PER_HOUR = 20;
-const PLUS_MONTHLY_MESSAGES = 25;
 const MAX_TOOL_LOOPS = 6;
 const STANDARD_DISCLAIMER = "RetireGuard provides education only, not financial, investment, tax, legal, or insurance advice. It is not a fiduciary and does not recommend buying, selling, holding, or allocating any specific investment or product. For decisions about your situation, talk with a licensed fiduciary or qualified tax professional.";
 const fallback = `The AI coach is unavailable right now. ${STANDARD_DISCLAIMER}`;
@@ -56,8 +55,13 @@ function compactProjection(result: ReturnType<typeof runProjection>) {
   return { depletionAge: result.depletionAge, firstYear: result.years[0], lastYear: result.years.at(-1), sampleYears: result.years.filter((_, i) => i % 5 === 0).slice(0, 8) };
 }
 
-function coachJson(answer: string, calculations: CalculationTrace[] = [], init?: ResponseInit) {
-  return NextResponse.json({ answer, calculations }, init);
+function coachJson(answer: string, calculations: CalculationTrace[] = [], init?: ResponseInit, usage?: { tier: SubscriptionTier; remaining: number | null; cap: number | null }) {
+  return NextResponse.json({ answer, calculations, usage }, init);
+}
+
+function usageMeta(tier: SubscriptionTier, monthlyCount = 0) {
+  const cap = tier === "plus" ? COACH_MESSAGE_CAPS.plus : null;
+  return { tier, cap, remaining: cap === null ? null : Math.max(0, cap - monthlyCount) };
 }
 
 function numberInput(value: unknown, fallbackValue = 0) {
@@ -80,19 +84,21 @@ export async function POST(req: Request) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return coachJson("Sign in to use the coach.", [], { status: 401 });
 
-  const access = await getSubscriptionAccess(user.id);
-  if (!access.active) return coachJson("Upgrade to use the coach.", [], { status: 403 });
+  const [paid, access] = await Promise.all([hasPaidAccess(user.id), getSubscriptionAccess(user.id)]);
+  if (!paid) return coachJson("Upgrade to use the coach.", [], { status: 403 }, usageMeta("free"));
 
   const since = new Date(Date.now() - 60 * 60 * 1000).toISOString();
   const { count } = await supabase.from("coach_usage").select("id", { count: "exact", head: true }).eq("user_id", user.id).gte("created_at", since);
   if ((count ?? 0) >= MAX_PER_HOUR) return coachJson("Hourly safety limit reached. Please try again later.", [], { status: 429 });
 
+  let monthlyCountForResponse: number | null = null;
   if (access.tier === "plus") {
     const monthStart = new Date();
     monthStart.setUTCDate(1);
     monthStart.setUTCHours(0, 0, 0, 0);
     const { count: monthlyCount } = await supabase.from("coach_usage").select("id", { count: "exact", head: true }).eq("user_id", user.id).gte("created_at", monthStart.toISOString());
-    if ((monthlyCount ?? 0) >= PLUS_MONTHLY_MESSAGES) return coachJson("Plus coach allowance reached for this month. Upgrade to Premium for unlimited coach messages.", [], { status: 402 });
+    monthlyCountForResponse = monthlyCount ?? 0;
+    if ((monthlyCount ?? 0) >= COACH_MESSAGE_CAPS.plus) return coachJson("Plus coach allowance reached for this month. Upgrade to Premium for unlimited coach messages.", [], { status: 402 }, usageMeta(access.tier, monthlyCount ?? 0));
   }
 
   const usage = await supabase.from("coach_usage").insert({ user_id: user.id, tier: access.tier, plan: access.plan }).select("id").maybeSingle();
@@ -165,7 +171,7 @@ export async function POST(req: Request) {
     const rawText = (response?.content ?? []).filter((block: any) => block.type === "text").map((block: any) => block.text).join("\n").trim() || fallback;
     const answer = rawText.includes(STANDARD_DISCLAIMER) ? rawText : `${rawText}\n\n${STANDARD_DISCLAIMER}`;
     if (logId) await supabase.from("coach_usage").update({ tool_calls: calculations.length, prompt_chars: incoming.reduce((sum, m) => sum + m.content.length, 0) }).eq("id", logId);
-    return coachJson(answer, calculations);
+    return coachJson(answer, calculations, undefined, usageMeta(access.tier, access.tier === "plus" ? ((monthlyCountForResponse ?? 0) + 1) : 0));
   } catch (error) {
     console.error("Coach failed", { userId: user.id, error });
     if (logId) await supabase.from("coach_usage").update({ error: error instanceof Error ? error.message.slice(0, 500) : "Coach failed" }).eq("id", logId);
