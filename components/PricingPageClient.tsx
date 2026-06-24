@@ -2,10 +2,10 @@
 
 import { Fragment, useId, useState } from "react";
 import { Check, Minus, ShieldCheck, Sparkles, UserRoundCheck } from "lucide-react";
+import { BillingToggle } from "@/components/BillingToggle";
 import { Button, Container, Disclaimer, Eyebrow } from "@/components/ui";
+import { alternatePrice, type BillingCycle, pricingTiers, primaryPrice, type TierKey } from "@/lib/pricing";
 
-type BillingCycle = "monthly" | "annual";
-type TierKey = "free" | "plus" | "premium" | "concierge";
 type FeatureValue = boolean | string;
 
 type FeatureRow = {
@@ -18,21 +18,16 @@ type FeatureGroup = {
   rows: FeatureRow[];
 };
 
-const tiers: Array<{
-  key: TierKey;
-  name: string;
-  monthlyPrice: string;
-  annualPrice: string;
-  annualSubtext: string;
-  description: string;
-  cta: string;
-  popular?: boolean;
-}> = [
-  { key: "free", name: "Free", monthlyPrice: "$0", annualPrice: "$0", annualSubtext: "Always free", description: "Get your Safety Score and first actions without a credit card.", cta: "Start free" },
-  { key: "plus", name: "Plus", monthlyPrice: "$19", annualPrice: "$190", annualSubtext: "2 months free", description: "Monthly monitoring, alerts, and coach help when your plan needs attention.", cta: "Choose Plus" },
-  { key: "premium", name: "Premium", monthlyPrice: "$39", annualPrice: "$390", annualSubtext: "2 months free", description: "Deeper retirement tools, unlimited coach guidance, and score history.", cta: "Choose Premium", popular: true },
-  { key: "concierge", name: "Concierge", monthlyPrice: "From $99", annualPrice: "From $990", annualSubtext: "2 months free", description: "Human checkups for families who want extra help staying organized.", cta: "Talk to us" },
-];
+const tiers = pricingTiers.map((tier) => ({
+  ...tier,
+  description: {
+    free: "Get your Safety Score and first actions without a credit card.",
+    plus: "Monthly monitoring, alerts, and coach help when your plan needs attention.",
+    premium: "Deeper retirement tools, unlimited coach guidance, and score history.",
+    concierge: "Human checkups for families who want extra help staying organized.",
+  }[tier.key],
+  cta: { free: "Start free", plus: "Choose Plus", premium: "Choose Premium", concierge: "Talk to us" }[tier.key],
+}));
 
 const featureGroups: FeatureGroup[] = [
   { name: "Safety Score & actions", rows: [
@@ -84,9 +79,6 @@ function FeatureCell({ value }: { value: FeatureValue }) {
   return <span className="text-sm font-semibold text-slate-700">{value}</span>;
 }
 
-function BillingToggle({ billing, setBilling }: { billing: BillingCycle; setBilling: (billing: BillingCycle) => void }) {
-  return <div className="inline-flex rounded-2xl border border-slate-200 bg-white p-1 shadow-sm" role="group" aria-label="Choose billing cycle">{(["monthly", "annual"] as BillingCycle[]).map((cycle) => <button key={cycle} type="button" onClick={() => setBilling(cycle)} aria-pressed={billing === cycle} className={`rounded-xl px-5 py-3 text-base font-extrabold transition ${billing === cycle ? "bg-brand text-white" : "text-slate-700 hover:bg-band"}`}>{cycle === "monthly" ? "Monthly" : "Annual"}{cycle === "annual" ? <span className="ml-2 rounded-full bg-alert px-2 py-0.5 text-xs text-ink">2 months free</span> : null}</button>)}</div>;
-}
 
 export default function PricingPageClient() {
   const [billing, setBilling] = useState<BillingCycle>("monthly");
@@ -94,7 +86,7 @@ export default function PricingPageClient() {
 
   return (
     <main>
-      <section className="bg-gradient-to-b from-band via-white to-white py-16 sm:py-20 lg:py-24"><Container><div className="mx-auto max-w-3xl text-center"><Eyebrow>Pricing</Eyebrow><h1 className="mt-5 text-5xl font-extrabold tracking-tight text-ink sm:text-6xl lg:text-7xl">Simple pricing. Start free.</h1><p className="mx-auto mt-6 max-w-2xl text-2xl font-semibold leading-9 text-slate-700">No contracts. Cancel anytime.</p><div className="mt-8"><BillingToggle billing={billing} setBilling={setBilling} /></div></div><div className="mt-12 grid gap-5 lg:grid-cols-4">{tiers.map((tier) => <article key={tier.key} className={`relative flex h-full flex-col rounded-3xl border p-6 shadow-sm ${tier.popular ? "border-brand bg-brand text-white shadow-xl" : "border-slate-200 bg-white text-ink"}`}>{tier.popular ? <span className="absolute right-5 top-5 rounded-full bg-white px-3 py-1 text-xs font-extrabold uppercase tracking-[0.14em] text-brand">Most popular</span> : null}<h2 className={`text-2xl font-extrabold ${tier.popular ? "pr-28 text-white" : "text-ink"}`}>{tier.name}</h2><p className={`mt-5 text-4xl font-extrabold tracking-tight ${tier.popular ? "text-white" : "text-brand"}`}>{billing === "monthly" ? tier.monthlyPrice : tier.annualPrice}</p><p className={`mt-1 text-sm font-bold ${tier.popular ? "text-white/80" : "text-slate-500"}`}>{billing === "monthly" ? "per month" : tier.annualSubtext}</p><p className={`mt-5 flex-1 text-lg font-semibold leading-8 ${tier.popular ? "text-white/90" : "text-slate-700"}`}>{tier.description}</p><Button href={tier.key === "free" ? "/quiz" : "/upgrade"} variant={tier.popular ? "secondary" : "primary"} className="mt-7 w-full">{tier.cta}</Button></article>)}</div></Container></section>
+      <section className="bg-gradient-to-b from-band via-white to-white py-16 sm:py-20 lg:py-24"><Container><div className="mx-auto max-w-3xl text-center"><Eyebrow>Pricing</Eyebrow><h1 className="mt-5 text-5xl font-extrabold tracking-tight text-ink sm:text-6xl lg:text-7xl">Simple pricing. Start free.</h1><p className="mx-auto mt-6 max-w-2xl text-2xl font-semibold leading-9 text-slate-700">No contracts. Cancel anytime.</p><div className="mt-8"><BillingToggle billing={billing} setBilling={setBilling} /></div></div><div className="mt-12 grid gap-5 lg:grid-cols-4">{tiers.map((tier) => <article key={tier.key} className={`relative flex h-full flex-col rounded-3xl border p-6 shadow-sm ${tier.popular ? "border-brand bg-brand text-white shadow-xl" : "border-slate-200 bg-white text-ink"}`}>{tier.popular ? <span className="absolute right-5 top-5 rounded-full bg-white px-3 py-1 text-xs font-extrabold uppercase tracking-[0.14em] text-brand">Most popular</span> : null}<h2 className={`text-2xl font-extrabold ${tier.popular ? "pr-28 text-white" : "text-ink"}`}>{tier.name}</h2><p className={`mt-5 text-4xl font-extrabold tracking-tight ${tier.popular ? "text-white" : "text-brand"}`}>{primaryPrice(tier, billing)}</p><p className={`mt-1 text-sm font-bold ${tier.popular ? "text-white/80" : "text-slate-500"}`}>{alternatePrice(tier, billing)}</p><p className={`mt-5 flex-1 text-lg font-semibold leading-8 ${tier.popular ? "text-white/90" : "text-slate-700"}`}>{tier.description}</p><Button href={tier.key === "free" ? "/quiz" : "/upgrade"} variant={tier.popular ? "secondary" : "primary"} className="mt-7 w-full">{tier.cta}</Button></article>)}</div></Container></section>
 
       <section className="py-14 sm:py-20" aria-labelledby="comparison-heading"><Container><div className="mb-8 max-w-3xl"><Eyebrow>Compare tiers</Eyebrow><h2 id="comparison-heading" className="mt-4 text-4xl font-extrabold tracking-tight text-ink sm:text-5xl">Full feature comparison</h2></div><div className="overflow-x-auto rounded-3xl border border-slate-200 bg-white shadow-sm"><table className="w-full min-w-[920px] border-collapse text-left"><caption className="sr-only">ComparisonTable of RetireShield pricing tier features</caption><thead className="bg-band text-sm uppercase tracking-[0.14em] text-slate-600"><tr><th scope="col" className="w-1/3 px-6 py-5">Feature</th>{tiers.map((tier) => <th key={tier.key} scope="col" className="px-4 py-5 text-center">{tier.name}</th>)}</tr></thead><tbody>{featureGroups.map((group) => <Fragment key={group.name}><tr className="border-t border-slate-200 bg-slate-50"><th scope="colgroup" colSpan={5} className="px-6 py-4 text-lg font-extrabold text-ink">{group.name}</th></tr>{group.rows.map((row) => <tr key={row.label} className="border-t border-slate-100"><th scope="row" className="px-6 py-4 text-base font-bold text-slate-800">{row.label}</th>{tiers.map((tier) => <td key={tier.key} className="px-4 py-4 text-center"><FeatureCell value={row.values[tier.key]} /></td>)}</tr>)}</Fragment>)}</tbody></table></div></Container></section>
 

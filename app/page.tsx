@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
@@ -9,6 +8,7 @@ export const metadata = pageMetadata({
 
 import { BadgeDollarSign, Banknote, BellRing, Bot, Calculator, HeartPulse, Landmark, LineChart, LockKeyhole, MessageCircleQuestion, ShieldCheck, ShieldAlert, Sparkles, TrendingUp, UserCheck, WalletCards } from "lucide-react";
 import { ComparisonRow } from "@/components/ComparisonRow";
+import { PricingPreview } from "@/components/PricingPreview";
 import { ScoreGauge } from "@/components/ScoreGauge";
 import { StatTile } from "@/components/StatTile";
 import { Button, Container } from "@/components/ui";
@@ -122,52 +122,6 @@ function QACard({ tag, question, answer }: { tag: string; question: string; answ
   );
 }
 
-const pricingPlans = [
-  {
-    name: "Free",
-    price: "$0",
-    description: "Safety Score + 3 actions",
-  },
-  {
-    name: "Plus",
-    price: "$19/mo",
-    description: "Monthly monitoring + AI coach",
-  },
-  {
-    name: "Premium",
-    price: "$39/mo",
-    description: "Unlimited coach, Medicare/SS deep tools, score history",
-    highlight: "Most popular",
-  },
-  {
-    name: "Concierge",
-    price: "$99–199/mo",
-    description: "A human retirement coach, done-for-you checkups",
-  },
-];
-
-function PricingCard({ name, price, description, highlight }: { name: string; price: string; description: string; highlight?: string }) {
-  return (
-    <Link
-      href="/pricing"
-      className={`relative flex h-full flex-col rounded-3xl border p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-brand/20 ${
-        highlight ? "border-brand bg-brand text-white shadow-lg" : "border-slate-200 bg-white text-ink hover:border-brand/30"
-      }`}
-    >
-      {highlight ? (
-        <span className="absolute right-5 top-5 rounded-full bg-white px-3 py-1 text-xs font-extrabold uppercase tracking-[0.14em] text-brand">
-          {highlight}
-        </span>
-      ) : null}
-      <h3 className={`text-xl font-extrabold ${highlight ? "pr-28 text-white" : "text-ink"}`}>{name}</h3>
-      <p className={`mt-5 text-4xl font-extrabold tracking-tight ${highlight ? "text-white" : "text-brand"}`}>{price}</p>
-      <p className={`mt-4 flex-1 text-lg font-semibold leading-8 ${highlight ? "text-white/90" : "text-slate-700"}`}>{description}</p>
-      <span className={`mt-6 text-sm font-extrabold uppercase tracking-[0.16em] ${highlight ? "text-white" : "text-brand"}`}>
-        Compare plans →
-      </span>
-    </Link>
-  );
-}
 
 const trustSafetyCards = [
   {
@@ -509,15 +463,11 @@ export default async function Home() {
             </h2>
           </div>
 
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {pricingPlans.map((plan) => (
-              <PricingCard key={plan.name} {...plan} />
-            ))}
-          </div>
+          <PricingPreview />
 
           <div className="mt-8 rounded-3xl border border-brand/20 bg-white p-6 text-center shadow-sm sm:p-8">
             <p className="text-lg font-bold leading-8 text-ink">
-              An advisor charges around 1% of your savings every year — about $5,000 a year on $500,000. RetireShield Premium is $39 a month.
+              An advisor charges around 1% of your savings every year — about $5,000 a year on $500,000. RetireShield Premium is $390 a year.
             </p>
             <div className="mt-5">
               <Button href="/pricing" variant="secondary" className="px-7 py-4 text-xl">
