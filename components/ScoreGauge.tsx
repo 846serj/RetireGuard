@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { bandVerdict, type ScoreBand, type ScoreBandLabel } from "@/lib/verdicts";
 import { SubScoreBar, clampScore, scoreBandKey, type ScoreBandKey, type SubScoreBarProps } from "@/components/SubScoreBar";
 
@@ -95,7 +95,6 @@ export function ScoreGauge({ value = 82, band, subScores = DEFAULT_SUB_SCORES, d
   const bandKey = normalizeBand(band) ?? scoreBandKey(score);
   const activeBand = SCORE_BANDS[bandKey];
   const progressEndAngle = 180 + (displayScore / 100) * 180;
-  const needlePoint = useMemo(() => polarToCartesian(100, 104, 62, progressEndAngle), [progressEndAngle]);
 
   return (
     <div className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-xl shadow-brand/10 sm:p-6" aria-label={`Retirement Safety Score: ${score} out of 100, ${activeBand.label}`}>
@@ -112,19 +111,19 @@ export function ScoreGauge({ value = 82, band, subScores = DEFAULT_SUB_SCORES, d
           )}
         </div>
 
-        <div className="mx-auto mt-6 max-w-[320px]">
-          <svg viewBox="0 0 200 118" className="h-auto w-full overflow-visible" role="img" aria-label={`Gauge showing ${score} out of 100`}>
-            <path d={arcPath(180, 252)} fill="none" stroke="#B23A3A" strokeLinecap="round" strokeWidth="16" />
-            <path d={arcPath(252, 288)} fill="none" stroke="#C77700" strokeLinecap="butt" strokeWidth="16" />
-            <path d={arcPath(288, 324)} fill="none" stroke="#4F9E6A" strokeLinecap="butt" strokeWidth="16" />
-            <path d={arcPath(324, 360)} fill="none" stroke="#2E7D5B" strokeLinecap="round" strokeWidth="16" />
-            <path d={arcPath(180, progressEndAngle)} fill="none" stroke={activeBand.color} strokeLinecap="round" strokeWidth="8" opacity="0.95" />
-            <line x1="100" y1="104" x2={needlePoint.x} y2={needlePoint.y} stroke="#1A2230" strokeLinecap="round" strokeWidth="3" />
-            <circle cx="100" cy="104" r="5" fill="#1A2230" />
+        <div className="mx-auto mt-6 max-w-[320px] text-center">
+          <svg
+            viewBox="0 0 200 132"
+            className="h-auto w-full overflow-visible"
+            role="img"
+            aria-label={`Safety score ${score} of 100, ${activeBand.label}`}
+          >
+            <path d={arcPath(180, 360)} fill="none" stroke="#E7EDF4" strokeLinecap="round" strokeWidth="16" />
+            <path d={arcPath(180, progressEndAngle)} fill="none" stroke={activeBand.color} strokeLinecap="round" strokeWidth="16" />
           </svg>
-          <div className="-mt-2 rounded-2xl bg-white/90 px-4 py-2 text-center shadow-sm ring-1 ring-slate-200/70">
-            <div className="text-5xl font-extrabold leading-none tracking-tight text-ink">{displayScore}</div>
-            <div className={`mt-1 text-base font-bold ${activeBand.textClass}`}>/ 100 · {activeBand.label}</div>
+          <div className="-mt-14 px-4 pb-2 sm:-mt-16">
+            <div className="text-5xl font-extrabold leading-none tracking-tight text-ink sm:text-6xl">{displayScore}</div>
+            <div className={`mt-2 text-lg font-extrabold ${activeBand.textClass}`}>{activeBand.label}</div>
           </div>
         </div>
 
