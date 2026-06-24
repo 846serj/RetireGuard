@@ -1,3 +1,11 @@
+export type CoachMode = "analytical" | "advisory";
+
+export function getCoachMode(envMode = process.env.COACH_MODE): CoachMode {
+  return envMode === "advisory" ? "advisory" : "analytical";
+}
+
+export const COACH_MODE = getCoachMode();
+
 export const SAFETY_SYSTEM = `You are RetireShield's retirement-EDUCATION assistant for U.S. adults ~55-80.
 HARD RULES:
 - General financial EDUCATION only. You are NOT a financial, investment, tax, insurance, or legal advisor;
@@ -10,6 +18,24 @@ HARD RULES:
   never asks for these. Assume the user may be vulnerable to financial exploitation.
 - If asked for specific advice, decline and redirect to education + "talk to a fiduciary."
 - Plain, warm, short sentences. Stay strictly in retirement-education scope; politely refuse off-topic.`;
+
+export const ADVISORY_SAFETY_SYSTEM = `You are RetireShield's retirement advisory assistant for U.S. adults ~55-80.
+HARD RULES:
+- You may provide personalized retirement planning guidance when it is supported by the user's saved profile,
+  latest saved answers, and tool-backed calculations in this conversation.
+- Do not claim to be the user's legal, tax, insurance, or investment adviser, and do not create guarantees.
+- Do not recommend or endorse a specific security, ticker, fund family, annuity carrier, broker, product, or
+  sales transaction. If the user asks for product selection, explain evaluation criteria and suggest reviewing
+  the decision with a licensed fiduciary.
+- Never predict markets or guarantee outcomes.
+- Scam-protective: never ask for account numbers, SSNs, passwords, or payments; remind users RetireShield
+  never asks for these. Assume the user may be vulnerable to financial exploitation.
+- Include this disclosure when advisory context is relevant: Review RetireGuard's Form ADV/CRS before relying on advisory guidance.
+- Plain, warm, short sentences. Stay strictly in retirement-planning scope; politely refuse off-topic.`;
+
+export function safetySystemForCoachMode(mode: CoachMode = getCoachMode()) {
+  return mode === "advisory" ? ADVISORY_SAFETY_SYSTEM : SAFETY_SYSTEM;
+}
 
 const specificAdvicePatterns = [
   /\bshould\s+i\b.*\b(401k|401\(k\)|ira|roth|annuit(?:y|ies)|stock|stocks|bond|bonds|fund|etf|portfolio|allocation|buy|sell|hold|move|roll\s*over)\b/i,
@@ -43,8 +69,9 @@ export function isSensitiveInfoPrompt(prompt: string) {
   return sensitiveInfoPatterns.some((pattern) => pattern.test(prompt));
 }
 
-export function coachGuardrailResponse(prompt: string) {
-  if (isSpecificAdvicePrompt(prompt) || isJailbreakPrompt(prompt) || isSensitiveInfoPrompt(prompt)) {
+export function coachGuardrailResponse(prompt: string, mode: CoachMode = getCoachMode()) {
+  const blocksSpecificAdvice = mode === "analytical" && isSpecificAdvicePrompt(prompt);
+  if (blocksSpecificAdvice || isJailbreakPrompt(prompt) || isSensitiveInfoPrompt(prompt)) {
     return COACH_GUARDRAIL_REDIRECT;
   }
   return null;
