@@ -23,8 +23,7 @@ export default function Terms() {
         Retirement Safety Score and related materials. <strong>It is not financial, investment, tax, insurance, or legal
         advice, and it is not a recommendation to buy, sell, or hold any security or product.</strong> We are not a broker,
         dealer, investment adviser, or fiduciary, and using the Service does not create any advisory or fiduciary
-        relationship. We do not link to, access, or manage your brokerage, bank, or retirement accounts. Always consult a
-        qualified, licensed professional before making financial decisions. Your Safety Score and any suggested actions
+        relationship. Always consult a qualified, licensed professional before making financial decisions. Your Safety Score and any suggested actions
         are illustrative and based solely on the information you provide.
       </p>
 

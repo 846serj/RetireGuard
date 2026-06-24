@@ -3,7 +3,7 @@ import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
   title: "AI Retirement Coach | RetireShield",
-  description: "Ask retirement questions in plain English and get educational answers grounded in your own plan numbers.",
+  description: "Ask retirement questions in plain English and get plain-English answers grounded in your own plan numbers.",
   path: "/features/ai-coach",
 });
 

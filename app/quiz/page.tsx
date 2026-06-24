@@ -9,7 +9,7 @@ import { US_STATES } from "@/lib/usStates";
 import { computeScores, actions, type Answers, type SubScores } from "@/lib/scoring";
 import { ScoreGauge } from "@/components/ScoreGauge";
 import { SubScoreBar } from "@/components/SubScoreBar";
-import { Button, Disclaimer, Eyebrow } from "@/components/ui";
+import { Button, Eyebrow } from "@/components/ui";
 
 type State = Record<string, string | number>;
 
@@ -174,17 +174,16 @@ export default function Quiz() {
             <div className="mt-8 rounded-[2rem] bg-band p-5 sm:p-8">
               <h1 className="font-serif text-[2rem] font-semibold leading-tight text-ink sm:text-5xl">Let&apos;s see where your retirement stands.</h1>
               <p className="mt-5 text-xl font-semibold leading-8 text-slate-700">
-                11 simple questions. About 2 minutes. No account, and we never ask you to connect a bank or brokerage. There are no wrong answers — just answer as best you know.
+                11 simple questions. About 2 minutes. There are no wrong answers — just answer as best you know.
               </p>
             </div>
             <Button type="button" onClick={() => setIntroComplete(true)} className="mt-8 w-full sm:w-auto">
               Start — question 1 of 11
             </Button>
             <p className="mt-6 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-600">
-              🔒 No bank linking · ⏱ ~2 minutes · 🆓 Always free to see your score
+              ⏱ ~2 minutes · 🆓 Always free to see your score
             </p>
           </div>
-          <Disclaimer className="mt-6" />
         </div>
       </div>
     );
@@ -278,7 +277,6 @@ export default function Quiz() {
           ← Back
         </button>
       </div>
-      <Disclaimer className="mt-6" />
       </div>
       </div>
     );
@@ -325,7 +323,7 @@ export default function Quiz() {
           <div className="rg-card space-y-5">
             <div>
               <h3 className="text-2xl font-bold text-ink">What&apos;s behind your score</h3>
-              <p className="mt-2 text-slate-600">These four educational sub-scores point to areas worth reviewing first.</p>
+              <p className="mt-2 text-slate-600">These four sub-scores point to areas worth reviewing first.</p>
             </div>
             {(Object.keys(SUB_LABEL) as (keyof SubScores)[]).map((k) => (
               <SubScoreBar key={k} label={SUB_LABEL[k]} value={result!.sub[k]} scoreKey={k} />
@@ -418,7 +416,6 @@ export default function Quiz() {
           </div>
         </div>
       )}
-      <Disclaimer className="mt-8" />
     </div>
     </div>
   );

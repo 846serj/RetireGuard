@@ -136,9 +136,9 @@ export default async function PlanPage() {
       <section className="mb-6 rounded-3xl border-2 border-purple-100 bg-purple-50 p-5 sm:p-7">
         <div className="grid gap-5 lg:grid-cols-[1fr_1.15fr] lg:items-start">
           <div>
-            <p className="text-sm font-bold uppercase tracking-wide text-purple-700">Education only</p>
+            <p className="text-sm font-bold uppercase tracking-wide text-purple-700">Next steps</p>
             <h2 className="mt-2 text-3xl font-extrabold">Tax & Roth</h2>
-            <p className="mt-3 text-slate-700">This educational view compares a tax-aware withdrawal order and a bracket-fill Roth conversion illustration. It is not tax advice; coordinate any action with a qualified tax professional.</p>
+            <p className="mt-3 text-slate-700">This view compares a tax-aware withdrawal order and a bracket-fill Roth conversion illustration so you can see the tradeoffs before taking action.</p>
             <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
               <div className="rounded-2xl bg-white p-4 shadow-sm">
                 <p className="font-bold text-slate-500">Tax-aware ending balance</p>

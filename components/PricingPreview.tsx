@@ -13,8 +13,8 @@ function PricingCard({ tier, billing }: { tier: (typeof pricingTiers)[number]; b
         tier.popular ? "border-brand bg-brand text-white shadow-lg" : "border-slate-200 bg-white text-ink hover:border-brand/30"
       }`}
     >
-      {tier.popular ? <span className="absolute right-5 top-5 rounded-full bg-white px-3 py-1 text-xs font-extrabold uppercase tracking-[0.14em] text-brand">Most popular</span> : null}
-      <h3 className={`text-xl font-extrabold ${tier.popular ? "pr-28 text-white" : "text-ink"}`}>{tier.name}</h3>
+      {tier.popular ? <div className="mb-4 flex justify-center"><span className="rounded-full bg-white px-3 py-1 text-xs font-extrabold uppercase tracking-[0.14em] text-brand shadow-sm">Most popular</span></div> : null}
+      <h3 className={`text-xl font-extrabold ${tier.popular ? "text-white" : "text-ink"}`}>{tier.name}</h3>
       <p className={`mt-5 text-4xl font-extrabold tracking-tight ${tier.popular ? "text-white" : "text-brand"}`}>{primaryPrice(tier, billing)}</p>
       <p className={`mt-1 text-sm font-bold ${tier.popular ? "text-white/80" : "text-slate-500"}`}>{alternatePrice(tier, billing)}</p>
       <p className={`mt-4 flex-1 text-lg font-semibold leading-8 ${tier.popular ? "text-white/90" : "text-slate-700"}`}>{tier.description}</p>

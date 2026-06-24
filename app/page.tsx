@@ -6,7 +6,7 @@ export const metadata = pageMetadata({
   path: "/",
 });
 
-import { BadgeDollarSign, Banknote, BellRing, Bot, Calculator, HeartPulse, Landmark, LineChart, LockKeyhole, MessageCircleQuestion, ShieldCheck, ShieldAlert, Sparkles, TrendingUp, UserCheck, WalletCards } from "lucide-react";
+import { BadgeDollarSign, Banknote, BellRing, Bot, Calculator, HeartPulse, Landmark, LineChart, MessageCircleQuestion, ShieldCheck, ShieldAlert, Sparkles, TrendingUp, UserCheck, WalletCards } from "lucide-react";
 import { ComparisonRow } from "@/components/ComparisonRow";
 import { PricingPreview } from "@/components/PricingPreview";
 import { ScoreGauge } from "@/components/ScoreGauge";
@@ -125,9 +125,9 @@ function QACard({ tag, question, answer }: { tag: string; question: string; answ
 
 const trustSafetyCards = [
   {
-    icon: LockKeyhole,
-    title: "We never link your bank.",
-    description: "You type what you want, nothing connected.",
+    icon: ShieldCheck,
+    title: "Built around your confidence.",
+    description: "Clear scores, plain-English next steps, and assumptions you can understand.",
   },
   {
     icon: UserCheck,
@@ -165,7 +165,7 @@ const testimonials = [
     detail: "Placeholder quote until real customer story is approved",
   },
   {
-    quote: "[placeholder] I liked that I did not have to connect accounts or talk to a salesperson.",
+    quote: "[placeholder] I liked getting a clear first look without talking to a salesperson.",
     name: "Privacy-first testimonial",
     detail: "Placeholder quote until real customer story is approved",
   },
@@ -236,9 +236,9 @@ function AlertCard() {
 const trustStats = [
   { value: "2 minutes" },
   { value: "9 questions" },
-  { value: "No bank linking, ever" },
+  { value: "Plain-English next steps" },
   { value: "Built for ages 55–80" },
-  { value: "Informational, not advice" },
+  { value: "Built for clearer decisions" },
 ];
 
 export default async function Home() {
@@ -253,7 +253,7 @@ export default async function Home() {
               Know your retirement is going to be okay.
             </h1>
             <p className="mt-6 text-xl leading-8 text-slate-700">
-              Get your free Retirement Safety Score in about 2 minutes. Answer 9 simple questions — no account, no linking your bank — and see exactly where you stand, in plain English.
+              Get your free Retirement Safety Score in about 2 minutes. Answer 9 simple questions and see exactly where you stand, in plain English.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
               <Button href={userEmail ? "/dashboard" : "/quiz"} className="px-7 py-4 text-xl">
@@ -264,7 +264,7 @@ export default async function Home() {
               </Button>
             </div>
             <p className="mt-4 text-sm font-medium text-slate-600">
-              No credit card. No account. We never ask you to connect a bank or brokerage.
+              No credit card. No account. Just a clear first look at your retirement.
             </p>
           </div>
 
@@ -527,7 +527,7 @@ export default async function Home() {
                 Get my free Safety Score
               </Button>
             </div>
-            <p className="mt-5 text-lg font-semibold text-white/85">No account. No bank linking. No catch.</p>
+            <p className="mt-5 text-lg font-semibold text-white/85">No account. No catch. Just your clearest next step.</p>
           </div>
         </Container>
       </section>

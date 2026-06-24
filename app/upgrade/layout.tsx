@@ -2,7 +2,7 @@ import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
   title: "Upgrade RetireShield",
-  description: "Start a RetireShield trial to unlock score history, matched alerts, planning tools, and education-only coaching.",
+  description: "Start a RetireShield trial to unlock score history, matched alerts, planning tools, and plain-English coaching.",
   path: "/upgrade",
 });
 

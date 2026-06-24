@@ -51,7 +51,7 @@ export default function AlertFeed({ alerts }: AlertFeedProps) {
         <p className="rg-kicker">Retirement Watch</p>
         <h2 id="alerts-heading" className="mt-2 text-3xl font-extrabold">Alerts matched to you</h2>
         <p className="mt-3 text-slate-700">
-          We watch for education-only updates that may be relevant to your state, age, or top retirement worry.
+          We watch for timely updates that may be relevant to your state, age, or top retirement worry.
         </p>
       </div>
 

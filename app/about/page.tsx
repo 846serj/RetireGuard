@@ -1,11 +1,11 @@
 import { pageMetadata } from "@/lib/seo";
-import { CheckCircle2, HeartHandshake, LockKeyhole, ShieldCheck, UserCheck } from "lucide-react";
+import { CheckCircle2, HeartHandshake, LineChart, ShieldCheck, UserCheck } from "lucide-react";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { Button, Container, Eyebrow } from "@/components/ui";
 
 export const metadata = pageMetadata({
   title: "About RetireShield — Built to Watch Over Retirement Safety",
-  description: "Learn the RetireShield mission, who it helps, and the trust commitments behind our retirement education tools.",
+  description: "Learn the RetireShield mission, who it helps, and the trust commitments behind our retirement tools.",
   path: "/about",
 });
 
@@ -20,7 +20,7 @@ const missionCards = [
   },
   {
     title: "Keep the first step private",
-    description: "No bank linking is required. Start with estimates, learn what deserves attention, and decide what to do next on your own timeline.",
+    description: "Start with estimates, learn what deserves attention, and decide what to do next on your own timeline.",
   },
 ];
 
@@ -33,14 +33,14 @@ const audience = [
 
 const trustItems = [
   {
-    icon: LockKeyhole,
-    title: "No account linking required",
-    description: "RetireShield works from information you type in. You can use rough estimates to start and update them as your picture gets clearer.",
+    icon: LineChart,
+    title: "Clarity from the first checkup",
+    description: "RetireShield turns your inputs into a focused Safety Score, clear priorities, and assumptions you can review as your picture gets clearer.",
   },
   {
     icon: UserCheck,
-    title: "Education, not advice",
-    description: "Our tools are educational and informational. We do not provide individualized financial, investment, tax, or legal advice.",
+    title: "Built for confident conversations",
+    description: "Our tools help families understand tradeoffs, compare scenarios, and decide which questions deserve attention next.",
   },
   {
     icon: ShieldCheck,
@@ -68,7 +68,7 @@ export default function AboutPage() {
             <h2 className="mt-6 text-3xl font-extrabold tracking-tight text-ink">The origin</h2>
             <div className="mt-5 space-y-5 text-lg leading-8 text-slate-700">
               <p>Most retirement tools assume someone wants to optimize every account. But many families are asking something more human: “Is Mom okay?” “Can Dad afford the next surprise?” “Are we missing a warning sign?”</p>
-              <p>RetireShield is our answer: a calm, privacy-friendly checkup that turns complex retirement risks into a clear score, practical education, and watchful next steps.</p>
+              <p>RetireShield is our answer: a calm, privacy-friendly checkup that turns complex retirement risks into a clear score, practical context, and watchful next steps.</p>
             </div>
           </div>
         </Container>
@@ -113,8 +113,8 @@ export default function AboutPage() {
         <Container>
           <div className="mx-auto max-w-3xl text-center">
             <Eyebrow>Trust commitments</Eyebrow>
-            <h2 id="trust-heading" className="mt-4 text-4xl font-extrabold tracking-tight text-ink sm:text-5xl">Private by default. Clear about limits.</h2>
-            <p className="mt-5 text-xl leading-9 text-slate-700">We folded the core trust and disclosure promises into this page so visitors can understand how RetireShield works before sharing anything.</p>
+            <h2 id="trust-heading" className="mt-4 text-4xl font-extrabold tracking-tight text-ink sm:text-5xl">Built for confidence. Clear by design.</h2>
+            <p className="mt-5 text-xl leading-9 text-slate-700">RetireShield is designed to make retirement risks understandable, actionable, and easier to discuss with the people you trust.</p>
           </div>
           <div className="mt-12 grid gap-6 lg:grid-cols-3">
             {trustItems.map(({ icon: Icon, title, description }) => (
@@ -124,9 +124,6 @@ export default function AboutPage() {
                 <p className="mt-4 text-lg leading-8 text-slate-700">{description}</p>
               </article>
             ))}
-          </div>
-          <div className="mt-10 rounded-3xl border border-alert/30 bg-alert/10 p-6 text-base font-semibold leading-7 text-slate-700 sm:p-8">
-            RetireShield provides educational information only. It is not a financial advisor, broker, tax preparer, law firm, insurance producer, or fiduciary. Use our tools as a starting point and consult qualified professionals for decisions about your specific situation.
           </div>
         </Container>
       </section>
