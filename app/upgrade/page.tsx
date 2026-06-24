@@ -2,22 +2,22 @@
 
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { BillingToggle } from "@/components/BillingToggle";
 import { Button, Disclaimer, Eyebrow } from "@/components/ui";
+import { alternatePrice, type BillingCycle, pricingTiers, primaryPrice, type TierKey } from "@/lib/pricing";
 
 type CheckoutPlan = "annual" | "monthly";
-type BillingCycle = CheckoutPlan;
-type TierKey = "free" | "plus" | "premium" | "concierge";
 
 type Tier = {
   key: TierKey;
   name: string;
-  monthlyPrice: string;
-  annualPrice: string;
   description: string;
   bullets: string[];
   cta: string;
   checkoutPlan?: CheckoutPlan;
-  recommended?: boolean;
+  popular?: boolean;
+  from?: boolean;
+  monthlyCents: number;
 };
 
 const checkoutLabel: Record<CheckoutPlan, string> = {
@@ -25,31 +25,25 @@ const checkoutLabel: Record<CheckoutPlan, string> = {
   monthly: "the monthly plan",
 };
 
-const tiers: Tier[] = [
-  { key: "free", name: "Free", monthlyPrice: "$0/mo", annualPrice: "$0/year", description: "Keep your Safety Score and a preview of your first action items.", bullets: ["Current score", "First action visible", "Education-first guidance"], cta: "Current plan" },
-  { key: "plus", name: "Plus", monthlyPrice: "$19/mo", annualPrice: "$190/year", description: "Monthly monitoring, alerts, and guided next steps for one simple price.", bullets: ["Monthly monitoring", "Matched alerts", "Limited AI Coach access"], cta: "Choose Plus", checkoutPlan: "monthly" },
-  { key: "premium", name: "Premium", monthlyPrice: "$39/mo", annualPrice: "$390/year", description: "The recommended plan for deeper tools, history, and unlimited education support.", bullets: ["3-day free trial", "Medicare/IRMAA tools", "Social Security timing guide"], cta: "Start free trial", checkoutPlan: "annual", recommended: true },
-  { key: "concierge", name: "Concierge", monthlyPrice: "From $99/mo", annualPrice: "From $990/year", description: "Premium plus human checkups for households that want extra organization.", bullets: ["Premium included", "Human checkup", "Family-ready summary"], cta: "Contact us" },
-];
+const tiers: Tier[] = pricingTiers.map((tier) => ({
+  ...tier,
+  description: {
+    free: "Keep your Safety Score and a preview of your first action items.",
+    plus: "Monthly monitoring, alerts, and guided next steps for one simple price.",
+    premium: "The recommended plan for deeper tools, history, and unlimited education support.",
+    concierge: "Premium plus human checkups for households that want extra organization.",
+  }[tier.key],
+  bullets: {
+    free: ["Current score", "First action visible", "Education-first guidance"],
+    plus: ["Monthly monitoring", "Matched alerts", "Limited AI Coach access"],
+    premium: ["3-day free trial", "Medicare/IRMAA tools", "Social Security timing guide"],
+    concierge: ["Premium included", "Human checkup", "Family-ready summary"],
+  }[tier.key],
+  cta: { free: "Current plan", plus: "Choose Plus", premium: "Start free trial", concierge: "Contact us" }[tier.key],
+  checkoutPlan: tier.key === "plus" ? "monthly" : tier.key === "premium" ? "annual" : undefined,
+}));
 
 
-function BillingToggle({ billing, setBilling }: { billing: BillingCycle; setBilling: (billing: BillingCycle) => void }) {
-  return (
-    <div className="inline-flex rounded-2xl border border-slate-200 bg-white p-1 shadow-sm" role="group" aria-label="Choose billing cycle">
-      {(["monthly", "annual"] as BillingCycle[]).map((cycle) => (
-        <button key={cycle} type="button" onClick={() => setBilling(cycle)} aria-pressed={billing === cycle} className={`rounded-xl px-5 py-3 text-sm font-extrabold transition sm:text-base ${billing === cycle ? "bg-brand text-white" : "text-slate-700 hover:bg-band"}`}>
-          {cycle === "monthly" ? "Monthly" : "Annual"}
-          {cycle === "annual" ? <span className="ml-2 rounded-full bg-alert px-2 py-0.5 text-xs text-ink">2 months free</span> : null}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function alternatePrice(tier: Tier, billing: BillingCycle) {
-  if (tier.key === "free") return billing === "monthly" ? "or $0/year" : "or $0/mo";
-  return billing === "monthly" ? `or ${tier.annualPrice} — save 2 months` : `or ${tier.monthlyPrice}`;
-}
 // Conspicuous auto-renew terms + explicit consent before Checkout.
 function UpgradeContent() {
   const searchParams = useSearchParams();
@@ -107,15 +101,15 @@ function UpgradeContent() {
 
         <div className="grid gap-5 lg:grid-cols-4">
           {tiers.map((tier) => (
-            <article key={tier.key} className={`relative flex h-full flex-col rounded-3xl border p-6 shadow-sm ${tier.recommended ? "border-brand bg-brand text-white shadow-xl" : selectedPlan === tier.checkoutPlan ? "border-brand bg-white ring-4 ring-brand/10" : "border-slate-200 bg-white"}`}>
-              {tier.recommended ? <span className="absolute right-5 top-5 rounded-full bg-white px-3 py-1 text-xs font-extrabold uppercase tracking-[0.14em] text-brand">Recommended</span> : null}
-              <h2 className={`text-2xl font-extrabold ${tier.recommended ? "pr-32 text-white" : "text-ink"}`}>{tier.name}</h2>
-              <p className={`mt-5 text-4xl font-extrabold ${tier.recommended ? "text-white" : "text-brand"}`}>{billing === "monthly" ? tier.monthlyPrice : tier.annualPrice}</p>
-              <p className={`mt-1 text-sm font-bold ${tier.recommended ? "text-white/80" : "text-slate-500"}`}>{alternatePrice(tier, billing)}</p>
-              <p className={`mt-5 flex-1 text-base font-semibold leading-7 ${tier.recommended ? "text-white/90" : "text-slate-700"}`}>{tier.description}</p>
-              <ul className={`mt-5 space-y-2 text-sm font-semibold ${tier.recommended ? "text-white/90" : "text-slate-700"}`}>{tier.bullets.map((bullet) => <li key={bullet}>✓ {bullet}</li>)}</ul>
+            <article key={tier.key} className={`relative flex h-full flex-col rounded-3xl border p-6 shadow-sm ${tier.popular ? "border-brand bg-brand text-white shadow-xl" : selectedPlan === tier.checkoutPlan ? "border-brand bg-white ring-4 ring-brand/10" : "border-slate-200 bg-white"}`}>
+              {tier.popular ? <span className="absolute right-5 top-5 rounded-full bg-white px-3 py-1 text-xs font-extrabold uppercase tracking-[0.14em] text-brand">Most popular</span> : null}
+              <h2 className={`text-2xl font-extrabold ${tier.popular ? "pr-32 text-white" : "text-ink"}`}>{tier.name}</h2>
+              <p className={`mt-5 text-4xl font-extrabold ${tier.popular ? "text-white" : "text-brand"}`}>{primaryPrice(tier, billing)}</p>
+              <p className={`mt-1 text-sm font-bold ${tier.popular ? "text-white/80" : "text-slate-500"}`}>{alternatePrice(tier, billing)}</p>
+              <p className={`mt-5 flex-1 text-base font-semibold leading-7 ${tier.popular ? "text-white/90" : "text-slate-700"}`}>{tier.description}</p>
+              <ul className={`mt-5 space-y-2 text-sm font-semibold ${tier.popular ? "text-white/90" : "text-slate-700"}`}>{tier.bullets.map((bullet) => <li key={bullet}>✓ {bullet}</li>)}</ul>
               {tier.checkoutPlan ? (
-                <Button disabled={loading !== ""} onClick={() => checkout(billing)} variant={tier.recommended ? "secondary" : "primary"} className="mt-7 w-full disabled:opacity-50">
+                <Button disabled={loading !== ""} onClick={() => checkout(billing)} variant={tier.popular ? "secondary" : "primary"} className="mt-7 w-full disabled:opacity-50">
                   {loading === billing ? "Starting checkout…" : tier.cta}
                 </Button>
               ) : tier.key === "free" ? (
