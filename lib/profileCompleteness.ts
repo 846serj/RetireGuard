@@ -19,9 +19,13 @@ function hasRealAgeOrBirthdate(profile: ProfileLike | null | undefined) {
   return Number.isFinite(time);
 }
 
+function hasKnownValue(value: unknown) {
+  return value !== null && value !== undefined && value !== "";
+}
+
 function hasAnyKnownBalance(profile: ProfileLike | null | undefined) {
   if (!profile) return false;
-  return BALANCE_FIELDS.some((field) => profile[field] !== null && profile[field] !== undefined && profile[field] !== "");
+  return BALANCE_FIELDS.some((field) => hasKnownValue(profile[field]));
 }
 
 export function isProfileScoreable(profile: ProfileLike | null | undefined, hasQuizScore: boolean): boolean {
