@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { hasPaidAccess } from "@/lib/subscription";
+import { getSubscriptionAccess } from "@/lib/subscription";
 import { getAnthropicClient, anthropicModel, timeoutSignal } from "@/lib/ai/client";
 import { coachGuardrailResponse, SAFETY_SYSTEM } from "@/lib/ai/guardrails";
 import { runProjection } from "@/lib/engine/projection";
@@ -9,13 +9,15 @@ import { compareSocialSecurity } from "@/lib/engine/socialSecurity";
 import { analyzeRothConversion } from "@/lib/engine/roth";
 import { solveSafeSpending } from "@/lib/engine/withdrawal";
 import type { FinancialProfile } from "@/lib/engine/types";
+import { computeScores, type Answers } from "@/lib/scoring";
 
 const MAX_PER_HOUR = 20;
+const PLUS_MONTHLY_MESSAGES = 25;
 const MAX_TOOL_LOOPS = 6;
 const fallback = "The AI coach is unavailable right now. RetireGuard is education only and never asks for account numbers, SSNs, passwords, or payments. For personal decisions, talk with a licensed fiduciary.";
 
 type IncomingMessage = { role: "user" | "assistant"; content: string };
-type ToolName = "getProfile" | "updateProfile" | "runProjection" | "runMonteCarlo" | "compareSocialSecurity" | "solveSafeSpending" | "analyzeRothConversion";
+type ToolName = "getProfile" | "getSafetyScore" | "updateProfile" | "runProjection" | "runMonteCarlo" | "compareSocialSecurity" | "solveSafeSpending" | "analyzeRothConversion";
 
 const PROFILE_FIELDS = ["birthdate", "marital_status", "spouse_birthdate", "state", "balance_taxable", "taxable_cost_basis", "balance_tax_deferred", "balance_roth", "stock_pct", "bond_pct", "cash_pct", "ss_benefit_fra", "ss_claim_age", "spouse_ss_benefit_fra", "spouse_ss_claim_age", "pension_amount", "pension_start_age", "pension_has_cola", "pension_survivor_pct", "spending_essential_monthly", "spending_discretionary_monthly", "inflation_assumption", "target_retirement_age", "planning_horizon_age"] as const;
 const NUMERIC_FIELDS = new Set<string>(PROFILE_FIELDS.filter((field) => !["birthdate", "marital_status", "spouse_birthdate", "state", "pension_has_cola"].includes(field)));
@@ -55,6 +57,7 @@ function compactProjection(result: ReturnType<typeof runProjection>) {
 
 const tools = [
   { name: "getProfile", description: "Get the user's saved retirement profile inputs. Call this before discussing saved-profile facts.", input_schema: { type: "object", properties: {}, additionalProperties: false } },
+  { name: "getSafetyScore", description: "Get the user's latest saved quiz answers and deterministic Retirement Safety Score. Use this before discussing score values or saved quiz answers.", input_schema: { type: "object", properties: {}, additionalProperties: false } },
   { name: "updateProfile", description: "Update saved profile fields only after the user explicitly asks to save a change.", input_schema: { type: "object", properties: { updates: { type: "object", additionalProperties: true } }, required: ["updates"], additionalProperties: false } },
   { name: "runProjection", description: "Run the deterministic retirement projection. Use overrides for what-if scenarios without saving them.", input_schema: { type: "object", properties: { overrides: { type: "object", additionalProperties: true }, drawdownMode: { type: "string", enum: ["standard", "taxOptimized"] }, targetBracketRate: { type: "number" } }, additionalProperties: false } },
   { name: "runMonteCarlo", description: "Run seeded Monte Carlo simulations for probability of success and percentile paths.", input_schema: { type: "object", properties: { overrides: { type: "object", additionalProperties: true }, runs: { type: "number", minimum: 50, maximum: 1000 } }, additionalProperties: false } },
@@ -66,12 +69,26 @@ const tools = [
 export async function POST(req: Request) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user || !(await hasPaidAccess(user.id))) return NextResponse.json({ ok: false }, { status: 401 });
+  if (!user) return NextResponse.json({ error: "Sign in to use the coach." }, { status: 401 });
+
+  const access = await getSubscriptionAccess(user.id);
+  if (!access.active) return NextResponse.json({ error: "Upgrade to use the coach." }, { status: 403 });
 
   const since = new Date(Date.now() - 60 * 60 * 1000).toISOString();
   const { count } = await supabase.from("coach_usage").select("id", { count: "exact", head: true }).eq("user_id", user.id).gte("created_at", since);
-  if ((count ?? 0) >= MAX_PER_HOUR) return NextResponse.json({ error: "Rate limit reached" }, { status: 429 });
-  await supabase.from("coach_usage").insert({ user_id: user.id });
+  if ((count ?? 0) >= MAX_PER_HOUR) return NextResponse.json({ error: "Hourly safety limit reached. Please try again later." }, { status: 429 });
+
+  if (access.tier === "plus") {
+    const monthStart = new Date();
+    monthStart.setUTCDate(1);
+    monthStart.setUTCHours(0, 0, 0, 0);
+    const { count: monthlyCount } = await supabase.from("coach_usage").select("id", { count: "exact", head: true }).eq("user_id", user.id).gte("created_at", monthStart.toISOString());
+    if ((monthlyCount ?? 0) >= PLUS_MONTHLY_MESSAGES) {
+      return NextResponse.json({ error: "Plus coach allowance reached for this month. Upgrade to Premium for unlimited coach messages." }, { status: 402 });
+    }
+  }
+
+  await supabase.from("coach_usage").insert({ user_id: user.id, tier: access.tier, plan: access.plan });
 
   try {
     const body = await req.json();
@@ -81,13 +98,22 @@ export async function POST(req: Request) {
     const guardrail = coachGuardrailResponse(incoming.at(-1)?.content ?? "");
     if (guardrail) return new Response(guardrail, { headers: { "Content-Type": "text/plain; charset=utf-8" } });
 
-    const { data: profileRow } = await supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle();
+    const [{ data: profileRow }, { data: scoreRow }] = await Promise.all([
+      supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle(),
+      supabase.from("scores").select("answers, overall, band, sub_scores, created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
+    ]);
     if (!profileRow) return new Response("Please complete your retirement profile before using the AI coach.", { status: 400, headers: { "Content-Type": "text/plain; charset=utf-8" } });
     let profile = profileRow as FinancialProfile;
+    const score = scoreRow?.answers ? computeScores(scoreRow.answers as Answers) : null;
     const client = await getAnthropicClient();
     if (!client) return new Response(fallback, { headers: { "Content-Type": "text/plain; charset=utf-8" } });
 
-    const system = `${SAFETY_SYSTEM}\n- You are an interface to RetireGuard's calculation engine. NEVER state a financial number, age, probability, tax amount, balance, benefit, or spending figure unless it came from a tool result in this conversation.\n- Use tools for all personalized numeric answers. If you need a what-if number, call a tool with overrides.\n- Explain tool results in plain language, label all results education-only, and suggest 1-3 what-ifs the user could ask you to run.\n- Do not reveal raw JSON unless the user asks for technical details.`;
+    const system = `${SAFETY_SYSTEM}
+- The member tier is ${access.tier}. Plus has a limited monthly coach allowance; Premium and Concierge are unlimited subject to abuse limits.
+- You are an interface to RetireGuard's calculation engine. NEVER state a financial number, age, probability, tax amount, balance, benefit, or spending figure unless it came from a tool result in this conversation.
+- Use tools for all personalized numeric answers, including saved Safety Score values. If you need a what-if number, call a tool with overrides.
+- Explain tool results in plain language, label all results education-only, and suggest 1-3 what-ifs the user could ask you to run.
+- Do not reveal raw JSON unless the user asks for technical details.`;
     const messages: any[] = incoming.map((m) => ({ role: m.role, content: m.content }));
     let response: any;
 
@@ -104,6 +130,7 @@ export async function POST(req: Request) {
         try {
           switch (toolUse.name as ToolName) {
             case "getProfile": result = profile; break;
+            case "getSafetyScore": result = score ? { score, answers: scoreRow?.answers, created_at: scoreRow?.created_at } : { error: "No saved Safety Score yet" }; break;
             case "updateProfile": {
               const updates = normalizePatch(input.updates);
               const { data, error } = await supabase.from("profiles").update(updates).eq("user_id", user.id).select("*").single();

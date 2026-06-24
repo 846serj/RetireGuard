@@ -1,12 +1,39 @@
 import { createClient } from "@/lib/supabase/server";
 
-// True when the user may access paid features (in trial or actively paying).
-export async function hasPaidAccess(userId: string): Promise<boolean> {
+export type SubscriptionTier = "free" | "plus" | "premium" | "concierge";
+
+export type SubscriptionAccess = {
+  active: boolean;
+  tier: SubscriptionTier;
+  plan: string | null;
+  status: string | null;
+};
+
+function tierFromPlan(plan?: string | null): SubscriptionTier {
+  const normalized = plan?.toLowerCase() ?? "";
+  if (["concierge"].includes(normalized)) return "concierge";
+  if (["premium", "annual"].includes(normalized)) return "premium";
+  if (["plus", "monthly"].includes(normalized)) return "plus";
+  return "free";
+}
+
+export async function getSubscriptionAccess(userId: string): Promise<SubscriptionAccess> {
   const supabase = createClient();
   const { data } = await supabase
     .from("subscriptions")
-    .select("status")
+    .select("status, plan")
     .eq("user_id", userId)
     .single();
-  return !!data && ["trialing", "active"].includes(data.status);
+  const active = !!data && ["trialing", "active"].includes(data.status);
+  return {
+    active,
+    tier: active ? tierFromPlan(data.plan) : "free",
+    plan: data?.plan ?? null,
+    status: data?.status ?? null,
+  };
+}
+
+// True when the user may access paid features (in trial or actively paying).
+export async function hasPaidAccess(userId: string): Promise<boolean> {
+  return (await getSubscriptionAccess(userId)).active;
 }
