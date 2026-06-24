@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { hasPaidAccess } from "@/lib/subscription";
+import { getScoreHistory } from "@/lib/scoreHistory";
 import { buildActionPlan, type PlanItem } from "@/lib/actionPlan";
 import { generateAIActionPlan } from "@/lib/ai/actionPlan";
 import CoachChat from "@/components/CoachChat";
@@ -12,6 +13,7 @@ import { ScoreGauge } from "@/components/ScoreGauge";
 import LockedTeaser from "@/components/LockedTeaser";
 import PlanList from "@/components/PlanList";
 import AlertFeed from "@/components/AlertFeed";
+import ScoreHistoryChart from "@/components/ScoreHistoryChart";
 import { stripe } from "@/lib/stripe";
 import { Button, Disclaimer, Eyebrow } from "@/components/ui";
 
@@ -94,6 +96,7 @@ export default async function Dashboard({ searchParams }: DashboardProps) {
       }))
     : [];
   const checkedDate = formatCheckedDate(latest?.created_at);
+  const scoreHistory = paid ? await getScoreHistory(supabase, user.id) : [];
 
   return (
     <div className="rg-page-shell">
@@ -153,6 +156,13 @@ export default async function Dashboard({ searchParams }: DashboardProps) {
       {!paid ? (
         <div className="space-y-6">
           <LockedTeaser
+            eyebrow="Score over time"
+            title="Unlock your score trend"
+            description="Premium members see a month-by-month chart built from their saved score history."
+          >
+            <ScoreHistoryChart points={[]} />
+          </LockedTeaser>
+          <LockedTeaser
             eyebrow="Action plan"
             title="Unlock your prioritized next steps"
             description="Paid members see the personalized plan built from their score, answers, and RetireShield rules."
@@ -207,6 +217,8 @@ export default async function Dashboard({ searchParams }: DashboardProps) {
               <p className="mt-2 text-sm text-slate-700">Get education-only help interpreting the tools and next steps.</p>
             </a>
           </section>
+
+          <ScoreHistoryChart points={scoreHistory} />
 
           <PlanList items={plan} />
 
