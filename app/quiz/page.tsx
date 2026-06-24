@@ -7,13 +7,12 @@ import { createClient } from "@/lib/supabase/client";
 import { QUESTIONS } from "@/lib/questions";
 import { US_STATES } from "@/lib/usStates";
 import { computeScores, actions, type Answers, type SubScores } from "@/lib/scoring";
+import { ScoreGauge } from "@/components/ScoreGauge";
+import { SubScoreBar } from "@/components/SubScoreBar";
 import { Button, Disclaimer, Eyebrow } from "@/components/ui";
 
 type State = Record<string, string | number>;
 
-const BAND_COLOR: Record<string, string> = {
-  Secure: "text-good", "Mostly Secure": "text-good", "At Risk": "text-warn", Vulnerable: "text-bad",
-};
 const SUB_LABEL: Record<keyof SubScores, string> = {
   income: "Income Stability", withdrawal: "Withdrawal Sustainability",
   inflation: "Inflation Impact", market: "Market-Risk Buffer",
@@ -255,17 +254,15 @@ export default function Quiz() {
   return (
     <div className="rg-page-shell">
     <div className="mx-auto max-w-3xl px-4 py-12 sm:py-16">
-      <div className="rg-card text-center">
-        <Eyebrow>Your Retirement Safety Score</Eyebrow>
-        <div className="my-3 text-7xl font-extrabold tracking-tight">{result!.overall}</div>
-        <div className={`text-2xl font-bold ${BAND_COLOR[result!.band]}`}>{result!.band}</div>
-      </div>
+      <ScoreGauge value={result!.overall} band={result!.band} subScores={[]} subtitle="Your result" badge="Visible now" />
 
       {!revealed ? (
         <div className="rg-card-highlight mt-8 text-center">
-          <h2 className="text-2xl font-bold">See your full breakdown + 3 personalized steps</h2>
-          <p className="mt-2 text-slate-600">Enter your email to unlock your sub-scores and action plan.</p>
-          <div className="mt-4 flex flex-col sm:flex-row gap-3">
+          <h2 className="text-2xl font-bold">See exactly what&apos;s behind your score — and your 3 next steps.</h2>
+          <p className="mx-auto mt-3 max-w-2xl text-slate-600">
+            Enter your email and we&apos;ll show your four sub-scores and a personalized action plan. We&apos;ll also send you a short monthly check-in. No spam, unsubscribe anytime.
+          </p>
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row">
             <input
               type="email" value={email} onChange={(e) => setEmail(e.target.value)}
               placeholder="you@email.com"
@@ -276,36 +273,34 @@ export default function Quiz() {
               onClick={submitEmail}
               className="disabled:opacity-50"
             >
-              {submitting ? "…" : "Show my results"}
+              {submitting ? "…" : "Show my full results"}
             </Button>
           </div>
           {emailError && <p className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-bad">{emailError}</p>}
-          <p className="mt-3 text-xs text-slate-500">No spam. Creating an account is optional after you see your results.</p>
+          <p className="mt-3 text-xs text-slate-500">Your score stays visible either way. Creating an account is optional after you see your results.</p>
         </div>
       ) : (
         <div className="mt-10 space-y-6">
           {emailNotice && <p className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-slate-700">{emailNotice}</p>}
-          <div className="rg-card space-y-4">
+          <div className="rg-card space-y-5">
+            <div>
+              <h3 className="text-2xl font-bold text-ink">What&apos;s behind your score</h3>
+              <p className="mt-2 text-slate-600">These four educational sub-scores point to areas worth reviewing first.</p>
+            </div>
             {(Object.keys(SUB_LABEL) as (keyof SubScores)[]).map((k) => (
-              <div key={k}>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="font-semibold">{SUB_LABEL[k]}</span>
-                  <span>{result!.sub[k]}</span>
-                </div>
-                <div className="h-3 w-full rounded-full bg-slate-200">
-                  <div className="h-3 rounded-full bg-brand" style={{ width: `${result!.sub[k]}%` }} />
-                </div>
-              </div>
+              <SubScoreBar key={k} label={SUB_LABEL[k]} value={result!.sub[k]} scoreKey={k} />
             ))}
           </div>
 
           <div className="rg-card">
-            <h3 className="text-xl font-bold mb-3">Your 3 next steps</h3>
-            <div className="space-y-3">
+            <h3 className="mb-3 text-2xl font-bold text-ink">Your 3 next steps</h3>
+            <div className="grid gap-3">
               {acts.map((a, i) => (
-                <div key={i} className="rounded-2xl border border-slate-200 bg-surface p-4">
-                  <span className="font-bold text-brand mr-2">{i + 1}.</span>{a}
-                </div>
+                <article key={i} className="rounded-2xl border border-slate-200 bg-surface p-5">
+                  <p className="text-sm font-extrabold uppercase tracking-[0.14em] text-brand">Step {i + 1}</p>
+                  <p className="mt-2 text-lg font-semibold leading-7 text-ink">{a}</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">Use this as a conversation starter — what to look at, what to ask, and what to understand before making decisions.</p>
+                </article>
               ))}
             </div>
           </div>
@@ -372,16 +367,14 @@ export default function Quiz() {
             </div>
           )}
 
-          {/* Phase 4-5: this CTA becomes the 3-day trial -> annual upgrade (see runbook). */}
-          <div className="rounded-3xl bg-ink p-6 text-center text-white shadow-xl">
-            <h3 className="font-sans text-xl font-bold text-white">Want RetireShield to watch this for you?</h3>
-            <p className="mt-2 text-slate-200">
-              Get ongoing alerts when something affects your score — scams in your state, benefit changes, rising costs.
+          <div className="rounded-3xl bg-ink p-6 text-center text-white shadow-xl sm:p-8">
+            <h3 className="font-sans text-2xl font-bold text-white">Want RetireShield to keep watch for you?</h3>
+            <p className="mx-auto mt-3 max-w-2xl text-slate-200">
+              Markets move, prices rise, rules change. We&apos;ll re-check your plan every month and tell you the moment something matters — Medicare thresholds, Social Security timing, scams in your state.
             </p>
-            <Button href="/upgrade?plan=annual" className="mt-4">
-              Start 3-day free trial
+            <Button href="/signup" className="mt-5">
+              Start my free trial
             </Button>
-            <p className="mt-2 text-xs text-slate-400">Review the plan terms before starting your trial.</p>
           </div>
         </div>
       )}
