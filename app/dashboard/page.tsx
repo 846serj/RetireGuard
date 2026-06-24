@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
-import { hasPaidAccess } from "@/lib/subscription";
+import { getSubscriptionAccess } from "@/lib/subscription";
 import { getScoreHistory } from "@/lib/scoreHistory";
 import { buildActionPlan, type PlanItem } from "@/lib/actionPlan";
 import { generateAIActionPlan } from "@/lib/ai/actionPlan";
@@ -70,7 +70,8 @@ export default async function Dashboard({ searchParams }: DashboardProps) {
     .order("created_at", { ascending: false }).limit(1).maybeSingle();
 
   const sessionAccess = searchParams?.session_id ? await syncCheckoutSession(searchParams.session_id, user.id) : false;
-  const paid = sessionAccess || await hasPaidAccess(user.id);
+  const subscriptionAccess = await getSubscriptionAccess(user.id);
+  const paid = sessionAccess || subscriptionAccess.active;
   const answers = latest?.answers as Answers | undefined;
 
   let plan: PlanItem[] = [];
@@ -211,18 +212,18 @@ export default async function Dashboard({ searchParams }: DashboardProps) {
               <h2 className="mt-2 text-xl font-extrabold">Update your Safety Score</h2>
               <p className="mt-2 text-sm text-slate-700">Refresh your profile so your plan and alerts stay personalized.</p>
             </Link>
-            <a href="#coach" className="rg-card no-underline transition hover:-translate-y-0.5 hover:border-emerald-400">
+            <Link href="/coach" className="rg-card no-underline transition hover:-translate-y-0.5 hover:border-emerald-400">
               <p className="rg-kicker text-emerald-700">AI coach</p>
               <h2 className="mt-2 text-xl font-extrabold">Ask what to do next</h2>
               <p className="mt-2 text-sm text-slate-700">Get education-only help interpreting the tools and next steps.</p>
-            </a>
+            </Link>
           </section>
 
           <ScoreHistoryChart points={scoreHistory} />
 
           <PlanList items={plan} />
 
-          <div id="coach"><CoachChat /></div>
+          <div id="coach"><CoachChat tier={subscriptionAccess.tier} /></div>
 
           <AlertFeed alerts={alerts} />
         </>
