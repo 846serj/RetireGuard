@@ -81,7 +81,7 @@ export function SiteHeader({ userEmail }: { userEmail?: string | null }) {
         <div className="bg-brand-dark text-white">
           <div className="mx-auto flex max-w-container items-center justify-between gap-4 px-4 py-3 text-sm font-semibold sm:px-6 lg:px-8">
             <Link href="/quiz" className="text-white no-underline hover:text-white/90">
-              Create an account first or start with the free Retirement Safety Score — no bank linking. <span className="underline underline-offset-4">Get started →</span>
+              Create an account first or start with the free Retirement Safety Score. <span className="underline underline-offset-4">Get started →</span>
             </Link>
             <button
               type="button"

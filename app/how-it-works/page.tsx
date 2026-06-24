@@ -1,6 +1,6 @@
 import { pageMetadata } from "@/lib/seo";
-import { ArrowRight, BarChart3, Check, ChevronDown, ClipboardList, LockKeyhole, ShieldCheck, Sparkles } from "lucide-react";
-import { Button, Container, Disclaimer, Eyebrow } from "@/components/ui";
+import { ArrowRight, BarChart3, Check, ChevronDown, ClipboardList, ShieldCheck, Sparkles } from "lucide-react";
+import { Button, Container, Eyebrow } from "@/components/ui";
 
 export const metadata = pageMetadata({
   title: "How RetireShield Works — Retirement Safety Score",
@@ -13,7 +13,7 @@ const walkthroughSteps = [
     step: "01",
     icon: ClipboardList,
     title: "Answer the essentials",
-    description: "Share only the basics: age, savings, income, spending, Social Security timing, and a few retirement goals. No bank linking required.",
+    description: "Share the basics: age, savings, income, spending, Social Security timing, and a few retirement goals.",
     detail: "Most people finish in about two minutes.",
   },
   {
@@ -53,12 +53,12 @@ const planRows = [
 
 const faqs = [
   {
-    question: "Do I need to connect my bank or brokerage?",
-    answer: "No. RetireShield is designed around privacy-friendly manual inputs. You can type estimates and update them later as your plan changes.",
+    question: "What information do I need to start?",
+    answer: "Approximate savings, income, spending, and goals are enough for the first pass. You can update your numbers later as your plan changes.",
   },
   {
-    question: "Is the Safety Score financial advice?",
-    answer: "No. The Safety Score is educational guidance that helps you understand potential retirement risks. It is not financial, investment, tax, or legal advice.",
+    question: "How should I use the Safety Score?",
+    answer: "Use it as a plain-English checkup that highlights potential retirement risks, practical next steps, and questions worth discussing.",
   },
   {
     question: "How long does the quiz take?",
@@ -221,14 +221,13 @@ export default function HowItWorksPage() {
           <div className="overflow-hidden rounded-[2rem] bg-gradient-to-r from-brand to-brand-dark p-8 text-white shadow-xl sm:p-10 lg:p-12">
             <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
               <div>
-                <div className="flex items-center gap-3 text-sm font-extrabold uppercase tracking-[0.16em] text-white/80"><LockKeyhole className="h-5 w-5" aria-hidden="true" /> No bank link required</div>
+                <div className="flex items-center gap-3 text-sm font-extrabold uppercase tracking-[0.16em] text-white/80"><ShieldCheck className="h-5 w-5" aria-hidden="true" /> Clear first steps</div>
                 <h2 className="mt-4 text-4xl font-extrabold tracking-tight text-white sm:text-5xl">Ready to see your Safety Score?</h2>
                 <p className="mt-4 text-xl font-semibold leading-9 text-white/85">Take the quiz now and get your first retirement actions for free.</p>
               </div>
               <Button href="/quiz" variant="secondary" className="w-full sm:w-auto">Start free <ArrowRight className="ml-2 h-5 w-5" aria-hidden="true" /></Button>
             </div>
           </div>
-          <Disclaimer className="mx-auto mt-8 max-w-3xl">RetireShield provides educational information only and is not financial, tax, legal, or investment advice.</Disclaimer>
         </Container>
       </section>
     </main>

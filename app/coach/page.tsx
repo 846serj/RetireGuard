@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import CoachChat from "@/components/CoachChat";
-import { Button, Disclaimer, Eyebrow } from "@/components/ui";
+import { Button, Eyebrow } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
 import { getSubscriptionAccess } from "@/lib/subscription";
 
@@ -17,7 +17,7 @@ export default async function CoachPage() {
           <Eyebrow>Ask RetireShield</Eyebrow>
           <h1 className="mt-4 text-5xl font-extrabold tracking-tight text-ink">AI coach is a paid feature.</h1>
           <p className="mx-auto mt-5 max-w-2xl text-xl font-semibold leading-8 text-slate-700">
-            Upgrade to ask retirement education questions grounded in your saved Safety Score and planning profile.
+            Upgrade to ask retirement questions grounded in your saved Safety Score and planning profile.
           </p>
           <Button href="/upgrade" className="mt-8">Unlock the coach</Button>
         </section>
@@ -36,7 +36,6 @@ export default async function CoachPage() {
           </p>
         </div>
         <CoachChat tier={access.tier} />
-        <Disclaimer className="mt-8" />
       </section>
     </main>
   );

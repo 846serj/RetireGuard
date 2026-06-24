@@ -16,7 +16,7 @@ import PlanList from "@/components/PlanList";
 import AlertFeed from "@/components/AlertFeed";
 import ScoreHistoryChart from "@/components/ScoreHistoryChart";
 import { stripe } from "@/lib/stripe";
-import { Button, Disclaimer, Eyebrow } from "@/components/ui";
+import { Button, Eyebrow } from "@/components/ui";
 
 
 type DashboardProps = {
@@ -172,7 +172,7 @@ export default async function Dashboard({ searchParams }: DashboardProps) {
               Last checked: <span className="font-bold text-ink">{checkedDate}</span>. We re-check monthly.
             </p>
             <p className="mt-3 text-slate-700">
-              Keep your score, action plan, alerts, and education-only coach in one place so you always know what to review next.
+              Keep your score, action plan, alerts, and plain-English coach in one place so you always know what to review next.
             </p>
           </div>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row lg:flex-col">
@@ -237,7 +237,7 @@ export default async function Dashboard({ searchParams }: DashboardProps) {
           <LockedTeaser
             eyebrow="Alerts + coach"
             title="Unlock matched alerts and the AI coach"
-            description="Get alerts matched to your state, age, and worries, plus education-only help deciding what to review next."
+            description="Get alerts matched to your state, age, and worries, plus plain-English help deciding what to review next."
           >
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left">
               <div className="flex items-center justify-between gap-3">
@@ -266,7 +266,7 @@ export default async function Dashboard({ searchParams }: DashboardProps) {
             <Link href="/coach" className="rg-card no-underline transition hover:-translate-y-0.5 hover:border-emerald-400">
               <p className="rg-kicker text-emerald-700">AI coach</p>
               <h2 className="mt-2 text-xl font-extrabold">Ask what to do next</h2>
-              <p className="mt-2 text-sm text-slate-700">Get education-only help interpreting the tools and next steps.</p>
+              <p className="mt-2 text-sm text-slate-700">Get plain-English help interpreting the tools and next steps.</p>
             </Link>
           </section>
 
@@ -288,10 +288,8 @@ export default async function Dashboard({ searchParams }: DashboardProps) {
           </div>
           {paid ? <Button href="/api/portal" variant="secondary">Manage subscription</Button> : <Button href="/upgrade">Start your free trial</Button>}
         </div>
-        <p className="mt-5 border-t border-slate-100 pt-4 text-sm text-slate-500">RetireShield is education-only and does not provide financial, tax, legal, or investment advice.</p>
-      </section>
+              </section>
 
-      <Disclaimer className="mt-8" />
     </div>
     </div>
   );

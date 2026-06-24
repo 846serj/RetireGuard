@@ -18,7 +18,7 @@ export default function PlanList({ items }: PlanListProps) {
         <p className="rg-kicker">Action plan</p>
         <h2 className="mt-2 text-3xl font-extrabold">Create your personalized action plan</h2>
         <p className="mt-3 text-slate-700">
-          Take the quick Safety Score quiz so RetireShield can turn your answers into education-first next steps.
+          Take the quick Safety Score quiz so RetireShield can turn your answers into focused next steps.
         </p>
         <Button href="/quiz" className="mt-5">Take the quiz</Button>
       </section>

@@ -152,7 +152,7 @@ function LoginContent() {
           </div>
 
           <div className="mt-8 rounded-2xl border border-brand/15 bg-band p-4 text-base font-semibold text-slate-700">
-            No bank linking. Your data is private and never sold.
+            Your data is private and never sold.
           </div>
         </section>
       </main>

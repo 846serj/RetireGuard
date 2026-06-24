@@ -6,7 +6,7 @@ export const features = {
   "safety-score": {
     eyebrow: "Safety Score",
     title: "Know how safe your retirement looks in minutes.",
-    subtitle: "Your Retirement Safety Score turns your savings, income, spending, and risks into one clear number you can actually understand — plus the few next steps that matter most. No account, no bank linking, about two minutes.",
+    subtitle: "Your Retirement Safety Score turns your savings, income, spending, and risks into one clear number you can actually understand — plus the few next steps that matter most in about two minutes.",
     cta: "Get my free Safety Score",
     href: "/quiz",
     icon: ShieldCheck,
@@ -17,7 +17,7 @@ export const features = {
     visualHeading: "A clear picture of where you stand",
     visualBody: "Your score, the four things behind it, and your next steps — all on one simple screen built to be read at a glance, not decoded.",
     ctaHeading: "Ready to see where your retirement stands?",
-    ctaBody: "Get your free Retirement Safety Score in about two minutes. No account, no bank linking, no catch.",
+    ctaBody: "Get your free Retirement Safety Score in about two minutes. No account, no catch.",
     benefits: [
       [
         WalletCards,
@@ -37,12 +37,12 @@ export const features = {
     ],
     faqs: [
       [
-        "Do I need to link accounts?",
-        "No. You never connect a bank, brokerage, or any account. You answer a few simple questions and we do the rest. Nothing is linked, ever.",
+        "What information do I need?",
+        "Answer a few simple questions about your retirement picture and we do the rest. Estimates are fine to start.",
       ],
       [
-        "Is this financial advice?",
-        "No. RetireShield gives you education and plain-English context to understand your retirement — not individualized financial, tax, or legal advice. For decisions specific to you, we point you to what to ask a fiduciary.",
+        "How should I use this?",
+        "RetireShield gives you plain-English context to understand your retirement and shows the questions worth asking before big decisions.",
       ],
       [
         "How long does it take?",
@@ -64,7 +64,7 @@ export const features = {
     visualHeading: "Your monthly check-in, at a glance",
     visualBody: "Your latest score, what changed since last month, and the few items worth a look — all on one simple screen, written to be understood in a minute.",
     ctaHeading: "Want RetireShield keeping watch for you?",
-    ctaBody: "Start with your free Safety Score, then turn on monthly monitoring whenever you're ready. No bank linking, cancel anytime.",
+    ctaBody: "Start with your free Safety Score, then turn on monthly monitoring whenever you're ready. Cancel anytime.",
     benefits: [
       [
         Radar,
@@ -116,15 +116,15 @@ export const features = {
     visualHeading: "A straight answer, with the math shown",
     visualBody: "Ask a question and see a plain-English answer — plus, under any number, exactly which calculation produced it. Clear enough to act on today.",
     ctaHeading: "Have a retirement question on your mind?",
-    ctaBody: "Start with your free Safety Score, then ask the AI Coach anytime. Educational, private, and no bank linking.",
+    ctaBody: "Start with your free Safety Score, then ask the AI Coach anytime.",
     benefits: [
       [MessageCircleQuestion, "Everyday questions", "Ask about spending, Social Security timing, taxes, Medicare, or market worries in plain English — no jargon required."],
       [Sparkles, "Action plans", "Get answers turned into a short, clear list of next steps you can actually act on, with every number backed by real calculations, not guesses."],
-      [LockKeyhole, "Privacy-minded", "It's educational and low-pressure — no sales pitch, no products pushed, and no bank linking required."],
+      [ShieldCheck, "Low-pressure guidance", "No sales pitch, no products pushed — just clear explanations and practical next steps."],
     ],
     faqs: [
       ["What can I ask?", "Anything about your retirement — spending, Social Security timing, taxes, Medicare, market drops, 'can I afford X.' If something can't be calculated, the Coach says so and points you to what to ask a professional."],
-      ["Does the coach replace an advisor?", "No. It's educational support that helps you understand your options — it doesn't replace individualized financial, tax, or legal advice."],
+      ["How does the coach help?", "It helps you understand options, tradeoffs, and next steps in plain English so you can have more confident conversations."],
       ["Can it explain my Safety Score?", "Yes. It can walk through why your score is what it is and which changes would raise it the most, in plain English."],
     ],
   },
@@ -143,7 +143,7 @@ export const features = {
     visualHeading: "See the tradeoffs in plain dollars",
     visualBody: "A simple snapshot of what claiming earlier or later would mean each month, and where your income sits relative to the Medicare surcharge lines — clear enough to talk through at the kitchen table.",
     ctaHeading: "Get the timing right.",
-    ctaBody: "Start with your free Safety Score to see where your claiming and Medicare risks stand. No bank linking, about two minutes.",
+    ctaBody: "Start with your free Safety Score to see where your claiming and Medicare risks stand in about two minutes.",
     benefits: [
       [Landmark, "Claiming tradeoffs", "Compare claiming Social Security early, at full retirement age, or at 70 — and see in plain dollars what each choice means for your monthly income for life."],
       [BadgeDollarSign, "IRMAA awareness", "Spot the income levels where one extra dollar can trigger a Medicare surcharge (IRMAA), so a withdrawal or Roth conversion doesn't quietly cost you hundreds a month."],
@@ -151,7 +151,7 @@ export const features = {
       [HeartHandshake, "Household context", "If you're married, coordinate both benefits and think through healthcare and survivor questions, so one decision supports the other."],
     ],
     faqs: [
-      ["Will you tell me when to claim?", "We help you compare your options side by side, in plain dollars, for your own education. We don't give personalized financial or legal advice — but we show you exactly what to weigh and what to ask a fiduciary."],
+      ["Will you tell me when to claim?", "We help you compare your options side by side, in plain dollars, and show you exactly what to weigh and what questions to ask."],
       ["What is IRMAA?", "IRMAA is a surcharge added to your Medicare premiums when your income rises above certain levels. Crossing one of those lines by even a dollar can raise your premiums for a full year — so it's worth seeing the thresholds before you make a move."],
       ["Can couples use this?", "Yes. RetireShield looks at both spouses together, since claiming, healthcare, and survivor decisions are usually best made as a household."],
     ],
@@ -170,16 +170,16 @@ export const features = {
     visualHeading: "Know a scam when you see one",
     visualBody: "A simple check that walks you through the warning signs of a suspicious request, plus the exact words you can use to safely step away — no pressure, no embarrassment.",
     ctaHeading: "Protect what you've worked for.",
-    ctaBody: "Start with your free Safety Score, then turn on Scam Shield. No bank linking, no pressure.",
+    ctaBody: "Start with your free Safety Score, then turn on Scam Shield. No pressure.",
     benefits: [
       [ShieldAlert, "Fraud pattern spotting", "Learn the red flags in almost every scam — impersonation, urgency, secrecy, and unusual payment requests — so you recognize them instantly."],
       [BellRing, "Timely reminders", "Get simple, seasonal heads-ups around the times fraud spikes — Medicare open enrollment, tax season, and common investment schemes."],
       [LockKeyhole, "Safer habits", "Build a few easy verification habits — how to confirm who's really calling — before you ever share information or move money."],
     ],
     faqs: [
-      ["Can this block scams automatically?", "No. Scam Shield educates you and flags common patterns, but it can't guarantee prevention. The goal is to help you pause and verify before any money moves."],
-      ["What if I already shared information?", "Don't panic. Scam Shield gives you a clear, immediate checklist — who to contact at your bank and the agencies, and how to lock things down — and you can reach a trusted contact for help."],
-      ["Does this monitor my bank?", "No. Like the rest of RetireShield, Scam Shield never links to or monitors your bank. These are education tools, not account access."],
+      ["Can this block scams automatically?", "Scam Shield flags common patterns and helps you pause, verify, and slow down suspicious requests before any money moves."],
+      ["What if I already shared information?", "Don't panic. Scam Shield gives you a clear, immediate checklist — who to contact, which agencies to notify, and how to lock things down — and you can reach a trusted contact for help."],
+      ["What does Scam Shield watch for?", "It focuses on scam patterns: impersonation, urgency, secrecy, unusual payment requests, and other warning signs that deserve a pause."],
     ],
   },
 } as const;

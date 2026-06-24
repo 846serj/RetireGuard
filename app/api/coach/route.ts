@@ -14,8 +14,7 @@ import { computeScores, type Answers } from "@/lib/scoring";
 
 const MAX_PER_HOUR = 20;
 const MAX_TOOL_LOOPS = 6;
-const STANDARD_DISCLAIMER = "RetireGuard provides education only, not financial, investment, tax, legal, or insurance advice. It is not a fiduciary and does not recommend buying, selling, holding, or allocating any specific investment or product. For decisions about your situation, talk with a licensed fiduciary or qualified tax professional.";
-const fallback = `The AI coach is unavailable right now. ${STANDARD_DISCLAIMER}`;
+const fallback = "The AI coach is unavailable right now. Please try again in a moment.";
 
 type IncomingMessage = { role: "user" | "assistant"; content: string };
 type ToolName = "compute_safety_score" | "project_depletion" | "tax_for_income" | "irmaa_for_income" | "compare_ss_claiming" | "rmd_for_age" | "roth_conversion_impact";
@@ -77,7 +76,7 @@ const tools = [
   { name: "irmaa_for_income", description: "Calculate estimated annual Medicare IRMAA surcharge from MAGI and filing status.", input_schema: { type: "object", properties: { magi: { type: "number" }, status: { type: "string", enum: ["single", "married"] } }, required: ["magi"], additionalProperties: false } },
   { name: "compare_ss_claiming", description: "Compare Social Security claiming ages using the saved profile or what-if overrides.", input_schema: { type: "object", properties: { overrides: { type: "object", additionalProperties: true }, monteCarloRuns: { type: "number", minimum: 50, maximum: 500 } }, additionalProperties: false } },
   { name: "rmd_for_age", description: "Calculate an estimated RMD from age and prior-year-end tax-deferred balance.", input_schema: { type: "object", properties: { age: { type: "number" }, priorYearEndTaxDeferredBalance: { type: "number" } }, required: ["age", "priorYearEndTaxDeferredBalance"], additionalProperties: false } },
-  { name: "roth_conversion_impact", description: "Analyze an education-only Roth conversion illustration using saved profile or what-if overrides.", input_schema: { type: "object", properties: { overrides: { type: "object", additionalProperties: true }, targetBracketRate: { type: "number", minimum: 0.1, maximum: 0.37 } }, additionalProperties: false } },
+  { name: "roth_conversion_impact", description: "Analyze a Roth conversion illustration using saved profile or what-if overrides.", input_schema: { type: "object", properties: { overrides: { type: "object", additionalProperties: true }, targetBracketRate: { type: "number", minimum: 0.1, maximum: 0.37 } }, additionalProperties: false } },
 ];
 
 export async function POST(req: Request) {
@@ -111,7 +110,7 @@ export async function POST(req: Request) {
     if (incoming.length === 0) return coachJson("messages required", [], { status: 400 });
 
     const guardrail = coachGuardrailResponse(incoming.at(-1)?.content ?? "");
-    if (guardrail) return coachJson(`${guardrail}\n\n${STANDARD_DISCLAIMER}`);
+    if (guardrail) return coachJson(guardrail);
 
     const [{ data: profileRow }, { data: scoreRow }] = await Promise.all([
       supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle(),
@@ -131,7 +130,7 @@ export async function POST(req: Request) {
 - NEVER state a number, age, tax amount, probability, balance, benefit, dollar amount, percentage, bracket, threshold, or score unless it is returned by one of the tools in this conversation. If a number cannot be computed with tools, say so and suggest what to ask a fiduciary or qualified tax professional.
 - Use the exact tools for personalized math: compute_safety_score, project_depletion, tax_for_income, irmaa_for_income, compare_ss_claiming, rmd_for_age, roth_conversion_impact.
 - Plain English for adults ages 55-80. Keep sentences short and warm.
-- End every answer with this exact disclaimer: ${STANDARD_DISCLAIMER}`;
+- Keep answers focused on the member's question and the tool-backed calculations available in this conversation.`;
     const messages: any[] = incoming.map((m) => ({ role: m.role, content: m.content }));
     let response: any;
 
@@ -170,10 +169,9 @@ export async function POST(req: Request) {
     if ((response?.content ?? []).some((block: any) => block.type === "tool_use")) response = await client.messages.create({ model: anthropicModel, max_tokens: 1000, temperature: 0.2, system, messages }, { signal: timeoutSignal(25_000) });
 
     const rawText = (response?.content ?? []).filter((block: any) => block.type === "text").map((block: any) => block.text).join("\n").trim() || fallback;
-    const answerWithDisclaimer = rawText.includes(STANDARD_DISCLAIMER) ? rawText : `${rawText}\n\n${STANDARD_DISCLAIMER}`;
-    const answer = answerHasOnlyToolSourcedNumbers(answerWithDisclaimer, calculations)
-      ? answerWithDisclaimer
-      : `I can only share numeric figures that came from RetireGuard tools. Please ask me to run the specific calculation again.\n\n${STANDARD_DISCLAIMER}`;
+    const answer = answerHasOnlyToolSourcedNumbers(rawText, calculations)
+      ? rawText
+      : "I can only share numeric figures that came from RetireGuard tools. Please ask me to run the specific calculation again.";
     if (logId) await supabase.from("coach_usage").update({ tool_calls: calculations.length, prompt_chars: incoming.reduce((sum, m) => sum + m.content.length, 0) }).eq("id", logId);
     return coachJson(answer, calculations, undefined, usageMeta(access.tier, access.tier === "plus" ? ((monthlyCountForResponse ?? 0) + 1) : 0));
   } catch (error) {

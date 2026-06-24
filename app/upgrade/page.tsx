@@ -3,7 +3,7 @@
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { BillingToggle } from "@/components/BillingToggle";
-import { Button, Disclaimer, Eyebrow } from "@/components/ui";
+import { Button, Eyebrow } from "@/components/ui";
 import { alternatePrice, type BillingCycle, pricingTiers, primaryPrice, type TierKey } from "@/lib/pricing";
 
 type CheckoutPlan = "annual" | "monthly";
@@ -30,11 +30,11 @@ const tiers: Tier[] = pricingTiers.map((tier) => ({
   description: {
     free: "Keep your Safety Score and a preview of your first action items.",
     plus: "Monthly monitoring, alerts, and guided next steps for one simple price.",
-    premium: "The recommended plan for deeper tools, history, and unlimited education support.",
+    premium: "The recommended plan for deeper tools, history, and unlimited coach support.",
     concierge: "Premium plus human checkups for households that want extra organization.",
   }[tier.key],
   bullets: {
-    free: ["Current score", "First action visible", "Education-first guidance"],
+    free: ["Current score", "First action visible", "Focused guidance"],
     plus: ["Monthly monitoring", "Matched alerts", "Limited AI Coach access"],
     premium: ["3-day free trial", "Medicare/IRMAA tools", "Social Security timing guide"],
     concierge: ["Premium included", "Human checkup", "Family-ready summary"],
@@ -95,15 +95,15 @@ function UpgradeContent() {
         <div className="mx-auto mb-10 max-w-3xl text-center">
           <Eyebrow>Upgrade</Eyebrow>
           <h1 className="mt-3 text-4xl font-bold sm:text-6xl">Start your free trial.</h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-700">Try Premium for 3 days, cancel anytime, and keep every decision education-framed before you speak with a fiduciary.</p>
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-700">Try Premium for 3 days, cancel anytime, and organize your next decisions with clearer context.</p>
           <div className="mt-6"><BillingToggle billing={billing} setBilling={setBilling} /></div>
         </div>
 
         <div className="grid gap-5 lg:grid-cols-4">
           {tiers.map((tier) => (
             <article key={tier.key} className={`relative flex h-full flex-col rounded-3xl border p-6 shadow-sm ${tier.popular ? "border-brand bg-brand text-white shadow-xl" : selectedPlan === tier.checkoutPlan ? "border-brand bg-white ring-4 ring-brand/10" : "border-slate-200 bg-white"}`}>
-              {tier.popular ? <span className="absolute right-5 top-5 rounded-full bg-white px-3 py-1 text-xs font-extrabold uppercase tracking-[0.14em] text-brand">Most popular</span> : null}
-              <h2 className={`text-2xl font-extrabold ${tier.popular ? "pr-32 text-white" : "text-ink"}`}>{tier.name}</h2>
+              {tier.popular ? <div className="mb-4 flex justify-center"><span className="rounded-full bg-white px-3 py-1 text-xs font-extrabold uppercase tracking-[0.14em] text-brand shadow-sm">Most popular</span></div> : null}
+              <h2 className={`text-2xl font-extrabold ${tier.popular ? "text-white" : "text-ink"}`}>{tier.name}</h2>
               <p className={`mt-5 text-4xl font-extrabold ${tier.popular ? "text-white" : "text-brand"}`}>{primaryPrice(tier, billing)}</p>
               <p className={`mt-1 text-sm font-bold ${tier.popular ? "text-white/80" : "text-slate-500"}`}>{alternatePrice(tier, billing)}</p>
               <p className={`mt-5 flex-1 text-base font-semibold leading-7 ${tier.popular ? "text-white/90" : "text-slate-700"}`}>{tier.description}</p>
@@ -135,11 +135,10 @@ function UpgradeContent() {
           <div className="rg-card bg-ink text-white">
             <p className="rg-kicker bg-white/10 text-white">Advisor cost check</p>
             <h2 className="mt-3 text-3xl font-extrabold text-white">Know what 1% can cost.</h2>
-            <p className="mt-4 text-lg leading-8 text-white/85">An advisor charging 1% on $500,000 costs about $5,000 per year. RetireShield Premium is $390 per year — an education-first way to get organized before paying percentage-based fees.</p>
+            <p className="mt-4 text-lg leading-8 text-white/85">An advisor charging 1% on $500,000 costs about $5,000 per year. RetireShield Premium is $390 per year — a lower-cost way to get organized before paying percentage-based fees.</p>
           </div>
         </div>
 
-        <Disclaimer className="mx-auto mt-8 max-w-3xl">RetireShield provides educational information only and is not financial, tax, legal, or investment advice. Consider speaking with a qualified fiduciary, tax professional, or attorney about your personal situation.</Disclaimer>
       </div>
     </div>
   );

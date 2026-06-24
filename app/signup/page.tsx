@@ -156,7 +156,7 @@ export default function Signup() {
             <li><span className="font-extrabold text-ink">3.</span> Save your score, action plan, alerts, and monitoring preferences in one place.</li>
           </ol>
           <div className="mt-8 rounded-2xl border border-white/80 bg-white p-5 text-base font-semibold leading-7 text-slate-700">
-            No credit card. No bank or brokerage linking. Education-only guidance you can review at your own pace.
+            No credit card. Clear guidance you can review at your own pace.
           </div>
         </aside>
       </main>

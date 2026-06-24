@@ -44,9 +44,7 @@ export default function ResourceArticlePage({ params }: ResourceArticlePageProps
             <p>This guide is part of the RetireShield education library. For now, articles are powered by a simple local content source so the team can publish and refine topics quickly.</p>
             <h2>What to do next</h2>
             <p>Use the guide summary above as a conversation starter. If the topic matches a real concern in your household, run a Retirement Safety Score and make a short list of the assumptions you want to verify.</p>
-            <h2>Important disclosure</h2>
-            <p>RetireShield provides educational information only. It is not financial, investment, tax, or legal advice.</p>
-          </div>
+                      </div>
         </Container>
       </article>
       <Container className="pb-16 sm:pb-20">

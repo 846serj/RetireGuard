@@ -76,7 +76,7 @@ export default function CoachChat({ tier = "premium" }: { tier?: SubscriptionTie
             <p className="rg-kicker text-emerald-700">Phase 2 coach chat</p>
             <h2 className="mt-2 text-3xl font-bold sm:text-4xl">Ask RetireShield</h2>
             <p className="mt-3 max-w-2xl text-lg font-semibold leading-8 text-slate-700">
-              Large-type, education-only answers grounded in your saved profile and deterministic calculation tools.
+              Large-type answers grounded in your saved profile and deterministic calculation tools.
             </p>
           </div>
           <div className="rounded-2xl border border-slate-200 bg-white/90 p-4 text-base shadow-sm lg:min-w-72">
@@ -89,7 +89,7 @@ export default function CoachChat({ tier = "premium" }: { tier?: SubscriptionTie
             We don&apos;t do the math with AI — numbers come from proven calculations; Claude explains them.
           </p>
           <p className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-base font-semibold leading-7 text-slate-700">
-            Education only — not financial, tax, legal, insurance, or investment advice. Do not share account numbers, SSNs, passwords, or payment details.
+            Do not share account numbers, SSNs, passwords, or payment details.
           </p>
         </div>
       </div>
@@ -132,7 +132,7 @@ export default function CoachChat({ tier = "premium" }: { tier?: SubscriptionTie
         </div>
 
         <form onSubmit={(e) => { e.preventDefault(); send(); }} className="flex flex-col gap-3 sm:flex-row">
-          <label className="sr-only" htmlFor="coach-question">Ask an education-only retirement question</label>
+          <label className="sr-only" htmlFor="coach-question">Ask a retirement question</label>
           <input id="coach-question" value={input} onChange={(e) => setInput(e.target.value)} className="rg-input min-w-0 flex-1" placeholder="Ask: Will an extra withdrawal raise my Medicare?" />
           <button type="submit" disabled={loading || !input.trim()} className="min-h-14 rounded-xl bg-brand px-6 py-3 text-lg font-extrabold text-white shadow-sm transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50">
             {loading ? "Thinking…" : "Send"}
