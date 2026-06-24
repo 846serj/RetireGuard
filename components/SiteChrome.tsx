@@ -29,7 +29,7 @@ const footerColumns = [
 
 function Logo() {
   return (
-    <Link href="/" className="flex items-center gap-3 text-ink no-underline hover:text-brand-dark" aria-label="RetireShield home">
+    <Link href="/" className="flex shrink-0 items-center gap-3 text-ink no-underline hover:text-brand-dark" aria-label="RetireShield home">
       <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-dark text-white shadow-sm" aria-hidden="true">
         <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 3 5 6v5c0 4.5 2.9 8.5 7 10 4.1-1.5 7-5.5 7-10V6l-7-3Z" />
@@ -95,12 +95,12 @@ export function SiteHeader({ userEmail }: { userEmail?: string | null }) {
         <div className="mx-auto flex max-w-container items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
           <Logo />
 
-          <nav className="hidden items-center gap-7 text-base font-semibold lg:flex" aria-label="Main navigation">
-            <Link href="/#how-it-works" className="text-ink no-underline hover:text-brand">How it works</Link>
+          <nav className="hidden flex-1 items-center justify-center gap-6 text-base font-semibold min-[1120px]:flex xl:gap-7" aria-label="Main navigation">
+            <Link href="/#how-it-works" className="whitespace-nowrap text-ink no-underline hover:text-brand">How it works</Link>
             <div className="relative" ref={featuresRef}>
               <button
                 type="button"
-                className="rounded-lg text-ink hover:text-brand"
+                className="whitespace-nowrap rounded-lg text-ink hover:text-brand"
                 aria-expanded={featuresOpen}
                 aria-controls="features-menu"
                 onClick={() => setFeaturesOpen((open) => !open)}
@@ -117,32 +117,32 @@ export function SiteHeader({ userEmail }: { userEmail?: string | null }) {
                 </div>
               )}
             </div>
-            <Link href="/upgrade" className="text-ink no-underline hover:text-brand">Pricing</Link>
-            <Link href="/resources" className="text-ink no-underline hover:text-brand">Resources</Link>
-            <Link href="/about" className="text-ink no-underline hover:text-brand">About</Link>
+            <Link href="/upgrade" className="whitespace-nowrap text-ink no-underline hover:text-brand">Pricing</Link>
+            <Link href="/resources" className="whitespace-nowrap text-ink no-underline hover:text-brand">Resources</Link>
+            <Link href="/about" className="whitespace-nowrap text-ink no-underline hover:text-brand">About</Link>
           </nav>
 
-          <div className="hidden items-center gap-4 lg:flex">
+          <div className="hidden shrink-0 items-center gap-6 min-[1120px]:flex xl:gap-7">
             {userEmail ? (
               <>
                 <Button href="/dashboard" className="min-h-12 px-5 py-2 text-base">Dashboard</Button>
                 <span className="max-w-48 truncate text-sm font-semibold text-slate-600" title={userEmail}>{userEmail}</span>
                 <form action="/auth/sign-out" method="post">
-                  <button type="submit" className="font-bold text-ink no-underline hover:text-brand">Sign out</button>
+                  <button type="submit" className="whitespace-nowrap font-bold text-ink no-underline hover:text-brand">Sign out</button>
                 </form>
               </>
             ) : (
               <>
-                <Link href="/login" className="font-bold text-ink no-underline hover:text-brand">Log in</Link>
-                <Button href="/signup" variant="secondary" className="min-h-12 px-4 py-2 text-base">Create account</Button>
-                <Button href="/quiz" className="min-h-12 px-5 py-2 text-base">Free Safety Score</Button>
+                <Link href="/login" className="whitespace-nowrap font-bold text-ink no-underline hover:text-brand">Log in</Link>
+                <Button href="/signup" variant="secondary" className="min-h-14 whitespace-nowrap px-5 py-2 text-base">Create account</Button>
+                <Button href="/quiz" className="min-h-14 whitespace-nowrap px-5 py-2 text-base">Free Safety Score</Button>
               </>
             )}
           </div>
 
           <button
             type="button"
-            className="inline-flex h-12 w-12 items-center justify-center rounded-xl border border-slate-300 text-ink lg:hidden"
+            className="inline-flex h-12 w-12 items-center justify-center rounded-xl border border-slate-300 text-ink min-[1120px]:hidden"
             aria-label="Open navigation menu"
             aria-expanded={drawerOpen}
             aria-controls="mobile-menu"
@@ -156,7 +156,7 @@ export function SiteHeader({ userEmail }: { userEmail?: string | null }) {
       </header>
 
       {drawerOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-labelledby="mobile-menu-title">
+        <div className="fixed inset-0 z-50 min-[1120px]:hidden" role="dialog" aria-modal="true" aria-labelledby="mobile-menu-title">
           <button className="absolute inset-0 bg-ink/50" aria-label="Close navigation menu" onClick={() => setDrawerOpen(false)} />
           <div id="mobile-menu" className="absolute right-0 top-0 flex h-full w-full max-w-sm flex-col bg-white p-6 shadow-2xl">
             <div className="flex items-center justify-between gap-4">
