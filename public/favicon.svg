@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">RetireShield favicon</title>
+  <desc id="desc">A navy shield with a white check mark on a soft blue background.</desc>
+  <rect width="64" height="64" rx="16" fill="#EEF3F9"/>
+  <path d="M32 9 15 16.2v12.5C15 41.2 22.1 52.1 32 56c9.9-3.9 17-14.8 17-27.3V16.2L32 9Z" fill="#163A66"/>
+  <path d="m23.5 32.5 6 6 12-15" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
