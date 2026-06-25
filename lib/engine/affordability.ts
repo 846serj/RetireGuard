@@ -117,16 +117,55 @@ function scoreFromProfile(profile: FinancialProfile, quizAnswers?: Answers | nul
   return computeScores(answers);
 }
 
+type ProfileWithOtherTaxableIncome = FinancialProfile & {
+  other_taxable_income?: number | null;
+  otherTaxableIncome?: number | null;
+  taxable_income_other?: number | null;
+};
+
+function annualizedGuaranteedIncome(profile: FinancialProfile) {
+  return (known(profile.ss_benefit_fra) + known(profile.spouse_ss_benefit_fra) + known(profile.pension_amount)) * 12;
+}
+
+function otherTaxableIncome(profile: FinancialProfile) {
+  const p = profile as ProfileWithOtherTaxableIncome;
+  return known(p.other_taxable_income ?? p.otherTaxableIncome ?? p.taxable_income_other);
+}
+
+function taxableSaleGain(profile: FinancialProfile, withdrawal: number) {
+  const taxableBalance = known(profile.balance_taxable);
+  if (taxableBalance <= 0 || withdrawal <= 0) return 0;
+  const unrealizedGain = Math.max(0, taxableBalance - known(profile.taxable_cost_basis));
+  const gainRatio = Math.min(1, unrealizedGain / taxableBalance);
+  return withdrawal * gainRatio;
+}
+
+function distanceToNextIrmaaCliff(magi: number, status: ReturnType<typeof filingStatusFromMaritalStatus>) {
+  const bracket = IRMAA_BRACKETS[status].find((b) => magi <= b.upTo);
+  return bracket?.upTo === Infinity ? null : Math.max(0, (bracket?.upTo ?? 0) - magi);
+}
+
 function ripple(input: AffordabilityInput, profile: FinancialProfile, source: string) {
   if (source !== "tax_deferred" || input.amount <= 0) return undefined;
   const age = input.startAge ?? currentAge(profile);
   const status = filingStatusFromMaritalStatus(profile.marital_status);
-  const base = totalIncomeTaxes({ status, ages: [age], ordinaryIncome: 0, socialSecurity: 0, longTermCapitalGains: 0, state: profile.state });
-  const after = totalIncomeTaxes({ status, ages: [age], ordinaryIncome: input.amount, socialSecurity: 0, longTermCapitalGains: 0, state: profile.state });
-  const bracket = IRMAA_BRACKETS[status].find((b) => input.amount <= b.upTo);
-  const distanceToNextIrmaaCliff = bracket?.upTo === Infinity ? null : Math.max(0, (bracket?.upTo ?? 0) - input.amount);
+  const baseOtherIncome = annualizedGuaranteedIncome(profile) + otherTaxableIncome(profile);
+  const base = totalIncomeTaxes({ status, ages: [age], ordinaryIncome: baseOtherIncome, socialSecurity: 0, longTermCapitalGains: 0, state: profile.state });
+  const after = totalIncomeTaxes({ status, ages: [age], ordinaryIncome: baseOtherIncome + input.amount, socialSecurity: 0, longTermCapitalGains: 0, state: profile.state });
+  const taxDeferredIncrease = after.total - base.total;
   const taxableAvailable = known(profile.balance_taxable) >= input.amount;
-  return { fundingSource: source, extraOrdinaryTax: after.total - base.total, irmaaIncrease: after.irmaa - base.irmaa, distanceToNextIrmaaCliff, cheaperAlternative: taxableAvailable ? "taxable" : null, estimatedSavingsUsingTaxable: taxableAvailable ? Math.max(0, after.total - base.total) : 0 };
+  const taxableGain = taxableSaleGain(profile, input.amount);
+  const taxableAfter = taxableAvailable ? totalIncomeTaxes({ status, ages: [age], ordinaryIncome: baseOtherIncome, socialSecurity: 0, longTermCapitalGains: taxableGain, state: profile.state }) : null;
+  const taxableIncrease = taxableAfter ? taxableAfter.total - base.total : 0;
+  const estimatedSavingsUsingTaxable = taxableAvailable ? Math.max(0, taxDeferredIncrease - taxableIncrease) : 0;
+  return {
+    fundingSource: source,
+    extraOrdinaryTax: taxDeferredIncrease,
+    irmaaIncrease: after.irmaa - base.irmaa,
+    distanceToNextIrmaaCliff: distanceToNextIrmaaCliff(baseOtherIncome + input.amount, status),
+    cheaperAlternative: taxableAvailable && estimatedSavingsUsingTaxable > 0 ? "taxable" : null,
+    estimatedSavingsUsingTaxable,
+  };
 }
 
 function evaluate(input: AffordabilityInput, profile: FinancialProfile, includeSafeMax: boolean, runs = AFFORDABILITY_RUNS, quizAnswers?: Answers | null): DecisionResult {

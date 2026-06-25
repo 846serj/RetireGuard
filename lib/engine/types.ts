@@ -21,6 +21,7 @@ export type FinancialProfile = {
   pension_start_age: number | null;
   pension_has_cola: boolean;
   pension_survivor_pct: number | null;
+  other_taxable_income?: number | null;
   spending_essential_monthly: number | null;
   spending_discretionary_monthly: number | null;
   inflation_assumption: number;
