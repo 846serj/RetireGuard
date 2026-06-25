@@ -23,6 +23,10 @@ export const metadata: Metadata = {
     template: "%s | RetireShield",
   },
   description: "See how secure your retirement is in two minutes. Free Retirement Safety Score.",
+  icons: {
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    shortcut: ["/favicon.svg"],
+  },
   openGraph: {
     siteName: "RetireShield",
     type: "website",
