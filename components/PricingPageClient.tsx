@@ -21,24 +21,25 @@ type FeatureGroup = {
 const tiers = pricingTiers.map((tier) => ({
   ...tier,
   description: {
-    free: "Get your Safety Score and first actions without a credit card.",
-    plus: "Monthly monitoring, alerts, and coach help when your plan needs attention.",
-    premium: "Deeper retirement tools, unlimited coach guidance, and score history.",
-    concierge: "Human checkups for families who want extra help staying organized.",
+    free: "Verdict, trigger, safe max, and your safe-to-spend number.",
+    plus: "Unlock decision depth, calculation trace, history, and connected accounts.",
+    premium: "Plus with existing Medicare/IRMAA, Social Security, and score-history tools.",
+    concierge: "Premium plus human checkups and done-for-you organization.",
   }[tier.key],
   cta: { free: "Start free", plus: "Choose Plus", premium: "Choose Premium", concierge: "Talk to us" }[tier.key],
 }));
 
 const featureGroups: FeatureGroup[] = [
   { name: "Safety Score & actions", rows: [
-    { label: "Retirement Safety Score", values: { free: true, plus: true, premium: true, concierge: true } },
-    { label: "Personalized action plan", values: { free: "3 actions", plus: "Monthly refresh", premium: "Unlimited", concierge: "Unlimited + human review" } },
-    { label: "Priority risk explanations", values: { free: false, plus: true, premium: true, concierge: true } },
+    { label: "Can I afford it? verdict + trigger", values: { free: true, plus: true, premium: true, concierge: true } },
+    { label: "Safe max + safe-to-spend number", values: { free: true, plus: true, premium: true, concierge: true } },
+    { label: "Tax/Medicare ripple", values: { free: false, plus: true, premium: true, concierge: true } },
+    { label: "Alternatives + how calculated trace", values: { free: false, plus: true, premium: true, concierge: true } },
   ] },
   { name: "Monthly monitoring & alerts", rows: [
-    { label: "Monthly plan check", values: { free: false, plus: true, premium: true, concierge: true } },
-    { label: "Risk alerts", values: { free: false, plus: "Email", premium: "Email + in-app", concierge: "Email + in-app + checkup" } },
-    { label: "What changed summary", values: { free: false, plus: true, premium: true, concierge: true } },
+    { label: "Saved decision history", values: { free: false, plus: true, premium: true, concierge: true } },
+    { label: "Connect accounts", values: { free: false, plus: true, premium: true, concierge: true } },
+    { label: "Score history", values: { free: false, plus: false, premium: true, concierge: true } },
   ] },
   { name: "AI coach", rows: [
     { label: "Ask retirement questions", values: { free: "Limited preview", plus: "Monthly allowance", premium: "Unlimited", concierge: "Unlimited" } },
@@ -46,9 +47,9 @@ const featureGroups: FeatureGroup[] = [
     { label: "Plain-English action drafts", values: { free: false, plus: false, premium: true, concierge: true } },
   ] },
   { name: "Medicare & Social Security tools", rows: [
-    { label: "Social Security timing guide", values: { free: false, plus: "Basics", premium: "Deep tools", concierge: "Deep tools + review" } },
+    { label: "Social Security planning tools", values: { free: false, plus: false, premium: true, concierge: true } },
     { label: "Medicare and IRMAA checks", values: { free: false, plus: false, premium: true, concierge: true } },
-    { label: "Tax-sensitive planning prompts", values: { free: false, plus: false, premium: true, concierge: true } },
+    { label: "Expanded deep planners", values: { free: false, plus: false, premium: "Included — rolling out", concierge: "Included — rolling out" } },
   ] },
   { name: "Score history", rows: [
     { label: "Saved Safety Scores", values: { free: "Current only", plus: "12 months", premium: "Full history", concierge: "Full history" } },
@@ -64,7 +65,7 @@ const featureGroups: FeatureGroup[] = [
 
 const faqs = [
   { question: "What's free?", answer: "The Free plan includes your Retirement Safety Score and three personalized actions so you can see your biggest risks before paying anything." },
-  { question: "Do I need a credit card?", answer: "No. You can start the Free plan without a credit card. Paid plans only ask for payment when you choose to upgrade." },
+  { question: "Do I need a credit card?", answer: "No for Free. Yes for Plus and Premium trials: they are 7-day, card-required trials that auto-convert unless you cancel anytime before the trial ends." },
   { question: "Can I cancel anytime?", answer: "Yes. There are no contracts, and you can cancel before your next renewal." },
   { question: "Is my data safe?", answer: "We use privacy-minded product design and keep your information protected. We never sell your personal data." },
   { question: "What information do I enter?", answer: "Start with approximate retirement details like savings, income, spending, and timing goals. You can update them as your picture changes." },

@@ -22,6 +22,23 @@ function plusResult(result: DecisionResult) {
   return { ...publicResult(result), ripple: result.ripple, alternatives: result.alternatives, trace: result.trace };
 }
 
+function tierEntitlements(tier: string) {
+  return {
+    tier,
+    included: {
+      free: ["verdict", "trigger", "safeMax", "safeToSpend"],
+      plus: tier === "plus" || tier === "premium" || tier === "concierge"
+        ? ["taxMedicareRipple", "alternatives", "calculationTrace", "savedDecisionHistory", "connectAccounts"]
+        : [],
+      premium: tier === "premium" || tier === "concierge"
+        ? ["medicareIrmaa", "socialSecurityPlanning", "scoreHistory"]
+        : [],
+      concierge: tier === "concierge" ? ["humanCheckups", "doneForYou"] : [],
+    },
+    rollingOut: tier === "premium" || tier === "concierge" ? ["expandedMedicarePlanner", "expandedSocialSecurityOptimizer"] : [],
+  };
+}
+
 export async function POST(req: Request) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -44,7 +61,7 @@ export async function POST(req: Request) {
   const result = analyzeAffordability(input, profileRow as FinancialProfile);
   const safeToSpend = computeSafeToSpend(profileRow as FinancialProfile);
   const isPlusDepth = ["plus", "premium", "concierge"].includes(access.tier);
-  const response = { ...(isPlusDepth ? plusResult(result) : publicResult(result)), safeToSpend, latestScore: scoreRow ?? null };
+  const response = { ...(isPlusDepth ? plusResult(result) : publicResult(result)), safeToSpend, latestScore: scoreRow ?? null, entitlements: tierEntitlements(access.tier) };
 
   if (isPlusDepth && !result.needsProfile) {
     await supabase.from("decisions").insert({ user_id: user.id, input, result, verdict: result.verdict, tier: access.tier });

@@ -27,7 +27,7 @@ export async function POST(req: Request) {
       stripe_customer_id: sub.customer,
       stripe_subscription_id: sub.id,
       status: sub.status,
-      plan: sub.metadata?.plan ?? null,
+      plan: sub.metadata?.plan ?? (sub.metadata?.tier && sub.metadata?.cadence ? `${sub.metadata.tier}_${sub.metadata.cadence}` : sub.metadata?.tier ?? null),
       trial_end: sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null,
       current_period_end: sub.current_period_end ? new Date(sub.current_period_end * 1000).toISOString() : null,
       updated_at: new Date().toISOString(),

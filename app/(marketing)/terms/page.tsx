@@ -37,16 +37,14 @@ export default function Terms() {
       </p>
 
       <h2 className="mt-10 mb-4 text-2xl font-bold text-ink">4. Subscriptions, free trial, and automatic renewal</h2>
-      <p className="mb-4">Certain features (&quot;Premium&quot;) require a paid subscription.</p>
+      <p className="mb-4">Certain features require a paid Plus or Premium subscription. Concierge is talk-to-sales.</p>
       <ul className="mb-6 list-disc space-y-3 pl-6">
         <li>
-          <strong>Free trial.</strong> Premium is offered with a <strong>3-day free trial</strong>. If you do not cancel
+          <strong>Free trial.</strong> Plus and Premium are offered with a <strong>7-day free trial</strong>. If you do not cancel
           before the trial ends, your subscription will begin and your payment method will be charged automatically.
         </li>
         <li>
-          <strong>Price and billing.</strong> After the trial, the annual plan is <strong>$199 per year</strong>, charged
-          automatically each year. A <strong>$29 per month</strong> plan is also available, charged automatically each
-          month.
+          <strong>Price and billing.</strong> After the trial, Plus is <strong>$19 per month</strong> or <strong>$190 per year</strong>. Premium is <strong>$39 per month</strong> or <strong>$390 per year</strong>. Annual billing is 2 months free versus monthly billing.
         </li>
         <li>
           <strong>Automatic renewal — please read.</strong> <strong>Your subscription renews automatically, and your

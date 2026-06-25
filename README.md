@@ -4,7 +4,7 @@ A runnable Next.js app for the **free Retirement Safety Score** wedge: landing �
 score + 4 sub-scores + 3 actions, gated behind email capture. Education only, no account/brokerage linking.
 
 This is the self-contained free-Score half of the launch. The monetized half (accounts, Stripe
-3-day-trial→annual, paid features, the auto-renew compliance flow) is **stubbed** here and built per
+7-day-trial→paid ladder, paid features, the auto-renew compliance flow) is **stubbed** here and built per
 `../RetireShield-v0-Launch-Runbook.md` — those need your accounts and a lawyer, so they aren't pre-wired.
 
 ## Run it locally (works with zero setup)
@@ -71,7 +71,7 @@ middleware.ts                     refreshes the auth session
 app/login + app/auth/callback     magic-link sign-in
 app/dashboard                     authed; shows saved score, gates paid section
 app/upgrade                       pricing + CONSENT checkbox + auto-renew terms (Phase 6)
-app/api/checkout                  Stripe Checkout (subscription, 3-day trial on annual price)
+app/api/checkout                  Stripe Checkout (subscription, 7-day trial on Plus/Premium)
 app/api/portal                    Stripe Customer Portal (one-click cancel)
 app/api/stripe/webhook            syncs the subscriptions table
 app/terms, app/privacy, app/refund-policy   PLACEHOLDER legal pages (lawyer must finalize)
@@ -79,13 +79,13 @@ lib/stripe.ts, lib/subscription.ts, lib/email.ts
 ```
 
 To activate: `npm install` (pulls in `stripe` + `@supabase/ssr`), run the full `supabase-schema.sql`,
-run `npm run stripe:setup` with `STRIPE_SECRET_KEY` set to create the `RetireShield Premium` product, the annual $199 price with `trial_period_days=3`, the monthly $29 price, and a Customer Portal configuration. Add the printed `STRIPE_PRICE_ANNUAL`, `STRIPE_PRICE_MONTHLY`, and `STRIPE_PORTAL_CONFIGURATION` env vars, then add the webhook endpoint + signing secret. Then test with Stripe test cards.
+run `npm run stripe:setup` with `STRIPE_SECRET_KEY` set to create the RetireShield ladder: Plus ($19/mo, $190/yr), Premium ($39/mo, $390/yr), and catalog-only Concierge (from $99/mo, from $990/yr). Add the printed `STRIPE_PRICE_<TIER>_<CADENCE>` and `STRIPE_PORTAL_CONFIGURATION` env vars, then add the webhook endpoint + signing secret. Checkout applies `trial_period_days=7` for Plus and Premium. Then test with Stripe test cards.
 
 Stripe Dashboard checklist before live launch:
 
 - Billing → Subscriptions and emails: keep the trial-ending reminder email turned ON.
 - Customer Portal: use the generated configuration or verify one-click cancellation is enabled.
-- Products: confirm `RetireShield Premium` has the $199/year price with a 3-day trial and the $29/month price.
+- Products: confirm RetireShield has Plus/Premium monthly and annual prices, Concierge catalog-only prices, and Checkout applies the 7-day Plus/Premium trial.
 
 **Hard gate (Phase 6):** a lawyer must review the `/upgrade` copy, the consent checkbox, the trial-ending
 reminder, the one-click cancel, and the three legal pages **before you switch Stripe to live mode.**

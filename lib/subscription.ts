@@ -3,9 +3,9 @@ import type { SubscriptionAccess, SubscriptionTier } from "@/lib/subscription-ty
 
 function tierFromPlan(plan?: string | null): SubscriptionTier {
   const normalized = plan?.toLowerCase() ?? "";
-  if (["concierge"].includes(normalized)) return "concierge";
-  if (["premium", "annual"].includes(normalized)) return "premium";
-  if (["plus", "monthly"].includes(normalized)) return "plus";
+  if (normalized.startsWith("concierge")) return "concierge";
+  if (normalized.startsWith("premium") || ["annual"].includes(normalized)) return "premium";
+  if (normalized.startsWith("plus") || ["monthly"].includes(normalized)) return "plus";
   return "free";
 }
 
