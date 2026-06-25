@@ -2,17 +2,23 @@ import { NextResponse } from "next/server";
 import { getPublicBaseUrl } from "@/lib/siteUrl";
 import { stripe } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
+import { checkoutPriceEnvName, isSelfServeTier, type BillingCycle, type SelfServeTierKey } from "@/lib/pricing";
 
-// Creates a Stripe Checkout Session (subscription). Annual carries the 3-day trial (set on the Price in Stripe).
+// Creates a Stripe Checkout Session (subscription) with a card-required 7-day trial
+// for self-serve paid tiers. One Stripe Price is configured per tier + cadence.
 export async function POST(req: Request) {
+  let tier: unknown;
+  let cadence: unknown;
   let plan: unknown;
   try {
-    ({ plan } = await req.json());
+    ({ tier, cadence, plan } = await req.json());
   } catch {
     return NextResponse.json({ error: "Invalid checkout request." }, { status: 400 });
   }
 
-  const normalizedPlan = plan === "monthly" ? "monthly" : "annual";
+  const normalizedTier = isSelfServeTier(tier) ? tier : plan === "plus" ? "plus" : "premium";
+  const normalizedCadence: BillingCycle = cadence === "monthly" || plan === "monthly" ? "monthly" : "annual";
+  const planKey = `${normalizedTier}_${normalizedCadence}`;
   const base = getPublicBaseUrl(req.url);
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -26,19 +32,19 @@ export async function POST(req: Request) {
   const { data: { user }, error: userError } = await supabase.auth.getUser();
   if (userError) console.error("checkout auth lookup failed:", userError.message);
   if (!user) {
-    const next = `/upgrade?plan=${normalizedPlan}`;
+    const next = `/upgrade?tier=${normalizedTier}&cadence=${normalizedCadence}`;
     return NextResponse.json({ redirectTo: `${base}/login?next=${encodeURIComponent(next)}` }, { status: 401 });
   }
 
-  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
-  if (!stripeSecretKey) {
+  if (!process.env.STRIPE_SECRET_KEY) {
     console.error("checkout failed: STRIPE_SECRET_KEY is not configured");
     return NextResponse.json({ error: "Stripe is not configured yet. Please contact support." }, { status: 500 });
   }
 
-  const price = normalizedPlan === "monthly" ? process.env.STRIPE_PRICE_MONTHLY : process.env.STRIPE_PRICE_ANNUAL;
+  const envName = checkoutPriceEnvName(normalizedTier as SelfServeTierKey, normalizedCadence);
+  const price = process.env[envName];
   if (!price) {
-    console.error(`checkout failed: ${normalizedPlan} Stripe price is not configured`);
+    console.error(`checkout failed: ${envName} is not configured`);
     return NextResponse.json({ error: "This plan is not configured yet. Please contact support." }, { status: 500 });
   }
 
@@ -48,11 +54,13 @@ export async function POST(req: Request) {
       line_items: [{ price, quantity: 1 }],
       customer_email: user.email ?? undefined,
       client_reference_id: user.id,
-      subscription_data: { metadata: { user_id: user.id, plan: normalizedPlan } },
-      // Trial is configured on the annual Price (trial_period_days = 3) in the Stripe dashboard.
+      subscription_data: {
+        trial_period_days: 7,
+        metadata: { user_id: user.id, tier: normalizedTier, cadence: normalizedCadence, plan: planKey },
+      },
       allow_promotion_codes: true,
       success_url: `${base}/dashboard?welcome=1&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${base}/upgrade`,
+      cancel_url: `${base}/upgrade?tier=${normalizedTier}&cadence=${normalizedCadence}`,
     });
 
     if (!session.url) {

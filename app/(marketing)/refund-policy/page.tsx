@@ -13,14 +13,14 @@ export default function RefundPolicy() {
 
       <h2 className="mt-10 mb-4 text-2xl font-bold text-ink">Free trial</h2>
       <p className="mb-6">
-        Premium starts with a <strong>3-day free trial</strong>. If you cancel before the trial ends, <strong>you will not
+        Plus and Premium start with a <strong>7-day free trial</strong>. If you cancel before the trial ends, <strong>you will not
         be charged.</strong>
       </p>
 
       <h2 className="mt-10 mb-4 text-2xl font-bold text-ink">Automatic renewal</h2>
       <p className="mb-6">
         If you do not cancel before the trial ends, your subscription begins and your payment method is charged
-        automatically — <strong>$199/year</strong> for the annual plan or <strong>$29/month</strong> for the monthly plan —
+        automatically — <strong>$19/month</strong> or <strong>$190/year</strong> for Plus, or <strong>$39/month</strong> or <strong>$390/year</strong> for Premium —
         and it renews automatically at the then-current price until you cancel. We send a reminder email before the first
         charge.
       </p>
