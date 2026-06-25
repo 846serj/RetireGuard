@@ -140,3 +140,5 @@ export function ScoreGauge({ value = 82, band, subScores = DEFAULT_SUB_SCORES, d
     </div>
   );
 }
+
+export default ScoreGauge;
