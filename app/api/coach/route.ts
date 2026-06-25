@@ -165,7 +165,7 @@ ${coachMode === "advisory" ? '- Show this disclosure in your answer when you pro
             case "compare_ss_claiming": result = compareSocialSecurity(profileWithOverrides(profile, input), { monteCarloRuns: Math.min(500, Math.max(50, Math.floor(input.monteCarloRuns ?? 300))) }); break;
             case "rmd_for_age": result = { rmd: rmdAmount(numberInput(input.age), numberInput(input.priorYearEndTaxDeferredBalance)) }; break;
             case "roth_conversion_impact": result = analyzeRothConversion(profileWithOverrides(profile, input), { targetBracketRate: input.targetBracketRate }); break;
-            case "analyze_affordability": result = analyzeAffordability({ kind: "spend", timing: input.timing, amount: numberInput(input.amount), fundingSource: input.fundingSource, startAge: input.startAge }, profileWithOverrides(profile, input)); break;
+            case "analyze_affordability": result = analyzeAffordability({ kind: "spend", timing: input.timing, amount: numberInput(input.amount), fundingSource: input.fundingSource, startAge: input.startAge }, profileWithOverrides(profile, input), (scoreRow?.answers as Answers | null) ?? null); break;
             default: throw new Error(`Unknown tool: ${toolUse.name}`);
           }
           calculations.push({ tool: toolUse.name as ToolName, inputs: input, outputs: result });
