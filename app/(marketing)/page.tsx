@@ -85,21 +85,24 @@ export default async function Home() {
   return (
     <main>
       <section className="overflow-hidden bg-gradient-to-br from-white via-surface to-band py-12 sm:py-16 lg:py-24">
-        <Container wide className="grid items-center gap-12 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="max-w-xl text-center lg:text-left">
+        <Container wide>
+          <div className="mx-auto max-w-3xl text-center">
             <h1 className="font-serif text-4xl font-bold tracking-tight text-ink sm:text-5xl lg:text-6xl">
               Know your retirement is going to be okay.
             </h1>
             <p className="mt-6 text-xl leading-9 text-slate-700">
               The AI tool that watches your retirement, answers any money question in plain language, and shows you what to do next — powered by your real numbers. Start free with your Safety Score in 2 minutes.
             </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
               <Button href={cta.href} className="px-7 py-4 text-xl">{cta.label}</Button>
               <Button href="#feature-showcase" variant="ghost" className="px-7 py-4 text-xl">See how it works</Button>
             </div>
             <p className="mt-4 text-sm font-bold text-slate-600">No credit card. No account. No bank linking.</p>
           </div>
-          <DashboardPreview />
+
+          <div className="mt-12 sm:mt-16">
+            <DashboardPreview />
+          </div>
         </Container>
       </section>
 
