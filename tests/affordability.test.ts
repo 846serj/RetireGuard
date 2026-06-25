@@ -67,6 +67,15 @@ test("IRA-funded one-off crossing IRMAA line cautions and suggests taxable with 
   assert.ok((result.safeMax ?? 0) > 0);
 });
 
+test("tax-deferred ripple is marginal on top of real income", () => {
+  const result = analyzeAffordability({ kind: "spend", timing: "oneoff", amount: 50000, fundingSource: "tax_deferred", startAge: 65 }, profile({ other_taxable_income: 10000 }));
+
+  assert.ok(result.ripple);
+  assert.equal(result.ripple?.distanceToNextIrmaaCliff, 20600);
+  assert.ok(Number(result.ripple?.irmaaIncrease ?? 0) > 0);
+  assert.equal(result.ripple?.cheaperAlternative, "taxable");
+});
+
 test("unaffordable recurring returns no", () => {
   const result = analyzeAffordability({ kind: "spend", timing: "recurring", amount: 180000 }, profile({ balance_taxable: 30000, balance_tax_deferred: 30000, balance_roth: 0, ss_benefit_fra: 1000, pension_amount: 0 }));
   assert.equal(result.verdict, "NO");
