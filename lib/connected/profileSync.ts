@@ -51,12 +51,17 @@ function fallbackGuaranteedIncome(profile: ExistingProfile): number {
 }
 
 function ageFromQuiz(quizAnswers?: QuizAnswers): number | null {
-  const age = Number(quizAnswers?.age);
+  const rawAge: unknown = quizAnswers?.age;
+  if (rawAge === undefined || rawAge === null || rawAge === "") return null;
+  const age = Number(rawAge);
   return Number.isFinite(age) && age >= 0 ? age : null;
 }
 
+const VALID_DEBT_ANSWERS = new Set<Answers["debt"]>(["none", "some", "heavy"]);
+const VALID_WORRY_ANSWERS = new Set<Answers["worry"]>(["running_out", "inflation", "market", "scams", "healthcare"]);
+
 function hasRequiredScoreInputs(answers: ConnectedAnswers | null): answers is Answers {
-  return !!answers && answers.debt !== undefined && answers.worry !== undefined;
+  return !!answers && VALID_DEBT_ANSWERS.has(answers.debt as Answers["debt"]) && VALID_WORRY_ANSWERS.has(answers.worry as Answers["worry"]);
 }
 
 function hasConnectedFinancialData(accounts: FinancialAccountRow[], holdings: HoldingWithBasis[], transactions: SpendingTransaction[]): boolean {

@@ -188,3 +188,50 @@ test("updateProfileFromConnectedWithClient skips score insert when profile input
   assert.equal(writes.profiles.length, 1);
   assert.equal(writes.scores.length, 0);
 });
+
+test("buildConnectedAnswers treats null quiz age as missing instead of age zero", () => {
+  const picture = buildFinancialPicture(transactions, accounts);
+  const portfolio = buildPortfolioAnalysis(holdings, securities, accounts);
+  const answers = buildConnectedAnswers({ profile: { user_id: userId }, financialPicture: picture, portfolio, quizAnswers: { age: null } as never });
+  assert.equal(answers, null);
+});
+
+test("updateProfileFromConnectedWithClient updates connected fields but skips score for null quiz age", async () => {
+  const writes: Record<string, unknown[]> = { profiles: [], scores: [] };
+  const rows: Record<string, unknown> = {
+    transactions,
+    financial_accounts: accounts,
+    holdings,
+    securities,
+    profiles: { user_id: userId, birthdate: null, state: "CA", ss_benefit_fra: null, marital_status: "single" },
+    scores: { answers: { age: null, debt: "none", worry: "market" } },
+  };
+
+  function resultFor(table: string) {
+    return { data: rows[table], error: null };
+  }
+
+  const fakeService = {
+    from(table: string) {
+      return {
+        select(columns?: string) { return table === "securities" && columns === "*" ? resultFor(table) : this; },
+        eq() { return table === "transactions" || table === "financial_accounts" || table === "holdings" ? resultFor(table) : this; },
+        order() { return this; },
+        limit() { return this; },
+        maybeSingle() { return resultFor(table); },
+        single() { return { data: { id: "score-id", user_id: userId }, error: null }; },
+        upsert(row: unknown) { writes[table].push(row); return this; },
+        insert(row: unknown) { writes[table].push(row); return this; },
+      };
+    },
+  };
+
+  const result = await updateProfileFromConnectedWithClient(fakeService as never, userId);
+  assert.equal(result.scored, false);
+  assert.equal(result.reason, "incomplete_profile");
+  assert.equal(result.profile.balance_taxable, 100000);
+  assert.equal(result.profile.spending_essential_monthly, 2000);
+  assert.equal(result.profile.ss_benefit_fra, null);
+  assert.equal(writes.profiles.length, 1);
+  assert.equal(writes.scores.length, 0);
+});
