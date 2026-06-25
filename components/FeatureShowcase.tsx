@@ -212,7 +212,7 @@ export function FeatureShowcase() {
 
   return (
     <section className="overflow-hidden bg-white py-14 sm:py-18 lg:py-24" aria-labelledby={`${baseId}-heading`}>
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-wide px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl">
           <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-brand">Unlock powerful features</p>
           <h2 id={`${baseId}-heading`} className="mt-4 font-serif text-4xl font-bold tracking-tight text-ink sm:text-5xl lg:text-6xl">
