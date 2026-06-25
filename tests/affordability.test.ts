@@ -4,6 +4,22 @@ import { analyzeAffordability } from "../lib/engine/affordability";
 import { simulateOutcomes } from "../lib/engine/montecarlo";
 import { runProjection } from "../lib/engine/projection";
 import type { FinancialProfile } from "../lib/engine/types";
+import type { Answers } from "../lib/scoring";
+
+const answers = (patch: Partial<Answers> = {}): Answers => ({
+  age: 65,
+  status: "near",
+  guaranteedIncome: 4700,
+  essentialExpenses: 3500,
+  savings: 1400000,
+  stockPct: 50,
+  emergencyFund: "3-6",
+  debt: "none",
+  worry: "running_out",
+  state: "CA",
+  planning_horizon_age: 95,
+  ...patch,
+});
 
 const profile = (patch: Partial<FinancialProfile> = {}): FinancialProfile => ({
   user_id: "u1",
@@ -115,4 +131,20 @@ test("decision with safeMax stays under two seconds", () => {
 test("sparse profile needs profile", () => {
   const result = analyzeAffordability({ kind: "spend", timing: "oneoff", amount: 1000 }, profile({ birthdate: null, spending_essential_monthly: null, balance_taxable: null, balance_tax_deferred: null, balance_roth: null }));
   assert.equal(result.needsProfile, true);
+});
+
+test("affordability score uses the user's saved debt, emergency fund, and worry answers", () => {
+  const baseProfile = profile({ stock_pct: 85 });
+  const resilient = analyzeAffordability({ kind: "spend", timing: "oneoff", amount: 10000, fundingSource: "taxable" }, baseProfile, answers({ emergencyFund: "6+", debt: "none", worry: "market" }));
+  const fragile = analyzeAffordability({ kind: "spend", timing: "oneoff", amount: 10000, fundingSource: "taxable" }, baseProfile, answers({ emergencyFund: "0", debt: "heavy", worry: "market" }));
+
+  assert.notEqual(resilient.score.before, null);
+  assert.notEqual(fragile.score.before, null);
+  assert.ok((resilient.score.before ?? 0) > (fragile.score.before ?? 0));
+});
+
+test("affordability omits score delta when saved qualitative score answers are missing", () => {
+  const result = analyzeAffordability({ kind: "spend", timing: "oneoff", amount: 10000, fundingSource: "taxable" }, profile());
+
+  assert.deepEqual(result.score, { before: null, after: null, band: null });
 });
