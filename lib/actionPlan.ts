@@ -11,7 +11,7 @@ export type PlanItem = {
   steps: string[];
 };
 
-const EFUND_MONTHS: Record<Answers["emergencyFund"], number> = { "0": 0, "1-3": 2, "3-6": 4.5, "6+": 7 };
+const EFUND_MONTHS: Record<Answers["emergencyFund"], number> = { "0": 0, "1-3": 2, "3-6": 4.5, "6+": 7, skip: 0 };
 const PRIORITY_RANK = { High: 0, Medium: 1, Low: 2 };
 
 export function buildActionPlan(a: Answers, r: Result): PlanItem[] {
