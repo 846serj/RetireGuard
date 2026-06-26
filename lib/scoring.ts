@@ -7,20 +7,32 @@ import type { ScoreBandLabel } from "@/lib/verdicts";
 
 export type Answers = {
   age: number;
+  maritalStatus?: "single" | "married" | "widowed" | "divorced";
   status: "working" | "near" | "retired";
   guaranteedIncome: number; // monthly $ from SS + pension + annuity
   essentialExpenses: number; // monthly $ essentials
   savings: number; // exact retirement savings estimate collected by the quiz
   savingsBucket?: "<50k" | "50-150k" | "150-500k" | "500k-1M" | "1M+"; // legacy saved scores, ignored by current scoring
   filingStatus?: "single" | "married_joint" | "married_separate" | "head_of_household" | "skip";
+  targetRetirementAge?: number;
   ssaBenefitEstimate?: number; // optional monthly Social Security estimate
   claimedSocialSecurity?: "yes" | "no" | "skip";
   spouseAge?: number;
   spouseSsaBenefitEstimate?: number;
+  hasPension?: "yes" | "no" | "skip";
+  pensionAmount?: number;
+  pensionHasCola?: "yes" | "no" | "skip";
+  pensionSurvivorPct?: number;
+  ownsHome?: "yes" | "no" | "skip";
+  homeEquity?: number;
+  planToDownsize?: "yes" | "no" | "skip";
+  balance_taxable?: number;
+  balance_tax_deferred?: number;
+  balance_roth?: number;
   stockPct: 0 | 25 | 50 | 75 | 100;
-  emergencyFund: "0" | "1-3" | "3-6" | "6+";
-  debt: "none" | "some" | "heavy";
-  worry: "running_out" | "inflation" | "market" | "scams" | "healthcare";
+  emergencyFund: "0" | "1-3" | "3-6" | "6+" | "skip";
+  debt: "none" | "some" | "heavy" | "skip";
+  worry: "running_out" | "inflation" | "market" | "scams" | "healthcare" | "skip";
   state?: string; // 2-letter code
   planning_horizon_age?: 85 | 90 | 95 | 100 | number;
 };
@@ -28,7 +40,7 @@ export type Answers = {
 export type SubScores = { income: number; withdrawal: number; inflation: number; market: number };
 export type Result = { overall: number; band: ScoreBandLabel; sub: SubScores };
 
-const EFUND_MONTHS: Record<Answers["emergencyFund"], number> = { "0": 0, "1-3": 2, "3-6": 4.5, "6+": 7 };
+const EFUND_MONTHS = { "0": 0, "1-3": 2, "3-6": 4.5, "6+": 7, skip: 0 } as const;
 const HIGH_COL_STATES = new Set(["HI", "CA", "NY", "MA", "NJ", "CT", "WA", "OR", "MD", "CO", "RI", "AK", "VT", "NH"]);
 const LOW_COL_STATES = new Set(["MS", "AL", "AR", "OK", "KS", "MO", "TN", "KY", "WV", "IN", "IA", "OH", "ND", "SD", "NE"]);
 
@@ -107,7 +119,7 @@ export function marketRiskBuffer(a: Answers): number {
   const maxAgeAppropriateEquity = clamp(110 - a.age, 20, 90);
   const overExposure = Math.max(0, a.stockPct - maxAgeAppropriateEquity);
   let score = 65 - overExposure * 0.9;
-  score += Math.min(EFUND_MONTHS[a.emergencyFund], 6) * 5;
+  score += Math.min(EFUND_MONTHS[a.emergencyFund] ?? 0, 6) * 5;
   if (a.debt === "some") score -= 10;
   if (a.debt === "heavy") score -= 24;
   return clamp(score);

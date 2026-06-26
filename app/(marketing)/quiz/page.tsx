@@ -11,7 +11,7 @@ import { ScoreGauge } from "@/components/ScoreGauge";
 import { SubScoreBar } from "@/components/SubScoreBar";
 import { Button, Eyebrow } from "@/components/ui";
 
-type State = Record<string, string | number>;
+type State = Record<string, string | number | undefined>;
 
 const SUB_LABEL: Record<keyof SubScores, string> = {
   income: "Income Stability", withdrawal: "Withdrawal Sustainability",
@@ -46,14 +46,15 @@ export default function Quiz() {
   const [awaitingEmailConfirmation, setAwaitingEmailConfirmation] = useState(false);
   const router = useRouter();
 
-  const done = introComplete && step >= QUESTIONS.length;
+  const visible = useMemo(() => QUESTIONS.filter((q) => !q.when || q.when(answers)), [answers]);
+  const done = introComplete && step >= visible.length;
   const result = useMemo(() => (done ? computeScores(answers as unknown as Answers) : null), [done, answers]);
   const acts = useMemo(
     () => (result ? actions(answers as unknown as Answers, result) : []),
     [result, answers]
   );
 
-  function setAnswer(key: string, value: string | number) {
+  function setAnswer(key: string, value: string | number | undefined) {
     setAnswers((p) => ({ ...p, [key]: value }));
   }
 
@@ -189,11 +190,11 @@ export default function Quiz() {
             <div className="mt-8 rounded-[2rem] bg-band p-5 sm:p-8">
               <h1 className="font-serif text-[2rem] font-semibold leading-tight text-ink sm:text-5xl">Let&apos;s see where your retirement stands.</h1>
               <p className="mt-5 text-xl font-semibold leading-8 text-slate-700">
-                12 simple questions. About 2 minutes. There are no wrong answers — just answer as best you know.
+                A short adaptive quiz. About 2 minutes. We only ask follow-ups that fit your situation — answer as best you know.
               </p>
             </div>
             <Button type="button" onClick={() => setIntroComplete(true)} className="mt-8 w-full sm:w-auto">
-              Start — question 1 of 12
+              Start — question 1
             </Button>
             <p className="mt-6 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-600">
               ⏱ ~2 minutes · 🆓 Always free to see your score
@@ -206,20 +207,21 @@ export default function Quiz() {
 
   // ---- Quiz steps ----
   if (!done) {
-    const q = QUESTIONS[step];
+    const q = visible[step];
+    const progressPct = Math.round(((step + 1) / visible.length) * 100);
     return (
       <div className="rg-page-shell">
       <div className="mx-auto max-w-3xl px-4 py-12 sm:py-16">
         <div className="rg-card">
         <Eyebrow>Retirement Safety Score</Eyebrow>
         <div className="mb-3 mt-5 flex items-center justify-between gap-4 text-sm font-bold text-slate-500">
-          <span>Question {step + 1} of {QUESTIONS.length}</span>
-          <span>{Math.round(((step + 1) / QUESTIONS.length) * 100)}%</span>
+          <span>Question {step + 1} of {visible.length}</span>
+          <span>{progressPct}%</span>
         </div>
-        <div className="mb-8 h-5 w-full overflow-hidden rounded-full bg-slate-200" role="progressbar" aria-label="Quiz progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(((step + 1) / QUESTIONS.length) * 100)}>
+        <div className="mb-8 h-5 w-full overflow-hidden rounded-full bg-slate-200" role="progressbar" aria-label="Quiz progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progressPct}>
           <div
             className="h-full rounded-full bg-brand transition-all duration-500 ease-out motion-reduce:transition-none"
-            style={{ width: `${((step + 1) / QUESTIONS.length) * 100}%` }}
+            style={{ width: `${progressPct}%` }}
           />
         </div>
         <h1 className="font-serif text-[1.625rem] font-semibold leading-tight text-ink sm:text-3xl">{q.prompt}</h1>
@@ -231,20 +233,21 @@ export default function Quiz() {
             placeholder={q.placeholder}
             initial={answers[q.key] as number | undefined}
             onNext={(v) => { setAnswer(q.key, v); goToStep(step + 1); }}
+            onSkip={q.optional ? () => { setAnswer(q.key, undefined); goToStep(step + 1); } : undefined}
           />
         )}
 
         {q.kind === "savingsAmount" && (
           <SavingsStep
-            initial={answers.savings as number | undefined}
-            onNext={(v) => { setAnswer("savings", v); goToStep(step + 1); }}
+            initial={answers[q.key] as number | undefined}
+            onNext={(v) => { setAnswer(q.key, v); goToStep(step + 1); }}
           />
         )}
 
         {q.kind === "socialSecurityDetails" && (
           <SocialSecurityStep
             answers={answers}
-            isMarried={answers.filingStatus === "married_joint" || answers.filingStatus === "married_separate"}
+            isMarried={false}
             onNext={(updates) => { setAnswers((p) => ({ ...p, ...updates })); goToStep(step + 1); }}
           />
         )}
@@ -263,6 +266,9 @@ export default function Quiz() {
                 <option key={s.code} value={s.code}>{s.name}</option>
               ))}
             </select>
+            <button type="button" onClick={() => { setAnswer(q.key, undefined); goToStep(step + 1); }} className="mt-4 min-h-14 w-full rounded-xl border-2 border-slate-200 bg-white px-6 py-3 text-lg font-bold text-slate-600 transition hover:border-brand hover:bg-band sm:w-auto motion-reduce:transition-none">
+              Skip for now
+            </button>
           </div>
         )}
 
@@ -547,8 +553,8 @@ function SocialSecurityStep({
 }
 
 function NumberStep({
-  prefix, placeholder, initial, onNext,
-}: { prefix?: string; placeholder?: string; initial?: number; onNext: (v: number) => void }) {
+  prefix, placeholder, initial, onNext, onSkip,
+}: { prefix?: string; placeholder?: string; initial?: number; onNext: (v: number) => void; onSkip?: () => void }) {
   const [val, setVal] = useState(initial != null ? String(initial) : "");
   const inputId = useId();
   const num = Number(val.replace(/[^0-9.]/g, ""));
@@ -569,12 +575,19 @@ function NumberStep({
           onKeyDown={(e) => { if (e.key === "Enter" && num > 0) onNext(num); }}
         />
       </div>
-      <button
-        disabled={!(num > 0)} onClick={() => onNext(num)}
-        className="mt-6 min-h-16 w-full rounded-xl bg-brand px-8 py-3 text-lg font-bold text-white transition hover:bg-brand-dark disabled:opacity-50 sm:w-auto motion-reduce:transition-none"
-      >
-        Continue
-      </button>
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+        <button
+          disabled={!(num > 0)} onClick={() => onNext(num)}
+          className="min-h-16 w-full rounded-xl bg-brand px-8 py-3 text-lg font-bold text-white transition hover:bg-brand-dark disabled:opacity-50 sm:w-auto motion-reduce:transition-none"
+        >
+          Continue
+        </button>
+        {onSkip && (
+          <button type="button" onClick={onSkip} className="min-h-16 w-full rounded-xl border-2 border-slate-200 bg-white px-8 py-3 text-lg font-bold text-slate-600 transition hover:border-brand hover:bg-band sm:w-auto motion-reduce:transition-none">
+            Skip for now
+          </button>
+        )}
+      </div>
     </div>
   );
 }
