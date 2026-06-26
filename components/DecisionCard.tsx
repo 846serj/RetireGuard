@@ -45,8 +45,8 @@ export default function DecisionCard({ result }: DecisionCardProps) {
     return (
       <section className="rg-card border-amber-200 bg-amber-50/70">
         <span className="inline-flex rounded-full border border-amber-200 bg-white px-4 py-2 text-base font-extrabold text-amber-800">⚠️ Needs your numbers</span>
-        <h2 className="mt-5 text-4xl sm:text-5xl">Set your numbers first.</h2>
-        <p className="mt-4 text-xl text-slate-700">We won&apos;t fabricate an answer without enough profile data to score this decision.</p>
+        <h2 className="mt-5 text-2xl sm:text-3xl">Set your numbers first.</h2>
+        <p className="mt-4 text-xl text-slate-700">Add your profile to check this decision.</p>
         <div className="mt-6 flex flex-col gap-3 sm:flex-row"><Link className="inline-flex min-h-14 items-center justify-center rounded-xl bg-brand px-6 py-3 text-lg font-bold text-white no-underline" href="/quiz">Take the 2-minute quiz</Link><Link className="inline-flex min-h-14 items-center justify-center rounded-xl border-2 border-brand px-6 py-3 text-lg font-bold no-underline" href="/dashboard/accounts">Connect accounts</Link></div>
       </section>
     );
@@ -58,10 +58,10 @@ export default function DecisionCard({ result }: DecisionCardProps) {
   const afterScore = Number(result.score?.after ?? result.score?.before ?? 0);
 
   return (
-    <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl shadow-brand/10">
-      <div className="bg-gradient-to-br from-white via-band/40 to-white p-5 sm:p-8">
+    <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-brand/10">
+      <div className="bg-gradient-to-br from-white via-band/40 to-white p-4 sm:p-5">
         <span className={`inline-flex rounded-full border px-4 py-2 text-base font-extrabold ${meta.className}`}>{meta.label}</span>
-        <h2 className="mt-5 text-4xl sm:text-6xl">{result.headline ?? "This needs a closer look."}</h2>
+        <h2 className="mt-5 text-2xl sm:text-3xl">{result.headline ?? "This needs a closer look."}</h2>
         <p className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 text-xl font-bold text-ink">{result.trigger ?? "Add your numbers to check this decision."}</p>
         <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_320px] lg:items-start">
           <div className="space-y-4">
@@ -72,15 +72,15 @@ export default function DecisionCard({ result }: DecisionCardProps) {
           {afterScore > 0 ? <ScoreGauge value={afterScore} band={result.score?.band as never} subScores={[]} subtitle="After this decision" badge="Projected" /> : null}
         </div>
       </div>
-      <div className="space-y-5 border-t border-slate-200 p-5 sm:p-8">
+      <div className="space-y-5 border-t border-slate-200 p-4 sm:p-5">
         {hasPaidDepth ? (
-          <div className="rounded-3xl bg-slate-50 p-5 ring-1 ring-slate-200">
-            <p className="rg-kicker">Plus depth</p><h3 className="mt-2 text-3xl">Tax-smart way to pay</h3><div className="mt-4"><RippleSummary ripple={result.ripple} /></div>
+          <div className="rounded-2xl bg-slate-50 p-5 ring-1 ring-slate-200">
+            <p className="rg-kicker">Details</p><h3 className="mt-2 text-2xl font-extrabold">Tax-smart way to pay</h3><div className="mt-4"><RippleSummary ripple={result.ripple} /></div>
             {result.alternatives?.length ? <ul className="mt-5 grid gap-2 text-lg font-semibold text-slate-700">{result.alternatives.map((item) => <li key={item}>• {item}</li>)}</ul> : null}
             {result.trace ? <details className="mt-5 rounded-2xl bg-white p-4"><summary className="cursor-pointer text-lg font-extrabold">How this was calculated</summary><pre className="mt-4 max-h-80 overflow-auto whitespace-pre-wrap text-sm text-slate-700">{JSON.stringify(result.trace, null, 2)}</pre></details> : null}
           </div>
         ) : (
-          <div className="rounded-3xl border border-brand/20 bg-band p-5"><p className="rg-kicker">Upgrade</p><h3 className="mt-2 text-3xl">See the tax-smart way to pay + save this.</h3><p className="mt-3 text-lg text-slate-700">Plus adds Medicare/tax ripple checks, alternatives, saved recent questions, and the calculation trace.</p><Link href="/upgrade" className="mt-4 inline-flex font-extrabold">Upgrade to see depth →</Link></div>
+          <div className="rounded-2xl border border-brand/20 bg-band p-5"><p className="rg-kicker">Upgrade</p><h3 className="mt-2 text-2xl font-extrabold">See the tax-smart way to pay.</h3><p className="mt-3 text-lg text-slate-700">Upgrade for tax checks and alternatives.</p><Link href="/upgrade" className="mt-4 inline-flex font-extrabold">Upgrade →</Link></div>
         )}
         <p className="border-t border-slate-200 pt-5 text-sm font-semibold text-slate-500">Analytical estimate only. Use this as a planning conversation starter before making financial decisions.</p>
       </div>

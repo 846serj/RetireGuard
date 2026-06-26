@@ -100,13 +100,13 @@ export default function ConnectAccounts({ institutions }: ConnectAccountsProps) 
   }
 
   return (
-    <section className="rg-card mb-8" aria-labelledby="connect-accounts-heading">
+    <section className="rg-card mb-5" aria-labelledby="connect-accounts-heading">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-        <div className="max-w-3xl">
-          <p className="rg-kicker">Read-only account sync</p>
-          <h2 id="connect-accounts-heading" className="mt-2 text-3xl font-extrabold">Securely connect your bank or brokerage.</h2>
-          <p className="mt-3 text-xl font-semibold leading-8 text-slate-700">
-            It&apos;s read-only — we can see your balances to build your plan, but we can never move your money.
+        <div className="max-w-2xl">
+          <p className="rg-kicker">Accounts</p>
+          <h2 id="connect-accounts-heading" className="mt-2 text-2xl font-extrabold">Connect your bank or brokerage</h2>
+          <p className="mt-3 text-base font-semibold leading-6 text-slate-700">
+            Read-only access. RetireShield cannot move money.
           </p>
           {message ? <p className="mt-3 text-sm font-semibold text-brand">{message}</p> : null}
         </div>

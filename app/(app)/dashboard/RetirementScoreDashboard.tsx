@@ -107,9 +107,9 @@ function confidence(profile: Partial<FinancialProfile> | null | undefined, seed:
 }
 
 function StatTile({ label, value, detail }: { label: string; value: string; detail: string }) {
-  return <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+  return <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
     <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-slate-500">{label}</p>
-    <p className="mt-2 text-3xl font-extrabold tracking-tight text-ink">{value}</p>
+    <p className="mt-1 text-2xl font-extrabold tracking-tight text-ink">{value}</p>
     <p className="mt-2 text-sm font-semibold text-slate-600">{detail}</p>
   </div>;
 }
@@ -133,7 +133,7 @@ export default async function RetirementScoreDashboard({ next = "/dashboard" }: 
     return <div className="mx-auto max-w-5xl py-8 sm:py-10">
       <section className="rg-card text-center">
         <Eyebrow>Retirement Score</Eyebrow>
-        <h1 className="mt-3 text-4xl font-extrabold sm:text-5xl">Get your one-glance retirement dashboard</h1>
+        <h1 className="mt-2 text-2xl font-extrabold sm:text-3xl">Get your one-glance retirement dashboard</h1>
         <p className="mx-auto mt-4 max-w-2xl text-slate-700">Take the quick check-in so RetireShield can show your score, confidence, income estimate, and top next steps on one screen.</p>
         <Button href="/quiz" className="mt-6">Take the Score quiz</Button>
       </section>
@@ -144,7 +144,7 @@ export default async function RetirementScoreDashboard({ next = "/dashboard" }: 
     <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <Eyebrow>Retirement Score</Eyebrow>
-        <h1 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-5xl">Your one-glance retirement dashboard</h1>
+        <h1 className="mt-1 text-2xl font-extrabold tracking-tight sm:text-3xl">Your one-glance retirement dashboard</h1>
         <p className="mt-2 max-w-3xl text-base font-semibold text-slate-700">{bandVerdict(latest.band)}</p>
       </div>
       <Button href="/ask" className="shrink-0">Ask the coach about this →</Button>

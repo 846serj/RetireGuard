@@ -122,7 +122,7 @@ export function ScoreGauge({ value = 82, band, subScores = DEFAULT_SUB_SCORES, d
             <path d={arcPath(180, progressEndAngle)} fill="none" stroke={activeBand.color} strokeLinecap="round" strokeWidth="16" />
           </svg>
           <div className="-mt-14 px-4 pb-2 sm:-mt-16">
-            <div className="text-5xl font-extrabold leading-none tracking-tight text-ink sm:text-6xl">{displayScore}</div>
+            <div className="text-4xl font-extrabold leading-none tracking-tight text-ink">{displayScore}</div>
             <div className={`mt-2 text-lg font-extrabold ${activeBand.textClass}`}>{activeBand.label}</div>
           </div>
         </div>

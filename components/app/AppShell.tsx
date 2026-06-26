@@ -38,7 +38,7 @@ function PlanBadge({ access }: { access: SubscriptionAccess }) {
 function SidebarNav({ onNavigate, unreadAlertCount = 0 }: { onNavigate?: () => void; unreadAlertCount?: number }) {
   const pathname = usePathname();
   return (
-    <nav className="mt-8 grid gap-2" aria-label="App navigation">
+    <nav className="mt-6 grid gap-1.5" aria-label="App navigation">
       {navItems.map((item) => {
         const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
         const showUnreadBadge = item.href === "/dashboard/monitoring" && unreadAlertCount > 0;
@@ -68,15 +68,15 @@ export default function AppShell({ children, userEmail, access, unreadAlertCount
   const isFree = !access.active;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-ink lg:grid lg:grid-cols-[280px_1fr]">
-      <aside className="sticky top-0 hidden h-screen border-r border-slate-200 bg-white px-5 py-6 lg:block">
+    <div className="min-h-screen bg-slate-50 text-ink lg:grid lg:grid-cols-[248px_1fr]">
+      <aside className="sticky top-0 hidden h-screen border-r border-slate-200 bg-white px-4 py-5 lg:block">
         <LogoLink />
         <SidebarNav unreadAlertCount={unreadAlertCount} />
       </aside>
 
       <div className="min-w-0">
         <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
-          <div className="flex min-h-20 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+          <div className="flex min-h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
             <button type="button" className="inline-flex h-12 w-12 items-center justify-center rounded-xl border border-slate-300 text-ink lg:hidden" aria-label="Open app navigation" onClick={() => setDrawerOpen(true)}>
               <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
             </button>
@@ -92,7 +92,7 @@ export default function AppShell({ children, userEmail, access, unreadAlertCount
           </div>
         </header>
 
-        <main className="min-h-[calc(100vh-5rem)] px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+        <main className="min-h-[calc(100vh-4rem)] px-4 py-5 sm:px-6 lg:px-8">{children}</main>
       </div>
 
       {drawerOpen ? (
