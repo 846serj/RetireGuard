@@ -65,7 +65,7 @@ async function rescoreUser(supabase: ReturnType<typeof createServiceClient>, use
     supabase.from("financial_accounts").select("*").eq("user_id", user.id),
     supabase.from("holdings").select("*").eq("user_id", user.id),
     supabase.from("securities").select("*"),
-    supabase.from("scores").select("answers, created_at").eq("user_id", user.id).not("answers", "is", null).order("created_at", { ascending: true }),
+    supabase.from("scores").select("answers, overall, created_at").eq("user_id", user.id).not("answers", "is", null).order("created_at", { ascending: true }),
     supabase.from("trusted_contacts").select("name,email,consent_at").eq("user_id", user.id).not("consent_at", "is", null),
   ]);
   const hasConnectedAccounts = (accountsResult.data?.length ?? 0) > 0 || (transactionsResult.data?.length ?? 0) > 0;
@@ -75,7 +75,7 @@ async function rescoreUser(supabase: ReturnType<typeof createServiceClient>, use
         accounts: accountsResult.data as SpendingAccount[],
         financialPicture: buildFinancialPicture(transactionsResult.data as SpendingTransaction[], accountsResult.data as SpendingAccount[]),
         portfolioAnalysis: buildPortfolioAnalysis((holdingsResult.data ?? []) as HoldingRow[], (securitiesResult.data ?? []) as SecurityRow[], accountsResult.data as FinancialAccountRow[]),
-        scoreHistory: (historyResult.data ?? []) as { answers?: { savings?: number | string | null } | null; created_at?: string | null }[],
+        scoreHistory: [...(historyResult.data ?? []), { answers, overall: result.overall, created_at: new Date().toISOString() }] as { answers?: { savings?: number | string | null } | null; overall?: number | string | null; created_at?: string | null }[],
       }
     : undefined;
   const alerts = await getMatchedAlerts(supabase, answers, 5, connectedContext);

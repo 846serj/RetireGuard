@@ -18,6 +18,7 @@ type ScoreHistoryRow = {
   checkedAt?: string | null;
   answers?: { savings?: number | string | null } | null;
   portfolioValue?: number | string | null;
+  overall?: number | string | null;
 };
 
 export type MonitorRulesInput = {
@@ -26,6 +27,7 @@ export type MonitorRulesInput = {
   recentTransactions?: SpendingTransaction[];
   scoreHistory?: ScoreHistoryRow[];
   now?: Date;
+  economicSignals?: { interestRateChangeBps?: number; inflationRateChangeBps?: number; majorTaxLawChange?: boolean; taxLawSummary?: string };
 };
 
 function amountOf(txn: SpendingTransaction): number {
@@ -66,6 +68,13 @@ function previousPortfolioValue(scoreHistory: ScoreHistoryRow[], now: Date): num
   return rows[0]?.value ?? null;
 }
 
+function previousOverallScore(scoreHistory: ScoreHistoryRow[]): number | null {
+  const rows = scoreHistory
+    .map((row) => Number(row.overall ?? 0))
+    .filter((value) => Number.isFinite(value) && value > 0);
+  return rows.length >= 2 ? rows[rows.length - 2] : null;
+}
+
 function lastMonthWindow(now: Date) {
   const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1));
   const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 0, 23, 59, 59));
@@ -93,7 +102,22 @@ export function monitorRuleAlerts(input: MonitorRulesInput): Alert[] {
   const current = Number(portfolio.totalValue ?? 0);
   if (previous && current > 0 && current < previous * 0.9) {
     const dropPct = Math.round((1 - current / previous) * 100);
-    alerts.push({ ...alertBase("monitor-portfolio-drop", now), title: "Portfolio value is down more than 10%", body: `Connected holdings show an estimated ${dropPct}% decline versus roughly 30 days ago. Before reacting, review whether the drop is market movement, withdrawals, transfers, or stale account data.`, category: "inflation", action_line: "Ask: Did my allocation or withdrawal plan change, or is this normal market movement?" });
+    alerts.push({ ...alertBase("monitor-portfolio-drop", now), title: "Portfolio value is down more than 10%", body: `Connected holdings show an estimated ${dropPct}% decline versus roughly 30 days ago; check whether this is market movement, withdrawals, transfers, or stale data.`, category: "market", action_line: "What it means for you: Review whether your withdrawal plan still fits before making portfolio changes.", urgent: dropPct >= 15, delivery_channels: ["in_app", "email", "push"] });
+  }
+
+  const previousScore = previousOverallScore(input.scoreHistory ?? []);
+  const currentScore = Number((input.scoreHistory ?? []).at(-1)?.overall ?? 0);
+  if (previousScore && currentScore > 0 && previousScore - currentScore >= 8) {
+    alerts.push({ ...alertBase("monitor-score-drop", now), title: "Safety Score dropped this month", body: `Your latest score is ${Math.round(previousScore - currentScore)} points lower than the prior check, usually from spending, market, inflation, or income changes.`, category: "market", action_line: "What it means for you: Open the score details and review the one change driving the drop.", urgent: previousScore - currentScore >= 12, delivery_channels: ["in_app", "email", "push"] });
+  }
+
+  const rateMove = Number(input.economicSignals?.interestRateChangeBps ?? 0);
+  if (Math.abs(rateMove) >= 50) {
+    alerts.push({ ...alertBase("monitor-interest-rate-move", now), title: "Interest rates moved sharply", body: `${Math.abs(rateMove)} bps rate move can affect cash yields, bond prices, annuity quotes, and borrowing costs.`, category: "inflation", action_line: "What it means for you: Re-check cash yield, debt cost, and bond risk assumptions before major moves.", delivery_channels: ["in_app", "email"] });
+  }
+
+  if (input.economicSignals?.majorTaxLawChange) {
+    alerts.push({ ...alertBase("monitor-major-tax-law-change", now), title: "Major tax-law change flagged", body: input.economicSignals.taxLawSummary ?? "A major Congress or IRS tax-law update may affect brackets, deductions, credits, RMDs, or Medicare-related income planning.", category: "tax", action_line: "What it means for you: Review withholding, Roth conversion, RMD, and IRMAA assumptions with a tax professional.", delivery_channels: ["in_app", "email", "push"] });
   }
 
   for (const source of financialPicture.incomeSources ?? []) {
