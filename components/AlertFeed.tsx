@@ -7,6 +7,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   ss: "Social Security",
   tax: "Tax",
   inflation: "Inflation",
+  market: "Markets",
   costofliving: "Cost of living",
   scam: "Scam watch",
 };
@@ -17,6 +18,10 @@ type AlertFeedProps = {
 
 function formatAlertDate(value: string) {
   return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date(value));
+}
+
+function compactLine(value: string) {
+  return value.replace(/^(Ask|What to ask|What to do|What it means for you):\s*/i, "").replace(/\s+/g, " ").trim();
 }
 
 function getAskLine(alert: Alert) {
@@ -51,7 +56,7 @@ export default function AlertFeed({ alerts }: AlertFeedProps) {
         <p className="rg-kicker">Retirement Watch</p>
         <h2 id="alerts-heading" className="mt-2 text-3xl font-extrabold">Alerts matched to you</h2>
         <p className="mt-3 text-slate-700">
-          We watch for timely updates that may be relevant to your state, age, or top retirement worry.
+          We watch Social Security, COLA, Medicare, taxes, inflation, markets, and scam signals for timely updates relevant to you.
         </p>
       </div>
 
@@ -72,9 +77,10 @@ export default function AlertFeed({ alerts }: AlertFeedProps) {
                 </span>
                 <time className="text-sm font-semibold text-slate-500" dateTime={alert.published_at ?? alert.created_at}>{formatAlertDate(alert.published_at ?? alert.created_at)}</time>
               </div>
-              <h3 className="mt-4 font-serif text-2xl font-semibold text-ink">{alert.title}</h3>
-              <p className="mt-2 text-slate-700">{alert.body}</p>
-              <p className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm font-semibold text-slate-700">{getAskLine(alert)}</p>
+              <h3 className="mt-4 truncate font-serif text-2xl font-semibold text-ink">{alert.title}</h3>
+              <p className="mt-2 truncate text-sm font-semibold text-slate-700">
+                <span className="text-slate-500">What it means for you: </span>{compactLine(getAskLine(alert))}
+              </p>
             </article>
           ))}
         </div>

@@ -6,7 +6,7 @@ import { monitorRuleAlerts, type MonitorRulesInput } from "@/lib/connected/monit
 import type { SpendingAccount, SpendingTransaction } from "@/lib/engine/spending";
 import { detectFraudFlags, type FraudFlag } from "@/lib/engine/fraud";
 
-export type AlertCategory = "benefit" | "inflation" | "scam" | "tax" | "medicare" | "ss";
+export type AlertCategory = "benefit" | "inflation" | "market" | "scam" | "tax" | "medicare" | "ss";
 export type AlertStatus = "draft" | "approved" | "published" | "archived";
 
 export type Alert = {
@@ -24,12 +24,14 @@ export type Alert = {
   created_at: string;
   what_to_ask?: string | null;
   personalized?: boolean;
+  urgent?: boolean;
+  delivery_channels?: ("in_app" | "email" | "push")[];
 };
 
 const WORRY_CATEGORY: Record<string, AlertCategory> = {
   running_out: "ss",
   inflation: "inflation",
-  market: "inflation",
+  market: "market",
   scams: "scam",
   healthcare: "medicare",
 };
@@ -116,6 +118,7 @@ function personalizedAlerts(profile: AlertProfile, context?: AlertMatchContext):
         status: "published",
         created_at: now,
         personalized: true,
+        delivery_channels: ["in_app", "email"],
       });
     }
   }
@@ -158,6 +161,8 @@ function fraudAlertBase(flag: FraudFlag, now: string): Alert {
     status: "published",
     created_at: now,
     personalized: true,
+    urgent: flag.riskScore >= 90,
+    delivery_channels: ["in_app", "email", "push"],
   };
 }
 

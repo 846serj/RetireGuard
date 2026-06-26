@@ -17,15 +17,18 @@ const DATED_TRIGGERS: GeneratedAlert[] = [
   { title: "October Social Security COLA watch", body: "Social Security's annual COLA is typically announced in October after inflation data is released. Use the new benefit estimate to update your monthly retirement income plan.", category: "ss", states: [], min_age: 60, action_line: "Ask: What will my estimated net Social Security deposit be after Medicare premiums?", source_url: "https://www.ssa.gov/cola/", published_at: "2026-10-01T09:00:00Z", expires_at: "2026-11-15T05:00:00Z", status: "approved" },
   { title: "RMD deadline reminder", body: "Required minimum distributions generally must be taken by December 31 each year once RMD rules apply. Missing an RMD can trigger penalties, so verify custodians and amounts early.", category: "tax", states: [], min_age: 72, action_line: "Ask: Have I confirmed each IRA or workplace-plan RMD amount and withholding choice?", source_url: "https://www.irs.gov/retirement-plans/retirement-plan-and-ira-required-minimum-distributions-faqs", published_at: "2026-11-15T09:00:00Z", expires_at: "2027-01-01T05:00:00Z", status: "approved" },
   { title: "Tax-year change checklist", body: "New tax brackets, deductions, Medicare premiums, and retirement contribution limits can shift planning math each January. Re-check withholding and cash-flow assumptions before the year gets busy.", category: "tax", states: [], min_age: null, action_line: "Ask: Do my withholding, estimated tax, or withdrawal settings need a January refresh?", source_url: "https://www.irs.gov/newsroom", published_at: "2027-01-02T09:00:00Z", expires_at: "2027-03-31T04:00:00Z", status: "approved" },
+  { title: "Congress tax-law watch", body: "Major tax bills can change brackets, deductions, credits, RMD rules, and Medicare-related income planning. RetireGuard keeps these human-reviewed before publishing.", category: "tax", states: [], min_age: null, action_line: "Ask: Should I revisit withholding, Roth conversions, RMDs, or IRMAA exposure after this law change?", source_url: "https://www.congress.gov/", published_at: "2026-01-01T09:00:00Z", expires_at: null, status: "draft" },
+  { title: "Interest-rate watch", body: "Large rate moves can affect cash yields, bond prices, annuity quotes, and borrowing costs. Review assumptions before making irreversible decisions.", category: "inflation", states: [], min_age: null, action_line: "Ask: Do my cash, debt, annuity, or bond assumptions need an update after this rate move?", source_url: "https://www.federalreserve.gov/monetarypolicy.htm", published_at: "2026-01-01T09:00:00Z", expires_at: null, status: "draft" },
 ];
 
 function classify(category?: string): GeneratedAlert["category"] {
   const c = (category ?? "").toLowerCase();
   if (c.includes("medicare")) return "medicare";
   if (c.includes("social") || c === "ss") return "ss";
-  if (c.includes("tax") || c.includes("rmd") || c.includes("irmaa")) return "tax";
+  if (c.includes("congress") || c.includes("tax law") || c.includes("tax") || c.includes("rmd") || c.includes("irmaa")) return "tax";
   if (c.includes("scam") || c.includes("fraud")) return "scam";
-  if (c.includes("inflation") || c.includes("cost")) return "inflation";
+  if (c.includes("market") || c.includes("portfolio") || c.includes("s&p") || c.includes("dow") || c.includes("nasdaq")) return "market";
+  if (c.includes("interest rate") || c.includes("fed") || c.includes("inflation") || c.includes("cost")) return "inflation";
   return "benefit";
 }
 
