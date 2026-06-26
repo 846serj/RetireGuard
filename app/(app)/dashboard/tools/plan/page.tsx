@@ -33,7 +33,7 @@ function BalanceChart({ points, bands }: { points: { age: number; total: number 
   const deterministic = linePath(points.map((p) => p.total));
   const median = linePath(bands.map((p) => p.p50));
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} className="h-72 w-full rounded-3xl bg-white p-4 shadow-sm" role="img" aria-label="Projected balance over time with Monte Carlo percentile bands">
+    <svg viewBox={`0 0 ${width} ${height}`} className="h-72 w-full rounded-2xl bg-white p-4 shadow-sm" role="img" aria-label="Projected balance over time with Monte Carlo percentile bands">
       <line x1="0" y1={height - 10} x2={width} y2={height - 10} stroke="#cbd5e1" strokeWidth="2" />
       {bandPath ? <path d={bandPath} fill="#bfdbfe" opacity="0.65" /> : null}
       {median ? <path d={median} fill="none" stroke="#0f766e" strokeWidth="4" strokeLinecap="round" strokeDasharray="8 8" /> : null}
@@ -69,18 +69,18 @@ export default async function PlanPage() {
     : `Your money may run short around age ${projection.depletionAge}`;
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-8 sm:py-12">
-      <div className="mb-6 rounded-3xl bg-ink p-6 text-white sm:p-8">
-        <p className="text-sm font-bold uppercase tracking-wide text-blue-200">Deterministic projection</p>
-        <h1 className="mt-2 text-4xl font-extrabold leading-tight sm:text-5xl">{statusText}</h1>
-        <p className="mt-3 text-lg text-slate-200">This baseline uses fixed 2026 tax parameters, your saved Phase A profile, and a single expected-return path.</p>
+    <main className="mx-auto max-w-5xl px-4 py-6 sm:py-8">
+      <div className="mb-4 rounded-2xl bg-ink p-4 text-white sm:p-5">
+        <p className="text-sm font-bold uppercase tracking-wide text-blue-200">Plan</p>
+        <h1 className="mt-2 text-2xl font-extrabold leading-tight sm:text-3xl">{statusText}</h1>
+        <p className="mt-3 text-lg text-slate-200">Based on your saved profile.</p>
         <div className="mt-6 max-w-md rounded-2xl bg-white/10 p-4">
           <div className="flex items-end justify-between gap-4">
             <div>
               <p className="text-sm font-bold uppercase tracking-wide text-blue-200">Probability of success</p>
-              <p className="text-5xl font-extrabold">{successPct}%</p>
+              <p className="text-3xl font-extrabold">{successPct}%</p>
             </div>
-            <p className="text-sm text-slate-200">Based on {monteCarlo.runs.toLocaleString()} seeded Monte Carlo return paths.</p>
+            <p className="text-sm text-slate-200">{monteCarlo.runs.toLocaleString()} market paths.</p>
           </div>
           <div className="mt-4 h-4 overflow-hidden rounded-full bg-white/20" aria-label={`Probability of success ${successPct}%`}>
             <div className="h-full rounded-full bg-emerald-400" style={{ width: `${successPct}%` }} />
@@ -88,22 +88,22 @@ export default async function PlanPage() {
         </div>
       </div>
 
-      <section className="mb-6 rounded-3xl border-2 border-slate-200 bg-slate-50 p-5 sm:p-7">
+      <section className="mb-4 rounded-2xl border-2 border-slate-200 bg-slate-50 p-4 sm:p-5">
         <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 className="text-2xl font-extrabold">Balance over time</h2>
-            <p className="text-slate-600">Ending projected balance: {dollars(last?.endBalances.total ?? 0)}. Shaded band shows 10th–90th percentile Monte Carlo outcomes; dashed line is median.</p>
+            <p className="text-slate-600">Ending projected balance: {dollars(last?.endBalances.total ?? 0)}. Range shows lower to higher market outcomes.</p>
           </div>
           <Link href="/dashboard/tools/plan/setup" className="font-bold text-brand underline">Edit profile</Link>
         </div>
         <BalanceChart points={projection.years.map((row) => ({ age: row.age, total: row.endBalances.total }))} bands={monteCarlo.paths} />
       </section>
 
-      <section className="mb-6 rounded-3xl border-2 border-emerald-100 bg-emerald-50 p-5 sm:p-7">
+      <section className="mb-4 rounded-2xl border-2 border-emerald-100 bg-emerald-50 p-4 sm:p-5">
         <div className="grid gap-5 lg:grid-cols-[1fr_1.15fr] lg:items-start">
           <div>
-            <p className="text-sm font-bold uppercase tracking-wide text-emerald-700">Dynamic withdrawal guardrails</p>
-            <h2 className="mt-2 text-3xl font-extrabold">Your safe spending this year is about {dollars(currentGuardrail?.spending ?? 0)}</h2>
+            <p className="text-sm font-bold uppercase tracking-wide text-emerald-700">Spending</p>
+            <h2 className="mt-2 text-2xl font-extrabold">Your safe spending this year is about {dollars(currentGuardrail?.spending ?? 0)}</h2>
             <p className="mt-3 text-slate-700">{guardrailPlan.rules.note}</p>
             <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
               <div className="rounded-2xl bg-white p-4 shadow-sm">
@@ -134,11 +134,11 @@ export default async function PlanPage() {
         </div>
       </section>
 
-      <section className="mb-6 rounded-3xl border-2 border-purple-100 bg-purple-50 p-5 sm:p-7">
+      <section className="mb-4 rounded-2xl border-2 border-purple-100 bg-purple-50 p-4 sm:p-5">
         <div className="grid gap-5 lg:grid-cols-[1fr_1.15fr] lg:items-start">
           <div>
             <p className="text-sm font-bold uppercase tracking-wide text-purple-700">Next steps</p>
-            <h2 className="mt-2 text-3xl font-extrabold">Tax & Roth</h2>
+            <h2 className="mt-2 text-2xl font-extrabold">Tax & Roth</h2>
             <p className="mt-3 text-slate-700">This view compares a tax-aware withdrawal order and a bracket-fill Roth conversion illustration so you can see the tradeoffs before taking action.</p>
             <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
               <div className="rounded-2xl bg-white p-4 shadow-sm">
@@ -178,10 +178,10 @@ export default async function PlanPage() {
         </div>
       </section>
 
-      <section className="mb-6 rounded-3xl border-2 border-blue-100 bg-blue-50 p-5 sm:p-7">
+      <section className="mb-4 rounded-2xl border-2 border-blue-100 bg-blue-50 p-4 sm:p-5">
         <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm font-bold uppercase tracking-wide text-brand">Education comparison</p>
+            <p className="text-sm font-bold uppercase tracking-wide text-brand">Compare</p>
             <h2 className="text-2xl font-extrabold">Social Security claiming ages</h2>
             <p className="mt-2 max-w-3xl text-slate-700">{socialSecurity.assumptions.note}</p>
           </div>
@@ -224,7 +224,7 @@ export default async function PlanPage() {
 
       {paid ? <CoachChat /> : null}
 
-      <section className="overflow-hidden rounded-3xl border-2 border-slate-200 bg-white">
+      <section className="overflow-hidden rounded-2xl border-2 border-slate-200 bg-white">
         <div className="grid grid-cols-5 gap-2 bg-slate-100 p-4 text-sm font-bold text-slate-600">
           <div>Age</div><div>Income</div><div>Spending</div><div>Taxes</div><div>End balance</div>
         </div>

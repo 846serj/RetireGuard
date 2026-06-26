@@ -196,14 +196,14 @@ export default function ProfileSetupForm({
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-8 sm:py-12">
-      <div className="mb-6 rounded-3xl bg-ink p-5 text-white sm:p-7">
+    <main className="mx-auto max-w-3xl px-4 py-6 sm:py-8">
+      <div className="mb-4 rounded-2xl bg-ink p-5 text-white sm:p-7">
         <p className="text-sm font-bold uppercase tracking-wide text-blue-200">Plan setup</p>
-        <h1 className="mt-2 text-3xl font-extrabold leading-tight sm:text-5xl">Build your RetireShield profile</h1>
-        <p className="mt-3 text-lg text-slate-200">Large, simple steps. Start with only what we need for a basic projection.</p>
+        <h1 className="mt-2 text-2xl font-extrabold leading-tight sm:text-3xl">Build your RetireShield profile</h1>
+        <p className="mt-3 text-lg text-slate-200">Start with the essentials; add details anytime.</p>
       </div>
 
-      <div className="mb-6 rounded-2xl border-2 border-slate-200 p-4">
+      <div className="mb-4 rounded-2xl border-2 border-slate-200 p-4">
         <div className="flex items-center justify-between gap-3">
           <div>
             <div className="text-sm font-bold text-slate-500">Profile completeness</div>
@@ -224,10 +224,10 @@ export default function ProfileSetupForm({
         {status === "error" && <p className="mt-3 text-sm font-semibold text-bad">We could not save your profile. Please try again.</p>}
       </div>
 
-      <section className="rounded-3xl border-2 border-slate-200 p-5 sm:p-7">
+      <section className="rounded-2xl border-2 border-slate-200 p-4 sm:p-5">
         <div className="mb-5">
           <div className="text-sm font-bold uppercase tracking-wide text-brand">{step.eyebrow}</div>
-          <h2 className="mt-1 text-3xl font-extrabold leading-tight">{step.title}</h2>
+          <h2 className="mt-1 text-2xl font-extrabold leading-tight">{step.title}</h2>
           <p className="mt-2 text-lg text-slate-600">{step.helper}</p>
           {step.optional && <p className="mt-2 inline-block rounded-full bg-blue-50 px-3 py-1 text-sm font-bold text-brand">Optional — improve your plan</p>}
         </div>
