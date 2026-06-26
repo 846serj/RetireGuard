@@ -64,7 +64,7 @@ export default function AlertFeed({ alerts }: AlertFeedProps) {
         <div className="rg-card border-emerald-200 bg-emerald-50/70">
           <p className="font-serif text-2xl font-semibold text-ink">All clear.</p>
           <p className="mt-2 text-slate-700">
-            We&apos;re watching — if anything changes that affects your plan, you&apos;ll see it here and get an email.
+            We&apos;re watching — if anything changes that affects your plan, you&apos;ll see it here, get an email, and receive push if enabled.
           </p>
         </div>
       ) : (
