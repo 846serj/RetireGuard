@@ -7,6 +7,7 @@ import { getMatchedAlerts } from "@/lib/alerts";
 import { buildFinancialPicture, type SpendingAccount, type SpendingTransaction } from "@/lib/engine/spending";
 import { buildPortfolioAnalysis, type FinancialAccountRow, type HoldingRow, type SecurityRow } from "@/lib/engine/portfolio";
 import { detectFraudFlags } from "@/lib/engine/fraud";
+import { sendUrgentAlertPushNotifications } from "@/lib/push";
 
 type LatestScoreRow = {
   id: string;
@@ -101,6 +102,8 @@ async function rescoreUser(supabase: ReturnType<typeof createServiceClient>, use
       topAdvice: highRiskFlags[0].advice,
     })));
   }
+
+  await sendUrgentAlertPushNotifications(supabase, user.id, alerts);
 
   if (user.email) {
     await sendRetirementWatchEmail(user.email, {

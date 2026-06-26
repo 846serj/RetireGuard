@@ -4,6 +4,7 @@ import type { Answers } from "@/lib/scoring";
 import { buildFinancialPicture, type SpendingAccount, type SpendingTransaction } from "@/lib/engine/spending";
 import { buildPortfolioAnalysis, type FinancialAccountRow, type HoldingRow, type SecurityRow } from "@/lib/engine/portfolio";
 import AlertFeed from "@/components/AlertFeed";
+import PushNotifications from "@/components/PushNotifications";
 import LockedTeaser from "@/components/LockedTeaser";
 import { Button, Eyebrow } from "@/components/ui";
 import { getLatestScore, requireUser, saveTrustedContact } from "../_lib/dashboard";
@@ -26,5 +27,5 @@ export default async function MonitoringPage() {
   const financialPicture = buildFinancialPicture(transactions, accounts);
   const portfolioAnalysis = buildPortfolioAnalysis((holdingsResult.data ?? []) as HoldingRow[], (securitiesResult.data ?? []) as SecurityRow[], accounts as FinancialAccountRow[]);
   const alerts = answers ? await getMatchedAlerts(supabase, { state: answers.state, age: answers.age, worry: answers.worry }, 12, { transactions, accounts, financialPicture, portfolioAnalysis, scoreHistory: historyResult.data ?? [] }) : [];
-  return <div className="mx-auto max-w-6xl py-8"><div className="mb-5"><Eyebrow>Retirement Watch</Eyebrow><h1 className="mt-1 text-2xl font-extrabold sm:text-3xl">Monitoring</h1></div><AlertFeed alerts={alerts} /><TrustedContacts contacts={trustedContactsResult.data ?? []} /></div>;
+  return <div className="mx-auto max-w-6xl py-8"><div className="mb-5"><Eyebrow>Retirement Watch</Eyebrow><h1 className="mt-1 text-2xl font-extrabold sm:text-3xl">Monitoring</h1></div><PushNotifications /><AlertFeed alerts={alerts} /><TrustedContacts contacts={trustedContactsResult.data ?? []} /></div>;
 }

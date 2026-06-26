@@ -86,3 +86,21 @@ test("matched IRMAA alert uses real connected YTD income instead of entered-inco
   assert.ok(irmaa);
   assert.match(irmaa.body, /\$17,000 under/);
 });
+
+test("newsroom draft generation classifies market items", () => {
+  const alerts = generateDraftAlertsFromNewsroom([
+    { title: "Stocks slide", body: "S&P 500 and Nasdaq fell on volatility", category: "markets" },
+  ]);
+  assert.equal(alerts[0]?.category, "market");
+});
+
+test("connected monitor rules flag score drops, rate moves, and human-gated tax law changes", () => {
+  const alerts = monitorRuleAlerts({
+    now: new Date("2026-06-24T00:00:00Z"),
+    scoreHistory: [{ overall: 82 }, { overall: 70 }],
+    economicSignals: { interestRateChangeBps: 75, majorTaxLawChange: true, taxLawSummary: "Congress passed a major retirement tax package." },
+  });
+  assert.ok(alerts.some((alert) => alert.id === "monitor-score-drop" && alert.category === "market" && alert.delivery_channels?.includes("push")));
+  assert.ok(alerts.some((alert) => alert.id === "monitor-interest-rate-move" && alert.category === "inflation"));
+  assert.ok(alerts.some((alert) => alert.id === "monitor-major-tax-law-change" && alert.category === "tax" && alert.delivery_channels?.includes("push")));
+});
