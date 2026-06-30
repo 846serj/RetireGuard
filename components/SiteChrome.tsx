@@ -36,7 +36,7 @@ const footerColumns = [
 
 function Logo({ compact = false }: { compact?: boolean }) {
   return (
-    <Link href="/" className={`flex shrink-0 items-center ${compact ? "gap-2.5" : "gap-3"} text-ink no-underline hover:text-brand-dark`} aria-label="RetireShield home">
+    <Link href={LEADGEN_ONLY ? "/quiz" : "/"} className={`flex shrink-0 items-center ${compact ? "gap-2.5" : "gap-3"} text-ink no-underline hover:text-brand-dark`} aria-label="RetireShield home">
       <span className={`flex items-center justify-center bg-brand-dark text-white shadow-sm ${compact ? "h-[34px] w-[34px] rounded-xl" : "h-11 w-11 rounded-2xl"}`} aria-hidden="true">
         <svg viewBox="0 0 24 24" className={compact ? "h-5 w-5" : "h-7 w-7"} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 3 5 6v5c0 4.5 2.9 8.5 7 10 4.1-1.5 7-5.5 7-10V6l-7-3Z" />
