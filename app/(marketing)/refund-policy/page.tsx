@@ -24,7 +24,7 @@ export default function RefundPolicy() {
           </p>
 
           <h2 className="mt-10 mb-4 text-2xl font-bold text-ink">Contact</h2>
-          <p>business@clarkbros.com — American Signal Media, LLC, 598 West Interstate 30, Royse City, TX 75189.</p>
+          <p>contact@retireshield.com — American Signal Media, LLC, 598 West Interstate 30, Royse City, TX 75189.</p>
         </div>
         <Disclaimer className="mt-8" />
       </article>
