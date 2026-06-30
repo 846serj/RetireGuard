@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { LEADGEN_ONLY } from "@/lib/flags";
 import { Button } from "./ui";
 
 const featureLinks = [
@@ -73,6 +74,17 @@ export function SiteHeader({ userEmail }: { userEmail?: string | null }) {
       document.removeEventListener("mousedown", onPointerDown);
     };
   }, []);
+
+  if (LEADGEN_ONLY) {
+    return (
+      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
+        <div className="mx-auto flex min-h-16 max-w-container items-center justify-between gap-4 px-4 py-2 sm:px-6 lg:px-8">
+          <Logo compact />
+          <Button href="/quiz" className="min-h-11 whitespace-nowrap px-5 py-2.5 text-[15px]">Free Safety Score</Button>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <>
@@ -178,6 +190,24 @@ export function SiteHeader({ userEmail }: { userEmail?: string | null }) {
 }
 
 export function SiteFooter() {
+  if (LEADGEN_ONLY) {
+    return (
+      <footer className="border-t border-slate-200 bg-white">
+        <div className="mx-auto max-w-container px-4 py-12 sm:px-6 lg:px-8">
+          <Logo />
+          <div className="mt-10 border-t border-slate-200 pt-6 text-sm font-semibold text-slate-600">
+            RetireShield is for education and information only — not financial, tax, or legal advice.
+          </div>
+          <nav className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold" aria-label="Legal links">
+            <Link href="/privacy" className="text-slate-600 no-underline hover:text-brand">Privacy</Link>
+            <Link href="/terms" className="text-slate-600 no-underline hover:text-brand">Terms</Link>
+            <Link href="/refund-policy" className="text-slate-600 no-underline hover:text-brand">Refund Policy</Link>
+          </nav>
+        </div>
+      </footer>
+    );
+  }
+
   return (
     <footer className="border-t border-slate-200 bg-white">
       <div className="mx-auto max-w-container px-4 py-12 sm:px-6 lg:px-8">
