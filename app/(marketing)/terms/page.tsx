@@ -79,7 +79,7 @@ export default function Terms() {
           </p>
 
           <h2 className="mt-10 mb-4 text-2xl font-bold text-ink">10. Contact</h2>
-          <p>Questions: business@clarkbros.com — American Signal Media, LLC, 598 West Interstate 30, Royse City, TX 75189.</p>
+          <p>Questions: contact@retireshield.com — American Signal Media, LLC, 598 West Interstate 30, Royse City, TX 75189.</p>
         </div>
         <Disclaimer className="mt-8" />
       </article>

@@ -65,7 +65,7 @@ export default function Privacy() {
           <h2 className="mt-10 mb-4 text-2xl font-bold text-ink">7. Your choices and rights</h2>
           <p className="mb-6">
             You may request access to, correction of, or deletion of your personal information by emailing
-            business@clarkbros.com. Depending on where you live, you may have additional rights under state privacy laws;
+            contact@retireshield.com. Depending on where you live, you may have additional rights under state privacy laws;
             contact us at the same address to exercise them.
           </p>
 
@@ -85,7 +85,7 @@ export default function Privacy() {
           <p className="mb-6">We may update this Policy and will post changes here with a new effective date.</p>
 
           <h2 className="mt-10 mb-4 text-2xl font-bold text-ink">11. Contact</h2>
-          <p>business@clarkbros.com — American Signal Media, LLC, 598 West Interstate 30, Royse City, TX 75189.</p>
+          <p>contact@retireshield.com — American Signal Media, LLC, 598 West Interstate 30, Royse City, TX 75189.</p>
         </div>
         <Disclaimer className="mt-8" />
       </article>
