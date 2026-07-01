@@ -372,14 +372,14 @@ export default function Quiz() {
                   </Button>
                 </div>
               )}
-              <label className="mt-5 flex cursor-pointer items-start gap-4 rounded-2xl border-2 border-brand bg-white p-5 text-left shadow-sm transition hover:bg-band motion-reduce:transition-none">
+              <label className="mt-5 flex cursor-pointer items-start gap-3 p-1 text-left">
                 <input
                   type="checkbox"
                   checked={subscribeNewsletter}
                   onChange={(e) => setSubscribeNewsletter(e.target.checked)}
-                  className="mt-1 size-6 shrink-0 accent-brand"
+                  className="mt-1 size-4 shrink-0 accent-brand"
                 />
-                <span className="text-lg font-extrabold leading-7 text-ink">
+                <span className="text-sm font-medium leading-6 text-slate-600">
                   Yes, send me the free weekly Retirement Shield — plain-English
                   tips to make my money last.
                 </span>
