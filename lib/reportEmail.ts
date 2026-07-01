@@ -86,7 +86,7 @@ export function renderReportHtml(result: Result, report: AIReport): string {
             <tr><td style="padding:0 24px 28px;"><h2 style="margin:0 0 12px;color:#111827;font-size:20px;line-height:1.3;font-weight:800;">Your action plan</h2><ol style="margin:0;padding-left:22px;color:#111827;">${actionPlan}</ol></td></tr>
             <tr><td style="padding:0 24px 28px;"><h2 style="margin:0 0 12px;color:#111827;font-size:20px;line-height:1.3;font-weight:800;">Questions to ask a fiduciary</h2><ul style="margin:0;padding-left:22px;">${fiduciaryQuestions}</ul></td></tr>
             <tr><td style="padding:0 24px 28px;"><h2 style="margin:0 0 12px;color:#111827;font-size:20px;line-height:1.3;font-weight:800;">Stay scam-safe</h2>${renderParagraph(report.scamNote)}</td></tr>
-            <tr><td style="padding:22px 24px;background:#f9fafb;border-top:1px solid #e5e7eb;color:#6b7280;font-size:13px;line-height:1.55;">RetireShield is educational information only, not financial, tax, or legal advice.<br>American Signal Media, LLC · unsubscribe link via the newsletter.</td></tr>
+            <tr><td style="padding:22px 24px;background:#f9fafb;border-top:1px solid #e5e7eb;color:#6b7280;font-size:13px;line-height:1.55;">Educational information only - not financial, tax, or legal advice. We will never ask you for an account number, Social Security number, password, or payment. American Signal Media, LLC, 598 West Interstate 30, Royse City, TX 75189.</td></tr>
           </table>
         </td>
       </tr>
